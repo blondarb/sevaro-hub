@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scribe Test — Sevaro Hub</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #0a0a0f;
+      color: #e0e0e8;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .bg-glow {
+      position: fixed;
+      top: -30%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(56, 120, 200, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #c8d8f0, #7aa2d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    header p {
+      font-size: 0.95rem;
+      color: #8890a4;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 24px;
+      font-size: 0.85rem;
+      color: #5a7aaa;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover {
+      color: #7aa2d4;
+    }
+
+    .instructions {
+      background: rgba(56, 120, 200, 0.08);
+      border: 1px solid rgba(56, 120, 200, 0.15);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 36px;
+      font-size: 0.88rem;
+      color: #8898b8;
+      line-height: 1.7;
+    }
+
+    .instructions strong {
+      color: #a0b4d0;
+    }
+
+    .field-group {
+      margin-bottom: 28px;
+    }
+
+    .field-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #5a6580;
+      margin-bottom: 8px;
+      padding-left: 2px;
+    }
+
+    .field-hint {
+      font-size: 0.78rem;
+      color: #4a5568;
+      margin-bottom: 8px;
+      padding-left: 2px;
+      font-style: italic;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 0.95rem;
+      color: #d0d8e8;
+      font-family: inherit;
+      line-height: 1.6;
+      transition: border-color 0.2s, background 0.2s;
+      resize: vertical;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: rgba(120, 160, 220, 0.4);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    input[type="text"]::placeholder,
+    textarea::placeholder {
+      color: #3a4260;
+    }
+
+    textarea.small { min-height: 80px; }
+    textarea.medium { min-height: 140px; }
+    textarea.large { min-height: 220px; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      margin: 36px 0;
+    }
+
+    .section-heading {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #b0bcd0;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-heading .icon {
+      font-size: 1.2rem;
+    }
+
+    .ce-field {
+      width: 100%;
+      min-height: 140px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 0.95rem;
+      color: #d0d8e8;
+      font-family: inherit;
+      line-height: 1.6;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .ce-field:focus {
+      outline: none;
+      border-color: rgba(120, 160, 220, 0.4);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .ce-field:empty::before {
+      content: attr(data-placeholder);
+      color: #3a4260;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
+      color: #a0b0c8;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(120, 160, 220, 0.3);
+      color: #d0d8e8;
+    }
+
+    footer {
+      text-align: center;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      color: #3a4260;
+      font-size: 0.82rem;
+      margin-top: 40px;
+    }
+
+    @media (max-width: 600px) {
+      .container { padding: 24px 16px 60px; }
+      header h1 { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-glow"></div>
+  <div class="container">
+    <a class="back-link" href="index.html">&larr; Back to Hub</a>
+
+    <header>
+      <h1>Scribe Test Page</h1>
+      <p>Test dictation and text improvement across different field types</p>
+    </header>
+
+    <div class="instructions">
+      <strong>How to test:</strong> Click any text field below, then use the Scribe widget
+      (blue dot in the bottom-right) to dictate. After dictating, use the Improve button
+      to test text cleanup modes. Try <strong>Cmd+Shift+D</strong> as a keyboard shortcut to start/stop dictation.
+    </div>
+
+    <!-- Quick Fields -->
+    <div class="section-heading"><span class="icon">1.</span> Short Text Inputs</div>
+
+    <div class="field-group">
+      <div class="field-label">Patient Name</div>
+      <div class="field-hint">Try dictating a name</div>
+      <input type="text" placeholder="Click here and start dictation...">
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">Chief Complaint</div>
+      <div class="field-hint">Short phrase — e.g., "headache for three days"</div>
+      <input type="text" placeholder="Dictate chief complaint...">
+    </div>
+
+    <hr class="divider">
+
+    <!-- Medium Fields -->
+    <div class="section-heading"><span class="icon">2.</span> Textarea Fields</div>
+
+    <div class="field-group">
+      <div class="field-label">History of Present Illness</div>
+      <div class="field-hint">Medium-length dictation — a paragraph or two</div>
+      <textarea class="medium" placeholder="Dictate HPI here..."></textarea>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">Assessment & Plan</div>
+      <div class="field-hint">Try dictating a multi-problem A&P, then use Improve > Medical</div>
+      <textarea class="medium" placeholder="Dictate assessment and plan..."></textarea>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">Free-Form Notes</div>
+      <div class="field-hint">Longer dictation — test streaming, punctuation, sentence breaks</div>
+      <textarea class="large" placeholder="Dictate anything here — test longer recordings..."></textarea>
+    </div>
+
+    <hr class="divider">
+
+    <!-- ContentEditable -->
+    <div class="section-heading"><span class="icon">3.</span> ContentEditable Field</div>
+
+    <div class="field-group">
+      <div class="field-label">Rich Text Field</div>
+      <div class="field-hint">Tests contentEditable support (used by some EMR systems)</div>
+      <div class="ce-field" contenteditable="true" data-placeholder="Dictate into this contentEditable div..."></div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Pre-filled field -->
+    <div class="section-heading"><span class="icon">4.</span> Pre-filled Field (Append Test)</div>
+
+    <div class="field-group">
+      <div class="field-label">Existing Text + Dictation</div>
+      <div class="field-hint">Tests that dictation appends after existing text instead of replacing it</div>
+      <textarea class="small" placeholder="">The patient is a 45-year-old male presenting with </textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="clearAll()">Clear All Fields</button>
+    </div>
+
+    <footer>
+      Sevaro Health &middot; Scribe Extension Test Page
+    </footer>
+  </div>
+
+  <script>
+    function clearAll() {
+      document.querySelectorAll('input[type=text], textarea').forEach(el => el.value = '');
+      document.querySelectorAll('[contenteditable]').forEach(el => el.textContent = '');
+    }
+  </script>
+</body>
+</html>
