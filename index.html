@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sevaro Hub</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #0a0a0f;
+      color: #e0e0e8;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .bg-glow {
+      position: fixed;
+      top: -30%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(56, 120, 200, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    header h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #c8d8f0, #7aa2d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      font-size: 1.05rem;
+      color: #8890a4;
+    }
+
+    .section {
+      margin-bottom: 48px;
+    }
+
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #5a6580;
+      margin-bottom: 16px;
+      padding-left: 4px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      display: block;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 20px 22px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s ease;
+    }
+
+    .card:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(120, 160, 220, 0.25);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #d0d8e8;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-desc {
+      font-size: 0.88rem;
+      color: #6a7490;
+      line-height: 1.5;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      vertical-align: middle;
+    }
+
+    .badge-live {
+      background: rgba(50, 180, 100, 0.15);
+      color: #4ade80;
+    }
+
+    .badge-api {
+      background: rgba(160, 120, 240, 0.15);
+      color: #b89afc;
+    }
+
+    .badge-ext {
+      background: rgba(240, 170, 60, 0.15);
+      color: #fbbf24;
+    }
+
+    .badge-app {
+      background: rgba(60, 160, 240, 0.15);
+      color: #60a5fa;
+    }
+
+    .card-nolink {
+      cursor: default;
+    }
+
+    .card-nolink:hover {
+      transform: none;
+      box-shadow: none;
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    footer {
+      text-align: center;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      color: #3a4260;
+      font-size: 0.82rem;
+    }
+
+    @media (max-width: 600px) {
+      .container { padding: 40px 16px 60px; }
+      header h1 { font-size: 1.8rem; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-glow"></div>
+  <div class="container">
+    <header>
+      <h1>Sevaro Hub</h1>
+      <p>Projects &amp; tools built by Steve Arbogast</p>
+    </header>
+
+    <!-- Web Applications -->
+    <div class="section">
+      <div class="section-title">Web Applications</div>
+      <div class="grid">
+        <a class="card" href="https://d3cv0hjf6snte2.amplifyapp.com" target="_blank" rel="noopener">
+          <div class="card-title">GitHub Showcase <span class="badge badge-live">Live</span></div>
+          <div class="card-desc">Developer portfolio showcasing projects, tech stack, and App Store status with automated monitoring.</div>
+        </a>
+        <a class="card" href="https://d3ietjwgco4g2t.amplifyapp.com" target="_blank" rel="noopener">
+          <div class="card-title">OPSAmple <span class="badge badge-live">Live</span></div>
+          <div class="card-desc">Clinical documentation reference and operational sample application for healthcare workflows.</div>
+        </a>
+        <a class="card" href="https://main.d2m5y5hla3r9hh.amplifyapp.com" target="_blank" rel="noopener">
+          <div class="card-title">Evidence Engine <span class="badge badge-live">Live</span></div>
+          <div class="card-desc">AI-powered medical evidence search using Claude, Bedrock Knowledge Base, and live PubMed integration.</div>
+        </a>
+        <a class="card" href="https://d1eog7m8dvwfdm.amplifyapp.com" target="_blank" rel="noopener">
+          <div class="card-title">Workouts <span class="badge badge-live">Live</span></div>
+          <div class="card-desc">Fitness tracking and workout management application with personalized routines.</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- iOS Apps -->
+    <div class="section">
+      <div class="section-title">iOS Apps</div>
+      <div class="grid">
+        <a class="card" href="https://apps.apple.com/app/neuro-plans/id6759209586" target="_blank" rel="noopener">
+          <div class="card-title">Neuro Plans <span class="badge badge-app">App Store</span></div>
+          <div class="card-desc">Neurology care plan generator for clinical decision support and patient management.</div>
+        </a>
+        <a class="card" href="https://apps.apple.com/app/cardio-plans/id6759342483" target="_blank" rel="noopener">
+          <div class="card-title">Cardio Plans <span class="badge badge-app">App Store</span></div>
+          <div class="card-desc">Cardiology care plan generator for evidence-based cardiac care workflows.</div>
+        </a>
+        <a class="card" href="https://apps.apple.com/app/repgenius-ai-workout-coach/id6759206357" target="_blank" rel="noopener">
+          <div class="card-title">RepGenius <span class="badge badge-app">App Store</span></div>
+          <div class="card-desc">AI-powered workout coach using GPT-5 Mini for personalized fitness programming.</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- APIs & Services -->
+    <div class="section">
+      <div class="section-title">APIs &amp; Services</div>
+      <div class="grid">
+        <div class="card card-nolink">
+          <div class="card-title">SDNE Acoustic API <span class="badge badge-api">API</span></div>
+          <div class="card-desc">Container Lambda for acoustic speech analysis. Deployed on AWS with API Gateway.</div>
+        </div>
+        <div class="card card-nolink">
+          <div class="card-title">SevaroMonitor <span class="badge badge-api">API</span></div>
+          <div class="card-desc">Patient wearable monitoring system with iOS app and AWS Lambda backend.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chrome Extensions -->
+    <div class="section">
+      <div class="section-title">Chrome Extensions</div>
+      <div class="grid">
+        <div class="card card-nolink">
+          <div class="card-title">SevaroNeuro Scribe <span class="badge badge-ext">Extension</span></div>
+          <div class="card-desc">Chrome extension for clinical note generation with AI-powered transcription and documentation.</div>
+        </div>
+        <div class="card card-nolink">
+          <div class="card-title">Sevaro Scribe <span class="badge badge-ext">Extension</span></div>
+          <div class="card-desc">Clinical documentation assistant with AI refinement and custom note generation.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Desktop Tools -->
+    <div class="section">
+      <div class="section-title">Desktop Tools</div>
+      <div class="grid">
+        <div class="card card-nolink">
+          <div class="card-title">VoiceTranscriber</div>
+          <div class="card-desc">macOS dictation app with Deepgram streaming, voice commands, and AI-powered text cleanup.</div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Sevaro Health &middot; All projects hosted on AWS
+    </footer>
+  </div>
+</body>
+</html>
