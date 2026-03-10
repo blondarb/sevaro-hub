@@ -155,6 +155,14 @@
       color: #f472b6;
     }
 
+    .card-next {
+      display: block;
+      font-size: 0.78rem;
+      color: #7aa2d4;
+      margin-top: 8px;
+      font-style: italic;
+    }
+
     .card-nolink {
       cursor: default;
     }
@@ -195,27 +203,27 @@
       <div class="grid">
         <a class="card" href="https://evidence.neuroplans.app" target="_blank" rel="noopener">
           <div class="card-title">Evidence Engine <span class="badge badge-live">Live</span></div>
-          <div class="card-desc">Two-stage clinical AI: Claude Sonnet reasoning with Bedrock KB (1,472 docs) and live PubMed search, plus integrated NeuroScribe documentation workflow with encounter tools and neuro exam builder.</div>
+          <div class="card-desc">Two-stage clinical AI: Claude Sonnet reasoning with Bedrock KB (1,472 docs) and live PubMed search, plus integrated NeuroScribe documentation workflow with encounter tools and neuro exam builder.<span class="card-next">Next: Optimize synthesis speed (7-14s on complex queries)</span></div>
         </a>
         <a class="card" href="https://app.neuroplans.app" target="_blank" rel="noopener">
           <div class="card-title">OPSAmple <span class="badge badge-live">Live</span></div>
-          <div class="card-desc">Clinical operations platform with AI-generated interpretations, 30-day summaries, and wearable dashboard featuring finger tapping and verbal fluency assessments.</div>
+          <div class="card-desc">Clinical operations platform with AI-generated interpretations, 30-day summaries, and wearable dashboard featuring finger tapping and verbal fluency assessments.<span class="card-next">Next: Complete Amplify migration and Cognito auth rollout</span></div>
         </a>
         <a class="card" href="https://showcase.neuroplans.app" target="_blank" rel="noopener">
           <div class="card-title">GitHub Showcase <span class="badge badge-live">Live</span></div>
-          <div class="card-desc">Developer portfolio with automated App Store monitoring (Lambda + EventBridge) and repo delta tracking.</div>
+          <div class="card-desc">Developer portfolio with automated App Store monitoring (Lambda + EventBridge) and repo delta tracking.<span class="card-next">Next: Refresh content as new projects ship</span></div>
         </a>
         <a class="card" href="https://workouts.neuroplans.app" target="_blank" rel="noopener">
           <div class="card-title">Workouts <span class="badge badge-live">Live</span></div>
-          <div class="card-desc">Fitness tracking app with AI-powered workout generation via Bedrock, Cognito auth, and RDS backend.</div>
+          <div class="card-desc">Fitness tracking app with AI-powered workout generation via Bedrock, Cognito auth, and RDS backend.<span class="card-next">Next: Production deploy after QA pass</span></div>
         </a>
         <div class="card card-nolink">
           <div class="card-title">Neuro Plans v2 <span class="badge badge-new">New</span> <span class="badge badge-dev">Dev</span></div>
-          <div class="card-desc">Next-generation clinical plan builder for neurology. Next.js with Cognito auth and RDS backend.</div>
+          <div class="card-desc">Next-generation clinical plan builder for neurology. Next.js with Cognito auth and RDS backend.<span class="card-next">Next: Deploy to Amplify and migrate v1 iOS API calls</span></div>
         </div>
         <div class="card card-nolink">
           <div class="card-title">Cardio Plans v2 <span class="badge badge-new">New</span> <span class="badge badge-dev">Dev</span></div>
-          <div class="card-desc">Next-generation cardiology plans app. Next.js with Cognito auth and RDS backend.</div>
+          <div class="card-desc">Next-generation cardiology plans app. Next.js with Cognito auth and RDS backend.<span class="card-next">Next: Build authenticated pages and clinical plan content</span></div>
         </div>
       </div>
     </div>
@@ -234,15 +242,15 @@
         </a>
         <div class="card card-nolink">
           <div class="card-title">RepGenius <span class="badge badge-review">In Review</span></div>
-          <div class="card-desc">AI-powered workout coach with personalized fitness programming via Bedrock AI.</div>
+          <div class="card-desc">AI-powered workout coach with personalized fitness programming via Bedrock AI.<span class="card-next">Next: BYOK decision and Core Data migration</span></div>
         </div>
         <div class="card card-nolink">
           <div class="card-title">SevaroMonitor <span class="badge badge-app">iOS</span></div>
-          <div class="card-desc">Wearable patient monitoring with finger tapping, verbal fluency, and tremor assessments. Clinical alerting and RPM billing automation.</div>
+          <div class="card-desc">Wearable patient monitoring with finger tapping, verbal fluency, and tremor assessments. Clinical alerting and RPM billing automation.<span class="card-next">Next: Multi-device RPM infrastructure and alerting refinements</span></div>
         </div>
         <div class="card card-nolink">
           <div class="card-title">PostSeed <span class="badge badge-new">New</span> <span class="badge badge-dev">Dev</span></div>
-          <div class="card-desc">Capture-flow journal app with camera, voice recording, on-device transcription, location tagging, and sharing.</div>
+          <div class="card-desc">Capture-flow journal app with camera, voice recording, on-device transcription, location tagging, and sharing.<span class="card-next">Next: TestFlight build and beta testing</span></div>
         </div>
       </div>
     </div>
@@ -253,7 +261,7 @@
       <div class="grid">
         <div class="card card-nolink">
           <div class="card-title">SDNE <span class="badge badge-api">API</span></div>
-          <div class="card-desc">Acoustic speech analysis with speech audio pipeline, cloud transcription, and clinical session review. Container Lambda on AWS.</div>
+          <div class="card-desc">Acoustic speech analysis with speech audio pipeline, cloud transcription, and clinical session review. Container Lambda on AWS.<span class="card-next">Next: End-to-end speech pipeline validation and gait task testing</span></div>
         </div>
         <div class="card card-nolink">
           <div class="card-title">SevaroMonitor API <span class="badge badge-api">API</span></div>
@@ -261,7 +269,7 @@
         </div>
         <div class="card card-nolink">
           <div class="card-title">Scribe API <span class="badge badge-api">API</span> <span class="badge badge-new">New</span></div>
-          <div class="card-desc">Lambda-based clinical note generation, section regeneration, and transcription services. Powers both Chrome extensions.</div>
+          <div class="card-desc">Lambda-based clinical note generation, section regeneration, and transcription services. Powers both Chrome extensions.<span class="card-next">Next: Additional endpoints as extensions migrate to AWS</span></div>
         </div>
         <div class="card card-nolink">
           <div class="card-title">Transcribe API <span class="badge badge-api">API</span></div>
@@ -276,11 +284,11 @@
       <div class="grid">
         <div class="card card-nolink">
           <div class="card-title">SevaroNeuro Scribe <span class="badge badge-ext">Extension</span></div>
-          <div class="card-desc">Neurology-focused clinical note generation with Cognito auth, Lambda API, and Bedrock AI. Batch transcription and auto-classification.</div>
+          <div class="card-desc">Neurology-focused clinical note generation with Cognito auth, Lambda API, and Bedrock AI. Batch transcription and auto-classification.<span class="card-next">Next: Dedicated Lambda with 120s timeout for note pipeline</span></div>
         </div>
         <div class="card card-nolink">
           <div class="card-title">Sevaro Scribe <span class="badge badge-ext">Extension</span></div>
-          <div class="card-desc">General clinical dictation with Deepgram Nova-3 streaming, Cognito auth, and AI-powered text refinement via Lambda.</div>
+          <div class="card-desc">General clinical dictation with Deepgram Nova-3 streaming, Cognito auth, and AI-powered text refinement via Lambda.<span class="card-next">Next: Production Cognito auth testing and DEV_MODE removal</span></div>
         </div>
       </div>
     </div>
@@ -302,7 +310,7 @@
       <div class="grid">
         <div class="card card-nolink">
           <div class="card-title">VoiceTranscriber</div>
-          <div class="card-desc">macOS dictation app with Deepgram streaming, voice commands, silence auto-stop, and post-dictation AI cleanup via Bedrock. AWS Transcribe for HIPAA-compliant mode.</div>
+          <div class="card-desc">macOS dictation app with Deepgram streaming, voice commands, silence auto-stop, and post-dictation AI cleanup via Bedrock. AWS Transcribe for HIPAA-compliant mode.<span class="card-next">Next: Steel man test remediations (logging, thread safety)</span></div>
         </div>
       </div>
     </div>
