@@ -145,6 +145,16 @@
       color: #facc15;
     }
 
+    .badge-dev {
+      background: rgba(160, 160, 180, 0.15);
+      color: #9ca3af;
+    }
+
+    .badge-new {
+      background: rgba(236, 72, 153, 0.15);
+      color: #f472b6;
+    }
+
     .card-nolink {
       cursor: default;
     }
@@ -183,22 +193,30 @@
     <div class="section">
       <div class="section-title">Web Applications</div>
       <div class="grid">
-        <a class="card" href="https://showcase.neuroplans.app" target="_blank" rel="noopener">
-          <div class="card-title">GitHub Showcase <span class="badge badge-live">Live</span></div>
-          <div class="card-desc">Developer portfolio showcasing projects, tech stack, and App Store status with automated monitoring.</div>
+        <a class="card" href="https://evidence.neuroplans.app" target="_blank" rel="noopener">
+          <div class="card-title">Evidence Engine <span class="badge badge-live">Live</span></div>
+          <div class="card-desc">Two-stage clinical AI: Claude Sonnet reasoning with Bedrock KB (1,472 docs) and live PubMed search, plus integrated NeuroScribe documentation workflow with encounter tools and neuro exam builder.</div>
         </a>
         <a class="card" href="https://app.neuroplans.app" target="_blank" rel="noopener">
           <div class="card-title">OPSAmple <span class="badge badge-live">Live</span></div>
-          <div class="card-desc">Clinical documentation reference and operational sample application for healthcare workflows.</div>
+          <div class="card-desc">Clinical operations platform with AI-generated interpretations, 30-day summaries, and wearable dashboard featuring finger tapping and verbal fluency assessments.</div>
         </a>
-        <a class="card" href="https://evidence.neuroplans.app" target="_blank" rel="noopener">
-          <div class="card-title">Evidence Engine <span class="badge badge-live">Live</span></div>
-          <div class="card-desc">AI-powered medical evidence search using Claude, Bedrock Knowledge Base, and live PubMed integration.</div>
+        <a class="card" href="https://showcase.neuroplans.app" target="_blank" rel="noopener">
+          <div class="card-title">GitHub Showcase <span class="badge badge-live">Live</span></div>
+          <div class="card-desc">Developer portfolio with automated App Store monitoring (Lambda + EventBridge) and repo delta tracking.</div>
         </a>
         <a class="card" href="https://workouts.neuroplans.app" target="_blank" rel="noopener">
           <div class="card-title">Workouts <span class="badge badge-live">Live</span></div>
-          <div class="card-desc">Fitness tracking and workout management application with personalized routines.</div>
+          <div class="card-desc">Fitness tracking app with AI-powered workout generation via Bedrock, Cognito auth, and RDS backend.</div>
         </a>
+        <div class="card card-nolink">
+          <div class="card-title">Neuro Plans v2 <span class="badge badge-new">New</span> <span class="badge badge-dev">Dev</span></div>
+          <div class="card-desc">Next-generation clinical plan builder for neurology. Next.js with Cognito auth and RDS backend.</div>
+        </div>
+        <div class="card card-nolink">
+          <div class="card-title">Cardio Plans v2 <span class="badge badge-new">New</span> <span class="badge badge-dev">Dev</span></div>
+          <div class="card-desc">Next-generation cardiology plans app. Next.js with Cognito auth and RDS backend.</div>
+        </div>
       </div>
     </div>
 
@@ -216,7 +234,15 @@
         </a>
         <div class="card card-nolink">
           <div class="card-title">RepGenius <span class="badge badge-review">In Review</span></div>
-          <div class="card-desc">AI-powered workout coach using GPT-5 Mini for personalized fitness programming.</div>
+          <div class="card-desc">AI-powered workout coach with personalized fitness programming via Bedrock AI.</div>
+        </div>
+        <div class="card card-nolink">
+          <div class="card-title">SevaroMonitor <span class="badge badge-app">iOS</span></div>
+          <div class="card-desc">Wearable patient monitoring with finger tapping, verbal fluency, and tremor assessments. Clinical alerting and RPM billing automation.</div>
+        </div>
+        <div class="card card-nolink">
+          <div class="card-title">PostSeed <span class="badge badge-new">New</span> <span class="badge badge-dev">Dev</span></div>
+          <div class="card-desc">Capture-flow journal app with camera, voice recording, on-device transcription, location tagging, and sharing.</div>
         </div>
       </div>
     </div>
@@ -226,12 +252,20 @@
       <div class="section-title">APIs &amp; Services</div>
       <div class="grid">
         <div class="card card-nolink">
-          <div class="card-title">SDNE Acoustic API <span class="badge badge-api">API</span></div>
-          <div class="card-desc">Container Lambda for acoustic speech analysis. Deployed on AWS with API Gateway.</div>
+          <div class="card-title">SDNE <span class="badge badge-api">API</span></div>
+          <div class="card-desc">Acoustic speech analysis with speech audio pipeline, cloud transcription, and clinical session review. Container Lambda on AWS.</div>
         </div>
         <div class="card card-nolink">
-          <div class="card-title">SevaroMonitor <span class="badge badge-api">API</span></div>
-          <div class="card-desc">Patient wearable monitoring system with iOS app and AWS Lambda backend.</div>
+          <div class="card-title">SevaroMonitor API <span class="badge badge-api">API</span></div>
+          <div class="card-desc">Wearable monitoring backend with 9 assessment tables, multi-device RPM normalizers, clinical alerting pipeline, and billing automation.</div>
+        </div>
+        <div class="card card-nolink">
+          <div class="card-title">Scribe API <span class="badge badge-api">API</span> <span class="badge badge-new">New</span></div>
+          <div class="card-desc">Lambda-based clinical note generation, section regeneration, and transcription services. Powers both Chrome extensions.</div>
+        </div>
+        <div class="card card-nolink">
+          <div class="card-title">Transcribe API <span class="badge badge-api">API</span></div>
+          <div class="card-desc">HIPAA-compliant medical transcription via AWS Transcribe Medical. Staging Lambda with S3 audio storage.</div>
         </div>
       </div>
     </div>
@@ -242,11 +276,11 @@
       <div class="grid">
         <div class="card card-nolink">
           <div class="card-title">SevaroNeuro Scribe <span class="badge badge-ext">Extension</span></div>
-          <div class="card-desc">Chrome extension for clinical note generation with AI-powered transcription and documentation.</div>
+          <div class="card-desc">Neurology-focused clinical note generation with Cognito auth, Lambda API, and Bedrock AI. Batch transcription and auto-classification.</div>
         </div>
         <div class="card card-nolink">
           <div class="card-title">Sevaro Scribe <span class="badge badge-ext">Extension</span></div>
-          <div class="card-desc">Clinical documentation assistant with AI refinement and custom note generation.</div>
+          <div class="card-desc">General clinical dictation with Deepgram Nova-3 streaming, Cognito auth, and AI-powered text refinement via Lambda.</div>
         </div>
       </div>
     </div>
@@ -268,13 +302,28 @@
       <div class="grid">
         <div class="card card-nolink">
           <div class="card-title">VoiceTranscriber</div>
-          <div class="card-desc">macOS dictation app with Deepgram streaming, voice commands, and AI-powered text cleanup.</div>
+          <div class="card-desc">macOS dictation app with Deepgram streaming, voice commands, silence auto-stop, and post-dictation AI cleanup via Bedrock. AWS Transcribe for HIPAA-compliant mode.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Infrastructure -->
+    <div class="section">
+      <div class="section-title">Infrastructure</div>
+      <div class="grid">
+        <div class="card card-nolink">
+          <div class="card-title">AWS Platform</div>
+          <div class="card-desc">All projects on AWS (us-east-2). Cognito auth, RDS PostgreSQL, Lambda APIs, Amplify hosting, S3 storage, Bedrock AI, Route 53 DNS on neuroplans.app.</div>
+        </div>
+        <div class="card card-nolink">
+          <div class="card-title">App Store Monitoring</div>
+          <div class="card-desc">Automated Lambda + EventBridge pipeline checking App Store status every 2 hours with push notifications via ntfy.sh.</div>
         </div>
       </div>
     </div>
 
     <footer>
-      Sevaro Health &middot; All projects hosted on AWS
+      Sevaro Health &middot; All projects hosted on AWS &middot; Supabase fully migrated
     </footer>
   </div>
 </body>
