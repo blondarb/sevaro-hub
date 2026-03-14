@@ -86,7 +86,7 @@ export default function HomePage() {
             </a>
             <a className="card" href="https://plans.neuroplans.app" target="_blank" rel="noopener">
               <div className="card-title">Neuro Plans v2 <span className="badge badge-live">Live</span></div>
-              <div className="card-desc">Next-generation clinical plan builder for neurology. Next.js with Cognito auth and RDS backend.<span className="card-next">Next: Migrate v1 iOS API calls from Supabase to v2 API</span></div>
+              <div className="card-desc">Next-generation clinical plan builder for neurology. Next.js with Cognito auth and RDS backend.<span className="card-next">Next: Replace Supabase Auth OTP with AWS SES + RDS, then remove Supabase SDK from iOS</span></div>
             </a>
             <div className="card card-nolink">
               <div className="card-title">Cardio Plans v2 <span className="badge badge-new">New</span> <span className="badge badge-dev">Dev</span></div>
