@@ -128,7 +128,33 @@ Based on user feedback from ${userCount} tester${userCount > 1 ? 's' : ''} (coll
     }
   }
 
-  prompt += `Do NOT change unrelated functionality. Make targeted, surgical changes only.\n`;
+  prompt += `Do NOT change unrelated functionality. Make targeted, surgical changes only.\n\n`;
+
+  prompt += `## After completing all changes\n\n`;
+  prompt += `### Step 1: Verify the fixes\n`;
+  prompt += `Run the dev server and confirm each fix works correctly. Check for console errors, visual regressions, and that the reported behavior is resolved. If a fix doesn't work, iterate until it does.\n\n`;
+
+  prompt += `### Step 2: Mark feedback as addressed\n`;
+  prompt += `Update the action item statuses in the feedback system by running this curl command:\n\n`;
+  prompt += '```bash\n';
+
+  // Build the updated action items with status changed to "resolved"
+  const resolvedItems = actionItems.map((item) => ({
+    ...item,
+    status: 'resolved',
+  }));
+
+  const sessionId = sessions[0]?.sessionId;
+  const appId = sessions[0]?.appId;
+
+  if (sessionId && appId) {
+    prompt += `curl -s -X PUT "https://8uagz9y5bh.execute-api.us-east-2.amazonaws.com/feedback/sessions/${sessionId}" \\\n`;
+    prompt += `  -H "Content-Type: application/json" \\\n`;
+    prompt += `  -d '${JSON.stringify({ appId, status: 'addressed', actionItems: resolvedItems })}'\n`;
+  }
+
+  prompt += '```\n\n';
+  prompt += `This marks the session as "addressed" and all action items as "resolved" in the feedback dashboard so the team knows it has been handled.\n`;
 
   return prompt;
 }
