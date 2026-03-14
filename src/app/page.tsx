@@ -74,7 +74,7 @@ export default function HomePage() {
             </a>
             <a className="card" href="https://app.neuroplans.app" target="_blank" rel="noopener">
               <div className="card-title">OPSAmple <span className="badge badge-live">Live</span></div>
-              <div className="card-desc">Clinical operations platform with AI-generated interpretations, 30-day summaries, and wearable dashboard.<span className="card-next">Next: Complete Amplify migration</span></div>
+              <div className="card-desc">Clinical operations platform with AI-generated interpretations, 30-day summaries, and wearable dashboard.<span className="card-next">Next: Real-time transcription display and diagnosis plan coverage</span></div>
             </a>
             <a className="card" href="https://showcase.neuroplans.app" target="_blank" rel="noopener">
               <div className="card-title">GitHub Showcase <span className="badge badge-live">Live</span></div>
@@ -82,15 +82,15 @@ export default function HomePage() {
             </a>
             <a className="card" href="https://workouts.neuroplans.app" target="_blank" rel="noopener">
               <div className="card-title">Workouts <span className="badge badge-live">Live</span></div>
-              <div className="card-desc">Fitness tracking with AI-powered workout generation via Bedrock, Cognito auth, and RDS backend.</div>
+              <div className="card-desc">Fitness tracking with AI-powered workout generation via Bedrock, Cognito auth, and RDS backend.<span className="card-next">Next: Privacy policy update and voice handoff reliability</span></div>
+            </a>
+            <a className="card" href="https://plans.neuroplans.app" target="_blank" rel="noopener">
+              <div className="card-title">Neuro Plans v2 <span className="badge badge-live">Live</span></div>
+              <div className="card-desc">Next-generation clinical plan builder for neurology. Next.js with Cognito auth and RDS backend.<span className="card-next">Next: Migrate v1 iOS API calls from Supabase to v2 API</span></div>
             </a>
             <div className="card card-nolink">
-              <div className="card-title">Neuro Plans v2 <span className="badge badge-new">New</span> <span className="badge badge-dev">Dev</span></div>
-              <div className="card-desc">Next-generation clinical plan builder for neurology.</div>
-            </div>
-            <div className="card card-nolink">
               <div className="card-title">Cardio Plans v2 <span className="badge badge-new">New</span> <span className="badge badge-dev">Dev</span></div>
-              <div className="card-desc">Next-generation cardiology plans app.</div>
+              <div className="card-desc">Next-generation cardiology plans app. Next.js with Cognito auth and RDS backend.<span className="card-next">Next: Build authenticated pages and clinical plan content</span></div>
             </div>
           </div>
         </div>
@@ -109,11 +109,15 @@ export default function HomePage() {
             </a>
             <div className="card card-nolink">
               <div className="card-title">RepGenius <span className="badge badge-review">In Review</span></div>
-              <div className="card-desc">AI-powered workout coach with personalized fitness programming.</div>
+              <div className="card-desc">AI-powered workout coach with personalized fitness programming via OpenAI GPT-5 Mini.<span className="card-next">v1.0.1 submitted — awaiting App Store review</span></div>
             </div>
             <div className="card card-nolink">
               <div className="card-title">SevaroMonitor <span className="badge badge-app">iOS</span></div>
-              <div className="card-desc">Wearable patient monitoring with clinical assessments and alerting.</div>
+              <div className="card-desc">Wearable patient monitoring with finger tapping, verbal fluency, and tremor assessments.<span className="card-next">Next: Multi-device RPM infrastructure and alerting refinements</span></div>
+            </div>
+            <div className="card card-nolink">
+              <div className="card-title">PostSeed <span className="badge badge-new">New</span> <span className="badge badge-dev">Dev</span></div>
+              <div className="card-desc">Capture-flow journal app with camera, voice recording, on-device transcription, location tagging, and sharing.<span className="card-next">Next: TestFlight build and beta testing</span></div>
             </div>
           </div>
         </div>
@@ -124,7 +128,7 @@ export default function HomePage() {
           <div className="grid">
             <div className="card card-nolink">
               <div className="card-title">SDNE <span className="badge badge-api">API</span></div>
-              <div className="card-desc">Acoustic speech analysis with cloud transcription and clinical session review.</div>
+              <div className="card-desc">Acoustic speech analysis with speech audio pipeline, cloud transcription, and clinical session review. Container Lambda on AWS.<span className="card-next">Next: End-to-end speech pipeline validation and gait task testing</span></div>
             </div>
             <div className="card card-nolink">
               <div className="card-title">SevaroMonitor API <span className="badge badge-api">API</span></div>
@@ -143,11 +147,22 @@ export default function HomePage() {
           <div className="grid">
             <div className="card card-nolink">
               <div className="card-title">SevaroNeuro Scribe <span className="badge badge-ext">Extension</span></div>
-              <div className="card-desc">Neurology-focused clinical note generation with Cognito auth and Bedrock AI.</div>
+              <div className="card-desc">Neurology-focused clinical note generation with Cognito auth, Lambda API, and Bedrock AI.<span className="card-next">Next: Note generation pipeline polish and chart prep refinement</span></div>
             </div>
             <div className="card card-nolink">
               <div className="card-title">Sevaro Scribe <span className="badge badge-ext">Extension</span></div>
-              <div className="card-desc">General clinical dictation with Deepgram Nova-3 streaming.</div>
+              <div className="card-desc">General clinical dictation with Deepgram Nova-3 streaming, Cognito auth, and AI-powered text refinement.<span className="card-next">Next: Production Cognito auth testing and DEV_MODE removal</span></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Desktop Tools */}
+        <div className="section">
+          <div className="section-title">Desktop Tools</div>
+          <div className="grid">
+            <div className="card card-nolink">
+              <div className="card-title">VoiceTranscriber</div>
+              <div className="card-desc">macOS dictation app with Deepgram streaming, voice commands, silence auto-stop, and post-dictation AI cleanup. AWS Transcribe for HIPAA-compliant mode.<span className="card-next">Next: Steel man test remediations (logging, thread safety)</span></div>
             </div>
           </div>
         </div>
