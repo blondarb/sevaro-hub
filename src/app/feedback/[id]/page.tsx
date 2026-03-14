@@ -1,4 +1,4 @@
-import { getSession, getAudioUrl, formatDuration, formatTimestamp, generateClaudeCodePrompt } from '@/lib/feedback-api';
+import { getSession, formatDuration, formatTimestamp, generateClaudeCodePrompt } from '@/lib/feedback-api';
 import type { FeedbackEvent, ActionItem } from '@/lib/feedback-api';
 import Link from 'next/link';
 import { SessionDetailClient } from './SessionDetailClient';
@@ -35,7 +35,7 @@ export default async function SessionDetailPage({ params, searchParams }: Props)
 
   const events = (Array.isArray(session.events) ? session.events : []) as FeedbackEvent[];
   const actionItems = (Array.isArray(session.actionItems) ? session.actionItems : []) as ActionItem[];
-  const audioUrl = getAudioUrl(session.audioKey);
+  const audioUrl = session.audioUrl || '';
 
   // Generate Claude Code prompt if there are action items
   const claudePrompt = actionItems.length > 0

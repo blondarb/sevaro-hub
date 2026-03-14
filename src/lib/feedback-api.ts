@@ -11,6 +11,7 @@ export interface FeedbackSession {
   userAgent?: string;
   screenSize?: string;
   audioKey: string;
+  audioUrl?: string;
   screenshots: string[];
   transcript?: string;
   aiSummary?: string;
