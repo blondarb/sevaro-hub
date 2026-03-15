@@ -24,6 +24,13 @@ const STATUS_LABELS: Record<string, { bg: string; text: string; label: string }>
   error: { bg: 'rgba(239,68,68,0.15)', text: '#f87171', label: 'Error' },
 };
 
+const REVIEW_STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
+  open: { bg: 'rgba(59,130,246,0.15)', text: '#60a5fa', label: 'Open' },
+  in_progress: { bg: 'rgba(251,191,36,0.15)', text: '#fbbf24', label: 'In Progress' },
+  resolved: { bg: 'rgba(34,197,94,0.15)', text: '#4ade80', label: 'Resolved' },
+  dismissed: { bg: 'rgba(107,114,128,0.15)', text: '#9ca3af', label: 'Dismissed' },
+};
+
 export const dynamic = 'force-dynamic';
 
 export default async function FeedbackListPage() {
@@ -134,6 +141,14 @@ export default async function FeedbackListPage() {
                 <span className="fb-badge" style={{ background: statusInfo.bg, color: statusInfo.text }}>
                   {statusInfo.label}
                 </span>
+                {(() => {
+                  const rs = REVIEW_STATUS_STYLES[(session as unknown as Record<string, unknown>).reviewStatus as string] || REVIEW_STATUS_STYLES.open;
+                  return (
+                    <span className="fb-badge" style={{ background: rs.bg, color: rs.text }}>
+                      {rs.label}
+                    </span>
+                  );
+                })()}
                 {actionItems.length > 0 && (
                   <div className="fb-action-count">
                     {(['critical', 'major', 'minor', 'cosmetic'] as const).map((sev) => {

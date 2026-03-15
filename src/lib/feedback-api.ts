@@ -1,5 +1,7 @@
 const API_URL = process.env.FEEDBACK_API_URL || 'https://8uagz9y5bh.execute-api.us-east-2.amazonaws.com/feedback';
 
+export type ReviewStatus = 'open' | 'in_progress' | 'resolved' | 'dismissed';
+
 export interface FeedbackSession {
   sessionId: string;
   appId: string;
@@ -18,6 +20,10 @@ export interface FeedbackSession {
   actionItems?: ActionItem[] | string;
   events: FeedbackEvent[] | string;
   status: string;
+  reviewStatus?: ReviewStatus;
+  resolutionNote?: string;
+  resolvedBy?: string;
+  resolvedAt?: string;
   createdAt: string;
   updatedAt?: string;
 }
