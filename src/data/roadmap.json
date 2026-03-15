@@ -6,7 +6,7 @@
       "milestones": [
         {
           "id": "optimize-synthesis-speed",
-          "title": "Optimize Haiku 4.5 synthesis speed (7-14s on complex queries)",
+          "title": "Further optimize Haiku 4.5 synthesis speed (partially addressed, still 7-14s on complex queries)",
           "status": "pending",
           "complexity": "medium",
           "description": "The Haiku 4.5 synthesis step in the two-stage reasoning pipeline takes 7-14 seconds on complex clinical queries. This is the main bottleneck \u2014 Sonnet reasoning is fast (2-4s) but synthesis lags. Investigate prompt length reduction, token limits, and whether streaming the synthesis response can reduce perceived wait time.",
@@ -18,7 +18,7 @@
             "src/lib/bedrock-converse.ts",
             "src/lib/evidence-tools.ts"
           ],
-          "quickPrompt": "In the Evidence Engine repo, optimize the Haiku 4.5 synthesis step in src/lib/bedrock-converse.ts. Current latency is 7-14s on complex queries. Target: under 5s for typical queries.",
+          "quickPrompt": "In the Evidence Engine repo, further optimize the Haiku 4.5 synthesis step in src/lib/bedrock-converse.ts. Initial token reduction was done in PR #43 but complex queries still take 7-14s. Investigate streaming the response, prompt restructuring, or alternative models. Target: under 5s for typical queries.",
           "fullPrompt": "## Task: Optimize Evidence Engine Synthesis Speed\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/lib/bedrock-converse.ts, src/lib/evidence-tools.ts\n\n## Context\nThe two-stage reasoning pipeline uses Sonnet 4.6 for reasoning (2-4s) then Haiku 4.5 for synthesis (7-14s). The synthesis step is the bottleneck.\n\n## Investigation areas\n1. Measure prompt token count going to Haiku \u2014 are we sending too much context?\n2. Check if KB results can be trimmed before synthesis\n3. Evaluate streaming the synthesis response to reduce perceived latency\n4. Consider if Haiku 4.5 is the right model or if a faster option exists\n\n## Acceptance criteria\n- Typical queries synthesize in under 5 seconds\n- Complex queries under 8 seconds\n- No quality regression in synthesis output\n- Run qa/run_smoke.sh to verify",
           "manualSteps": [
             "Open src/lib/bedrock-converse.ts and find the synthesis function",
@@ -31,7 +31,7 @@
         {
           "id": "improve-pubmed-queries",
           "title": "Improve PubMed query construction (0 results on valid topics)",
-          "status": "pending",
+          "status": "done",
           "complexity": "medium",
           "description": "The live PubMed search tool sometimes returns 0 results for clearly valid clinical topics. The query construction in pubmed-search.ts needs better term mapping, MeSH term expansion, and fallback strategies when initial queries fail.",
           "prerequisites": [

@@ -1,31 +1,53 @@
 # Sevaro Hub
 
-Static HTML splash page linking to all Sevaro web apps, iOS apps, APIs, Chrome extensions, and desktop tools. Hosted on AWS Amplify at `hub.neuroplans.app`.
+Splash page and admin dashboard for Sevaro apps. Includes feedback management with Cognito auth, pattern analysis via Bedrock, and email notifications via SES. Hosted on AWS Amplify at `hub.neuroplans.app`.
 
 ## Tech Stack
 
-- **Type**: Static HTML (no build step)
+- **Type**: Next.js 15 (App Router, SSR)
 - **Hosting**: AWS Amplify (`d3n3e9vr1knkam`)
 - **Domain**: `hub.neuroplans.app`
 - **Deploy**: Auto-deploys on push to `main`
+- **Auth**: Amazon Cognito (`us-east-2_Owfb1zpgM`, client `7t8bjj2fjkvtu081qhledc627a`)
+- **IAM Role**: `SevaroHub-AmplifySSR` (SES, Bedrock, SSM permissions)
+- **Email**: SES from `feedback@neuroplans.app` (DKIM verified)
+- **AI**: Bedrock Sonnet for feedback pattern analysis
+- **Feedback API**: Lambda `sevaro-feedback-api` via API Gateway `8uagz9y5bh`
+
+## Admin Access
+
+- Controlled by `ADMIN_EMAILS` env var (default: `steve@sevaro.com`)
+- JWT verification via Cognito JWKS
+- Protected routes: `/feedback`, `/feedback/analyze`, `/feedback/[id]`
 
 ## Body of Work
 
-**Status**: Maintenance
+**Status**: Active
 
 ### Recent
+- Added Cognito auth with admin role gating (login page, JWT verification, admin check API)
+- Added feedback admin dashboard with review status management (open/in_progress/resolved/dismissed)
+- Added delete feedback with full S3 cleanup (audio, screenshots, transcript)
+- Added AI pattern analysis page using Bedrock Sonnet (themes, severity, recommendations)
+- Added email notification to users when feedback is resolved (SES)
+- Added nav bar with admin-only links
 - Migrated from npm to pnpm
 - Updated hub cards with current project statuses and added missing sections
-- Updated Neuro Plans v2 roadmap next step
-- Fixed audio playback with pre-signed S3 URLs
-- Added Scribe extension test page with multiple dictation fields
 
 ### In Progress
 - None
 
 ### Planned
-- Update links as new projects come online
-- Add Evidence Engine and SevaroMonitor entries if missing
+- Admin management page (view/add/remove administrators)
+- Request SES production access (currently sandbox — recipients must be verified)
 
 ### Known Issues
-- None
+- SES in sandbox mode — can only send to verified email addresses
+
+## Documentation Files
+
+Update these when committing changes (per global Commit Workflow rules):
+
+- `CLAUDE.md` — update if architecture, config, or status changed
+- `docs/HANDOFF_YYYY-MM-DD.md` — create/update with session summary and next steps
+- `docs/plans/` — update relevant plan files if scope or approach changed

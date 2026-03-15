@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "sevaro-hub",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev"],
       "port": 3000
     }
   ]
