@@ -3,13 +3,19 @@ import { NextRequest, NextResponse } from 'next/server';
 const COGNITO_DOMAIN = 'auth.neuroplans.app';
 const CLIENT_ID = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || '';
 
+function getOrigin(request: NextRequest): string {
+  const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || '';
+  const proto = request.headers.get('x-forwarded-proto') || 'https';
+  return `${proto}://${host}`;
+}
+
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code');
   if (!code) {
     return NextResponse.redirect(new URL('/login?error=no_code', request.url));
   }
 
-  const origin = request.nextUrl.origin;
+  const origin = getOrigin(request);
   const redirectUri = `${origin}/api/auth/callback`;
 
   // Exchange authorization code for tokens
