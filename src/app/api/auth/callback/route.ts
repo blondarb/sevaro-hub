@@ -12,7 +12,7 @@ function getOrigin(request: NextRequest): string {
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code');
   if (!code) {
-    return NextResponse.redirect(new URL('/login?error=no_code', request.url));
+    return NextResponse.redirect(`${getOrigin(request)}/login?error=no_code`);
   }
 
   const origin = getOrigin(request);
@@ -31,14 +31,14 @@ export async function GET(request: NextRequest) {
   });
 
   if (!tokenRes.ok) {
-    return NextResponse.redirect(new URL('/login?error=token_exchange', request.url));
+    return NextResponse.redirect(`${getOrigin(request)}/login?error=token_exchange`);
   }
 
   const tokens = await tokenRes.json();
   const { id_token, access_token, refresh_token, expires_in } = tokens;
 
   // Set tokens in httpOnly cookies
-  const response = NextResponse.redirect(new URL('/feedback', request.url));
+  const response = NextResponse.redirect(`${getOrigin(request)}/feedback`);
 
   const cookieOptions = {
     httpOnly: true,
