@@ -282,6 +282,19 @@ export default function HomePage() {
           </div>
         </div>
 
+        {/* VR / XR */}
+        <div className="section">
+          <div className="section-title">VR / XR</div>
+          <div className="grid">
+            <div className="card card-nolink">
+              <div className="card-title">Market Day VR <span className="badge badge-dev">Dev</span></div>
+              <div className="card-desc">Cognitive/motor rehabilitation VR for post-stroke adults. Samsung Galaxy XR, Unity 6 LTS + Sonali AI coaching.
+                <MilestoneLinks projectId="market-day-vr" milestones={getMilestones('market-day-vr')} onOpen={openDrawer} />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Tools */}
         <div className="section">
           <div className="section-title">Tools &amp; Testing</div>
@@ -291,7 +304,7 @@ export default function HomePage() {
               <div className="card-desc">Test page with multiple text fields for Scribe extension dictation.</div>
             </a>
             <a className="card" href="/feedback">
-              <div className="card-title">Feedback Dashboard <span className="badge badge-new">New</span></div>
+              <div className="card-title">Feedback Dashboard <span className="badge badge-live">Live</span></div>
               <div className="card-desc">Review voice feedback from testers across all apps. AI-generated summaries and action items.</div>
             </a>
           </div>

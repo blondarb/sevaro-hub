@@ -14,10 +14,11 @@ Static HTML splash page linking to all Sevaro web apps, iOS apps, APIs, Chrome e
 **Status**: Maintenance
 
 ### Recent
-- Updated hub with recent projects, migrations, and feature additions
+- Migrated from npm to pnpm
+- Updated hub cards with current project statuses and added missing sections
+- Updated Neuro Plans v2 roadmap next step
+- Fixed audio playback with pre-signed S3 URLs
 - Added Scribe extension test page with multiple dictation fields
-- Switched to friendly `neuroplans.app` subdomain URLs
-- Fixed broken Amplify branch-prefix links
 
 ### In Progress
 - None

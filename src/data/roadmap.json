@@ -9,12 +9,24 @@
           "title": "Optimize Haiku 4.5 synthesis speed (7-14s on complex queries)",
           "status": "pending",
           "complexity": "medium",
-          "description": "The Haiku 4.5 synthesis step in the two-stage reasoning pipeline takes 7-14 seconds on complex clinical queries. This is the main bottleneck — Sonnet reasoning is fast (2-4s) but synthesis lags. Investigate prompt length reduction, token limits, and whether streaming the synthesis response can reduce perceived wait time.",
-          "prerequisites": ["Evidence Engine repo cloned", "AWS Bedrock access configured"],
-          "keyFiles": ["src/lib/bedrock-converse.ts", "src/lib/evidence-tools.ts"],
+          "description": "The Haiku 4.5 synthesis step in the two-stage reasoning pipeline takes 7-14 seconds on complex clinical queries. This is the main bottleneck \u2014 Sonnet reasoning is fast (2-4s) but synthesis lags. Investigate prompt length reduction, token limits, and whether streaming the synthesis response can reduce perceived wait time.",
+          "prerequisites": [
+            "Evidence Engine repo cloned",
+            "AWS Bedrock access configured"
+          ],
+          "keyFiles": [
+            "src/lib/bedrock-converse.ts",
+            "src/lib/evidence-tools.ts"
+          ],
           "quickPrompt": "In the Evidence Engine repo, optimize the Haiku 4.5 synthesis step in src/lib/bedrock-converse.ts. Current latency is 7-14s on complex queries. Target: under 5s for typical queries.",
-          "fullPrompt": "## Task: Optimize Evidence Engine Synthesis Speed\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/lib/bedrock-converse.ts, src/lib/evidence-tools.ts\n\n## Context\nThe two-stage reasoning pipeline uses Sonnet 4.6 for reasoning (2-4s) then Haiku 4.5 for synthesis (7-14s). The synthesis step is the bottleneck.\n\n## Investigation areas\n1. Measure prompt token count going to Haiku — are we sending too much context?\n2. Check if KB results can be trimmed before synthesis\n3. Evaluate streaming the synthesis response to reduce perceived latency\n4. Consider if Haiku 4.5 is the right model or if a faster option exists\n\n## Acceptance criteria\n- Typical queries synthesize in under 5 seconds\n- Complex queries under 8 seconds\n- No quality regression in synthesis output\n- Run qa/run_smoke.sh to verify",
-          "manualSteps": ["Open src/lib/bedrock-converse.ts and find the synthesis function", "Add timing logs around the Haiku invocation", "Check the prompt token count being sent", "Reduce context if over 2000 tokens", "Test with qa/run_smoke.sh"]
+          "fullPrompt": "## Task: Optimize Evidence Engine Synthesis Speed\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/lib/bedrock-converse.ts, src/lib/evidence-tools.ts\n\n## Context\nThe two-stage reasoning pipeline uses Sonnet 4.6 for reasoning (2-4s) then Haiku 4.5 for synthesis (7-14s). The synthesis step is the bottleneck.\n\n## Investigation areas\n1. Measure prompt token count going to Haiku \u2014 are we sending too much context?\n2. Check if KB results can be trimmed before synthesis\n3. Evaluate streaming the synthesis response to reduce perceived latency\n4. Consider if Haiku 4.5 is the right model or if a faster option exists\n\n## Acceptance criteria\n- Typical queries synthesize in under 5 seconds\n- Complex queries under 8 seconds\n- No quality regression in synthesis output\n- Run qa/run_smoke.sh to verify",
+          "manualSteps": [
+            "Open src/lib/bedrock-converse.ts and find the synthesis function",
+            "Add timing logs around the Haiku invocation",
+            "Check the prompt token count being sent",
+            "Reduce context if over 2000 tokens",
+            "Test with qa/run_smoke.sh"
+          ]
         },
         {
           "id": "improve-pubmed-queries",
@@ -22,11 +34,23 @@
           "status": "pending",
           "complexity": "medium",
           "description": "The live PubMed search tool sometimes returns 0 results for clearly valid clinical topics. The query construction in pubmed-search.ts needs better term mapping, MeSH term expansion, and fallback strategies when initial queries fail.",
-          "prerequisites": ["Evidence Engine repo cloned", "NCBI API access"],
-          "keyFiles": ["src/lib/pubmed-search.ts", "src/lib/evidence-tools.ts"],
+          "prerequisites": [
+            "Evidence Engine repo cloned",
+            "NCBI API access"
+          ],
+          "keyFiles": [
+            "src/lib/pubmed-search.ts",
+            "src/lib/evidence-tools.ts"
+          ],
           "quickPrompt": "In the Evidence Engine repo, fix PubMed query construction in src/lib/pubmed-search.ts. Some valid clinical topics return 0 results. Add MeSH term fallbacks and broader query strategies.",
-          "fullPrompt": "## Task: Fix PubMed Query Construction\n\n**Repo:** sevaro-evidence-engine\n**Key file:** src/lib/pubmed-search.ts\n\n## Problem\nSonnet generates search queries for PubMed via the search_pubmed tool, but some valid topics return 0 results. Examples: rare neurological conditions, newer treatments.\n\n## Fix approach\n1. Add MeSH term expansion — map common clinical terms to MeSH vocabulary\n2. Implement query fallback: if first query returns 0, broaden terms and retry\n3. Consider splitting compound queries into simpler sub-queries\n4. Log failed queries for future analysis\n\n## Acceptance criteria\n- Known-failing queries now return relevant results\n- No increase in irrelevant results for queries that already work\n- Run qa/run_smoke.sh to verify",
-          "manualSteps": ["Open src/lib/pubmed-search.ts", "Find the query construction logic", "Add MeSH term mapping for common clinical terms", "Add fallback query logic when results are 0", "Test with known-failing topics"]
+          "fullPrompt": "## Task: Fix PubMed Query Construction\n\n**Repo:** sevaro-evidence-engine\n**Key file:** src/lib/pubmed-search.ts\n\n## Problem\nSonnet generates search queries for PubMed via the search_pubmed tool, but some valid topics return 0 results. Examples: rare neurological conditions, newer treatments.\n\n## Fix approach\n1. Add MeSH term expansion \u2014 map common clinical terms to MeSH vocabulary\n2. Implement query fallback: if first query returns 0, broaden terms and retry\n3. Consider splitting compound queries into simpler sub-queries\n4. Log failed queries for future analysis\n\n## Acceptance criteria\n- Known-failing queries now return relevant results\n- No increase in irrelevant results for queries that already work\n- Run qa/run_smoke.sh to verify",
+          "manualSteps": [
+            "Open src/lib/pubmed-search.ts",
+            "Find the query construction logic",
+            "Add MeSH term mapping for common clinical terms",
+            "Add fallback query logic when results are 0",
+            "Test with known-failing topics"
+          ]
         },
         {
           "id": "deploy-kb-sync-lambdas",
@@ -34,11 +58,26 @@
           "status": "pending",
           "complexity": "high",
           "description": "Currently the Knowledge Base (1,472 docs) is updated manually by uploading files to S3. Build two Lambda functions: document-processor (fetches new content from PubMed/FDA/ClinicalTrials, formats for KB) and kb-sync (triggers KB re-ingestion after new docs land in S3).",
-          "prerequisites": ["AWS Bedrock KB access", "S3 bucket sevaro-evidence-kb", "Lambda deployment permissions"],
-          "keyFiles": ["lambda/document-processor/", "lambda/kb-sync/", "src/lib/evidence-tools.ts"],
+          "prerequisites": [
+            "AWS Bedrock KB access",
+            "S3 bucket sevaro-evidence-kb",
+            "Lambda deployment permissions"
+          ],
+          "keyFiles": [
+            "lambda/document-processor/",
+            "lambda/kb-sync/",
+            "src/lib/evidence-tools.ts"
+          ],
           "quickPrompt": "In the Evidence Engine repo, create two Lambda functions: document-processor (fetches new clinical content from PubMed/FDA, formats for KB ingestion) and kb-sync (triggers Bedrock KB re-ingestion). Deploy with SAM.",
           "fullPrompt": "## Task: Automated KB Update Pipeline\n\n**Repo:** sevaro-evidence-engine\n**New files:** lambda/document-processor/, lambda/kb-sync/\n\n## Context\nThe Bedrock KB (T4W8S8RNMN) has ~1,472 docs in S3 sources/external/active/. Currently updated manually.\n\n## Build\n1. document-processor Lambda: Scheduled daily, fetches new content from PubMed, FDA, ClinicalTrials APIs, formats as text files, uploads to S3\n2. kb-sync Lambda: Triggered by S3 events, calls Bedrock StartIngestionJob to re-index\n3. SAM template for deployment\n4. EventBridge rule for daily schedule\n\n## Acceptance criteria\n- New docs appear in S3 after Lambda runs\n- KB re-ingests automatically\n- No duplicate documents\n- CloudWatch logs for monitoring",
-          "manualSteps": ["Create lambda/document-processor/ directory with index.js", "Create lambda/kb-sync/ directory with index.js", "Write SAM template.yaml", "Deploy with sam build && sam deploy", "Set up EventBridge daily trigger", "Verify KB re-ingestion in Bedrock console"]
+          "manualSteps": [
+            "Create lambda/document-processor/ directory with index.js",
+            "Create lambda/kb-sync/ directory with index.js",
+            "Write SAM template.yaml",
+            "Deploy with sam build && sam deploy",
+            "Set up EventBridge daily trigger",
+            "Verify KB re-ingestion in Bedrock console"
+          ]
         }
       ]
     },
@@ -52,11 +91,23 @@
           "status": "pending",
           "complexity": "high",
           "description": "Currently transcription only works post-recording. Add real-time voice streaming during clinical encounters so clinicians see words appearing as they speak. This requires WebSocket integration with a streaming transcription service.",
-          "prerequisites": ["OPSAmple repo cloned", "AWS Transcribe or Deepgram API access"],
-          "keyFiles": ["src/components/TranscriptionPanel.tsx", "src/lib/transcription.ts"],
+          "prerequisites": [
+            "OPSAmple repo cloned",
+            "AWS Transcribe or Deepgram API access"
+          ],
+          "keyFiles": [
+            "src/components/TranscriptionPanel.tsx",
+            "src/lib/transcription.ts"
+          ],
           "quickPrompt": "In the OPSAmple repo, add real-time voice streaming during encounters. Currently post-recording only. Use WebSocket streaming to show words as they're spoken.",
           "fullPrompt": "## Task: Real-Time Voice Streaming\n\n**Repo:** OPSAmplehtml\n**Key area:** Transcription components\n\n## Context\nOPSAmple has post-recording transcription but no live streaming. Clinicians want to see words appear in real-time during encounters.\n\n## Approach\n1. Add WebSocket connection to streaming transcription service\n2. Display interim results in real-time, replace with finals\n3. Handle microphone permissions and audio capture in browser\n4. Consider AWS Transcribe Medical for HIPAA compliance\n\n## Acceptance criteria\n- Words appear within 500ms of being spoken\n- Final transcription matches post-recording quality\n- Works on Chrome and Safari\n- Graceful fallback if streaming unavailable",
-          "manualSteps": ["Set up streaming transcription service", "Add WebSocket client component", "Wire microphone capture to WebSocket", "Display interim/final results in UI", "Test with sample audio"]
+          "manualSteps": [
+            "Set up streaming transcription service",
+            "Add WebSocket client component",
+            "Wire microphone capture to WebSocket",
+            "Display interim/final results in UI",
+            "Test with sample audio"
+          ]
         },
         {
           "id": "fill-diagnosis-plans",
@@ -64,11 +115,23 @@
           "status": "pending",
           "complexity": "low",
           "description": "The diagnosis plan database covers 148 of 166 target diagnoses. The remaining 18 need clinical content drafted and loaded into the database. Each plan includes treatment options, monitoring parameters, and clinical decision points.",
-          "prerequisites": ["OPSAmple repo cloned", "RDS database access"],
-          "keyFiles": ["src/data/diagnosis-plans/", "scripts/load-plans.ts"],
+          "prerequisites": [
+            "OPSAmple repo cloned",
+            "RDS database access"
+          ],
+          "keyFiles": [
+            "src/data/diagnosis-plans/",
+            "scripts/load-plans.ts"
+          ],
           "quickPrompt": "In the OPSAmple repo, identify and create the remaining 18 diagnosis treatment plans (148/166 currently covered). Draft clinical content and load into RDS.",
           "fullPrompt": "## Task: Complete Diagnosis Plan Coverage\n\n**Repo:** OPSAmplehtml\n\n## Context\n148 of 166 target diagnoses have treatment plans. Need to identify and create the remaining 18.\n\n## Steps\n1. Query RDS to find which 18 diagnoses are missing\n2. Draft clinical content for each (treatment options, monitoring, decision points)\n3. Follow the same format as existing plans\n4. Load into database\n\n## Acceptance criteria\n- All 166 diagnoses have treatment plans\n- Content follows existing plan format\n- Plans are accessible in the app",
-          "manualSteps": ["Query database for missing diagnoses", "Draft treatment plan content for each", "Review with clinical accuracy in mind", "Load into RDS database", "Verify in app UI"]
+          "manualSteps": [
+            "Query database for missing diagnoses",
+            "Draft treatment plan content for each",
+            "Review with clinical accuracy in mind",
+            "Load into RDS database",
+            "Verify in app UI"
+          ]
         },
         {
           "id": "speaker-diarization-ui",
@@ -76,11 +139,22 @@
           "status": "pending",
           "complexity": "medium",
           "description": "Add speaker identification to transcription output so clinicians can see who said what during multi-person encounters. Requires diarization from the transcription service and UI to display labeled speaker turns.",
-          "prerequisites": ["OPSAmple repo cloned", "Streaming transcription with diarization support"],
-          "keyFiles": ["src/components/TranscriptionPanel.tsx"],
+          "prerequisites": [
+            "OPSAmple repo cloned",
+            "Streaming transcription with diarization support"
+          ],
+          "keyFiles": [
+            "src/components/TranscriptionPanel.tsx"
+          ],
           "quickPrompt": "In the OPSAmple repo, add speaker diarization UI to the transcription view. Show labeled speaker turns (Doctor, Patient, Nurse) in the transcript.",
           "fullPrompt": "## Task: Speaker Diarization UI\n\n**Repo:** OPSAmplehtml\n\n## Context\nMulti-person encounters need speaker identification. The transcription service supports diarization but the UI doesn't display it.\n\n## Build\n1. Enable diarization in transcription API calls\n2. Parse speaker labels from transcription output\n3. Display speaker turns with labels and color coding\n4. Allow manual speaker label editing (rename Speaker 1 to 'Dr. Smith')\n\n## Acceptance criteria\n- Speaker turns are visually distinct\n- Labels are editable\n- Works with 2-6 speakers",
-          "manualSteps": ["Enable diarization parameter in API calls", "Parse speaker labels from response", "Build speaker turn UI component", "Add speaker label editing", "Test with multi-speaker audio"]
+          "manualSteps": [
+            "Enable diarization parameter in API calls",
+            "Parse speaker labels from response",
+            "Build speaker turn UI component",
+            "Add speaker label editing",
+            "Test with multi-speaker audio"
+          ]
         },
         {
           "id": "migrate-supabase-to-rds",
@@ -88,11 +162,24 @@
           "status": "pending",
           "complexity": "high",
           "description": "OPSAmple still has some Supabase dependencies for older features. Complete the migration to RDS for data and Cognito for auth. Most infra is already on AWS but some legacy paths remain.",
-          "prerequisites": ["OPSAmple repo cloned", "AWS RDS and Cognito access"],
-          "keyFiles": ["src/lib/supabase.ts", "src/lib/auth.ts"],
+          "prerequisites": [
+            "OPSAmple repo cloned",
+            "AWS RDS and Cognito access"
+          ],
+          "keyFiles": [
+            "src/lib/supabase.ts",
+            "src/lib/auth.ts"
+          ],
           "quickPrompt": "In the OPSAmple repo, identify and migrate all remaining Supabase dependencies to AWS (RDS for data, Cognito for auth). Most infra is already migrated.",
           "fullPrompt": "## Task: Complete Supabase Migration\n\n**Repo:** OPSAmplehtml\n\n## Context\nMost OPSAmple infra is on AWS (Cognito auth, RDS for new features) but some legacy data paths still use Supabase.\n\n## Steps\n1. Audit all Supabase imports and API calls\n2. Identify which features still depend on Supabase\n3. Migrate each to RDS/Cognito equivalent\n4. Remove Supabase SDK dependency\n5. Test all affected features\n\n## Acceptance criteria\n- Zero Supabase imports in codebase\n- All features work with AWS backend\n- Supabase SDK removed from package.json",
-          "manualSteps": ["Search codebase for supabase imports", "List all Supabase-dependent features", "Create RDS tables for any missing data", "Update API calls to use RDS", "Remove Supabase SDK", "Full regression test"]
+          "manualSteps": [
+            "Search codebase for supabase imports",
+            "List all Supabase-dependent features",
+            "Create RDS tables for any missing data",
+            "Update API calls to use RDS",
+            "Remove Supabase SDK",
+            "Full regression test"
+          ]
         }
       ]
     },
@@ -106,11 +193,22 @@
           "status": "pending",
           "complexity": "low",
           "description": "Evidence Engine is live at evidence.neuroplans.app but not yet featured in the GitHub Showcase portfolio. Add it with description, tech stack, and highlights.",
-          "prerequisites": ["GitHub Showcase repo cloned", "RDS database access"],
-          "keyFiles": ["src/data/projects.ts", "lambda/check-repo-deltas/"],
+          "prerequisites": [
+            "GitHub Showcase repo cloned",
+            "RDS database access"
+          ],
+          "keyFiles": [
+            "src/data/projects.ts",
+            "lambda/check-repo-deltas/"
+          ],
           "quickPrompt": "In the GitHub Showcase repo, add Evidence Engine (evidence.neuroplans.app) to the portfolio with description, tech stack (Next.js, Bedrock, PubMed), and highlights.",
           "fullPrompt": "## Task: Add Evidence Engine to Showcase\n\n**Repo:** github-showcase\n\n## Steps\n1. Add Evidence Engine to repo_metadata table in RDS\n2. Include: description, tech stack, live URL, highlights\n3. Verify it appears on showcase.neuroplans.app\n\n## Tech stack to list\n- Next.js 15, AWS Amplify, Bedrock (Sonnet 4.6 + Haiku 4.5)\n- Bedrock Knowledge Base (1,472 docs), PubMed live search\n- Two-stage clinical reasoning pipeline",
-          "manualSteps": ["Connect to RDS github_showcase database", "Insert Evidence Engine into repo_metadata", "Include live URL, tech stack, highlights", "Verify on showcase.neuroplans.app"]
+          "manualSteps": [
+            "Connect to RDS github_showcase database",
+            "Insert Evidence Engine into repo_metadata",
+            "Include live URL, tech stack, highlights",
+            "Verify on showcase.neuroplans.app"
+          ]
         },
         {
           "id": "add-v2-clinical-sites",
@@ -118,11 +216,19 @@
           "status": "pending",
           "complexity": "low",
           "description": "Neuro Plans v2 and Cardio Plans v2 web apps should be added to the showcase portfolio once they are deployed with custom domains.",
-          "prerequisites": ["v2 sites deployed with custom domains"],
-          "keyFiles": ["src/data/projects.ts"],
+          "prerequisites": [
+            "v2 sites deployed with custom domains"
+          ],
+          "keyFiles": [
+            "src/data/projects.ts"
+          ],
           "quickPrompt": "In the GitHub Showcase repo, add Neuro Plans v2 (plans.neuroplans.app) and Cardio Plans v2 to the portfolio when they have custom domains live.",
           "fullPrompt": "## Task: Add v2 Clinical Sites to Showcase\n\n**Repo:** github-showcase\n\n## Steps\n1. Add Neuro Plans v2 to repo_metadata (plans.neuroplans.app)\n2. Add Cardio Plans v2 when deployed\n3. Update tech stacks and highlights\n\n## Depends on\n- Cardio Plans v2 deployment to Amplify with custom domain",
-          "manualSteps": ["Connect to RDS github_showcase database", "Insert v2 sites into repo_metadata", "Verify on showcase.neuroplans.app"]
+          "manualSteps": [
+            "Connect to RDS github_showcase database",
+            "Insert v2 sites into repo_metadata",
+            "Verify on showcase.neuroplans.app"
+          ]
         }
       ]
     },
@@ -136,11 +242,22 @@
           "status": "in-progress",
           "complexity": "low",
           "description": "Privacy policy and scope documentation need updating to reflect the migration from OpenAI to AWS Bedrock, Cognito auth, and RDS backend. Required before production deploy.",
-          "prerequisites": ["Workouts repo cloned"],
-          "keyFiles": ["public/privacy-policy.html", "docs/SCOPE.md"],
+          "prerequisites": [
+            "Workouts repo cloned"
+          ],
+          "keyFiles": [
+            "public/privacy-policy.html",
+            "docs/SCOPE.md"
+          ],
           "quickPrompt": "In the Workouts repo, update the privacy policy and scope docs to reflect Bedrock AI, Cognito auth, and RDS backend (migrated from OpenAI/Supabase).",
           "fullPrompt": "## Task: Update Privacy Policy and Scope\n\n**Repo:** Workouts\n\n## Context\nWorkouts migrated from OpenAI to AWS Bedrock, Supabase to Cognito/RDS. Privacy policy still references old providers.\n\n## Update\n1. Update privacy policy with current AI provider (Bedrock Haiku 4.5)\n2. Update auth provider reference (Cognito)\n3. Update data storage references (RDS)\n4. Review scope docs for accuracy\n\n## Acceptance criteria\n- Privacy policy accurately reflects current architecture\n- No references to OpenAI or Supabase",
-          "manualSteps": ["Open public/privacy-policy.html", "Replace OpenAI references with AWS Bedrock", "Replace Supabase references with Cognito/RDS", "Update docs/SCOPE.md", "Review for accuracy"]
+          "manualSteps": [
+            "Open public/privacy-policy.html",
+            "Replace OpenAI references with AWS Bedrock",
+            "Replace Supabase references with Cognito/RDS",
+            "Update docs/SCOPE.md",
+            "Review for accuracy"
+          ]
         },
         {
           "id": "fix-voice-handoff",
@@ -148,11 +265,23 @@
           "status": "pending",
           "complexity": "medium",
           "description": "Voice handoff during workouts sometimes fails to match spoken phrases due to transcription variations. The phrase matching and normalization logic needs improvement to handle more speech patterns reliably.",
-          "prerequisites": ["Workouts repo cloned", "Deepgram or Bedrock transcription access"],
-          "keyFiles": ["src/lib/voice-handoff.ts", "src/components/WorkoutPlayer.tsx"],
+          "prerequisites": [
+            "Workouts repo cloned",
+            "Deepgram or Bedrock transcription access"
+          ],
+          "keyFiles": [
+            "src/lib/voice-handoff.ts",
+            "src/components/WorkoutPlayer.tsx"
+          ],
           "quickPrompt": "In the Workouts repo, fix voice handoff reliability. Phrase matching drifts with transcription variations. Improve normalization and matching logic.",
-          "fullPrompt": "## Task: Fix Voice Handoff Reliability\n\n**Repo:** Workouts\n\n## Problem\nVoice handoff phrase matching is unreliable — transcription variations cause missed handoffs. Users say 'next exercise' but transcription might produce 'next excersize' or 'necks exercise'.\n\n## Fix approach\n1. Review current phrase matching in voice-handoff.ts\n2. Add fuzzy matching or Levenshtein distance tolerance\n3. Normalize common transcription errors\n4. Add touch fallback for all critical voice actions\n5. Test with varied speech patterns\n\n## Acceptance criteria\n- Voice handoff succeeds >95% of the time\n- Touch fallback available for every voice action\n- Test with qa/TEST_RUNBOOK.md voice scenarios",
-          "manualSteps": ["Open src/lib/voice-handoff.ts", "Review phrase matching logic", "Add fuzzy matching with tolerance", "Add touch fallback buttons", "Test with varied speech"]
+          "fullPrompt": "## Task: Fix Voice Handoff Reliability\n\n**Repo:** Workouts\n\n## Problem\nVoice handoff phrase matching is unreliable \u2014 transcription variations cause missed handoffs. Users say 'next exercise' but transcription might produce 'next excersize' or 'necks exercise'.\n\n## Fix approach\n1. Review current phrase matching in voice-handoff.ts\n2. Add fuzzy matching or Levenshtein distance tolerance\n3. Normalize common transcription errors\n4. Add touch fallback for all critical voice actions\n5. Test with varied speech patterns\n\n## Acceptance criteria\n- Voice handoff succeeds >95% of the time\n- Touch fallback available for every voice action\n- Test with qa/TEST_RUNBOOK.md voice scenarios",
+          "manualSteps": [
+            "Open src/lib/voice-handoff.ts",
+            "Review phrase matching logic",
+            "Add fuzzy matching with tolerance",
+            "Add touch fallback buttons",
+            "Test with varied speech"
+          ]
         },
         {
           "id": "qa-pass-deploy",
@@ -160,11 +289,24 @@
           "status": "pending",
           "complexity": "medium",
           "description": "Run full QA pass following qa/TEST_RUNBOOK.md before deploying to production. This is the final gate before the app goes live at workouts.neuroplans.app.",
-          "prerequisites": ["Privacy policy updated", "Voice handoff fixed", "Workouts repo on main branch"],
-          "keyFiles": ["qa/TEST_RUNBOOK.md"],
+          "prerequisites": [
+            "Privacy policy updated",
+            "Voice handoff fixed",
+            "Workouts repo on main branch"
+          ],
+          "keyFiles": [
+            "qa/TEST_RUNBOOK.md"
+          ],
           "quickPrompt": "In the Workouts repo, run the full QA pass per qa/TEST_RUNBOOK.md. Fix any issues found, then deploy to production on main branch.",
           "fullPrompt": "## Task: QA Pass and Production Deploy\n\n**Repo:** Workouts\n\n## Prerequisites\n- Privacy policy and scope docs updated\n- Voice handoff reliability improved\n\n## Steps\n1. Read qa/TEST_RUNBOOK.md\n2. Execute each test scenario\n3. Document results in qa/runs/\n4. Fix any failures\n5. Merge to main for production deploy (Amplify auto-builds)\n\n## Acceptance criteria\n- All smoke tests pass\n- No P0/P1 bugs open\n- workouts.neuroplans.app serves latest version",
-          "manualSteps": ["Read qa/TEST_RUNBOOK.md", "Run each test scenario manually", "Log results in qa/runs/", "Fix any failures", "Merge to main", "Verify workouts.neuroplans.app"]
+          "manualSteps": [
+            "Read qa/TEST_RUNBOOK.md",
+            "Run each test scenario manually",
+            "Log results in qa/runs/",
+            "Fix any failures",
+            "Merge to main",
+            "Verify workouts.neuroplans.app"
+          ]
         }
       ]
     },
@@ -175,14 +317,25 @@
         {
           "id": "test-v2-api-from-ios",
           "title": "Test v2 API endpoints from iOS app",
-          "status": "pending",
+          "status": "done",
           "complexity": "medium",
           "description": "The iOS Neuro Plans app has been updated to call the v2 REST API (plans.neuroplans.app) instead of Supabase PostgREST for data calls. These need to be tested end-to-end before submitting an App Store update.",
-          "prerequisites": ["Neuro Plans v2 deployed at plans.neuroplans.app", "iOS app with APIService.swift changes"],
-          "keyFiles": ["ios/NeuroPlans/NeuroPlans/Services/APIService.swift"],
+          "prerequisites": [
+            "Neuro Plans v2 deployed at plans.neuroplans.app",
+            "iOS app with APIService.swift changes"
+          ],
+          "keyFiles": [
+            "ios/NeuroPlans/NeuroPlans/Services/APIService.swift"
+          ],
           "quickPrompt": "Test the Neuro Plans iOS app's v2 API calls (domains, verify-email, plan-request) against plans.neuroplans.app. Verify all three endpoints work end-to-end.",
           "fullPrompt": "## Task: Test v2 API from iOS\n\n**Repos:** neuro-plans (iOS), neuro-plans-v2 (API)\n\n## Context\nAPIService.swift calls three v2 endpoints:\n- GET /api/domains?specialty=neurology\n- POST /api/analytics/verify-email\n- POST /api/feedback/plan-request\n\n## Test plan\n1. Build iOS app with updated APIService.swift\n2. Test domain whitelist fetch on app launch\n3. Test email verification flow (enter whitelisted domain email)\n4. Test plan request submission\n5. Verify RDS records the data correctly\n\n## Acceptance criteria\n- All three endpoints return expected responses\n- iOS app functions identically to Supabase version\n- No crash or timeout on any endpoint",
-          "manualSteps": ["Build iOS app in Xcode", "Launch and check domain whitelist loads", "Try email verification with a test domain", "Submit a plan request", "Check RDS for recorded data"]
+          "manualSteps": [
+            "Build iOS app in Xcode",
+            "Launch and check domain whitelist loads",
+            "Try email verification with a test domain",
+            "Submit a plan request",
+            "Check RDS for recorded data"
+          ]
         },
         {
           "id": "build-otp-email-verification",
@@ -190,35 +343,75 @@
           "status": "pending",
           "complexity": "high",
           "description": "Replace Supabase Auth OTP with a custom solution using Amazon SES for email delivery and RDS for OTP code storage. This is the last Supabase dependency in the iOS app.",
-          "prerequisites": ["SES configured for sending", "RDS access", "v2 API deployed"],
-          "keyFiles": ["src/app/api/auth/send-otp/route.ts", "src/app/api/auth/verify-otp/route.ts"],
+          "prerequisites": [
+            "SES configured for sending",
+            "RDS access",
+            "v2 API deployed"
+          ],
+          "keyFiles": [
+            "src/app/api/auth/send-otp/route.ts",
+            "src/app/api/auth/verify-otp/route.ts"
+          ],
           "quickPrompt": "In the neuro-plans-v2 repo, build OTP email verification using Amazon SES for delivery and RDS for code storage. Create /api/auth/send-otp and /api/auth/verify-otp endpoints.",
-          "fullPrompt": "## Task: Custom OTP Email Verification\n\n**Repo:** neuro-plans-v2\n\n## Context\nThe iOS app currently uses Supabase Auth for OTP email verification. This is the last Supabase dependency. Replace with SES + RDS.\n\n## Build\n1. POST /api/auth/send-otp — generate 6-digit code, store in RDS with expiry, send via SES\n2. POST /api/auth/verify-otp — validate code against RDS, return success/failure\n3. Rate limiting: max 5 attempts per email per hour\n4. Code expiry: 10 minutes\n\n## Acceptance criteria\n- Email arrives within 30 seconds\n- Code validates correctly\n- Expired codes are rejected\n- Rate limiting prevents abuse",
-          "manualSteps": ["Set up SES for sending from your domain", "Create OTP codes table in RDS", "Build send-otp API route", "Build verify-otp API route", "Test end-to-end with real email", "Update iOS app to call new endpoints"]
+          "fullPrompt": "## Task: Custom OTP Email Verification\n\n**Repo:** neuro-plans-v2\n\n## Context\nThe iOS app currently uses Supabase Auth for OTP email verification. This is the last Supabase dependency. Replace with SES + RDS.\n\n## Build\n1. POST /api/auth/send-otp \u2014 generate 6-digit code, store in RDS with expiry, send via SES\n2. POST /api/auth/verify-otp \u2014 validate code against RDS, return success/failure\n3. Rate limiting: max 5 attempts per email per hour\n4. Code expiry: 10 minutes\n\n## Acceptance criteria\n- Email arrives within 30 seconds\n- Code validates correctly\n- Expired codes are rejected\n- Rate limiting prevents abuse",
+          "manualSteps": [
+            "Set up SES for sending from your domain",
+            "Create OTP codes table in RDS",
+            "Build send-otp API route",
+            "Build verify-otp API route",
+            "Test end-to-end with real email",
+            "Update iOS app to call new endpoints"
+          ]
         },
         {
           "id": "remove-supabase-sdk",
           "title": "Remove Supabase SDK from iOS app",
-          "status": "pending",
+          "status": "done",
           "complexity": "medium",
           "description": "After OTP is migrated to SES/RDS, remove the Supabase Swift SDK entirely from the iOS project. Update project.yml, remove SupabaseService.swift, and clean up SpecialtyConfig.",
-          "prerequisites": ["OTP email verification working via SES/RDS", "v2 API tested"],
-          "keyFiles": ["ios/NeuroPlans/project.yml", "ios/NeuroPlans/NeuroPlans/Services/SupabaseService.swift", "ios/NeuroPlans/NeuroPlans/SpecialtyConfig.swift"],
+          "prerequisites": [
+            "OTP email verification working via SES/RDS",
+            "v2 API tested"
+          ],
+          "keyFiles": [
+            "ios/NeuroPlans/project.yml",
+            "ios/NeuroPlans/NeuroPlans/Services/SupabaseService.swift",
+            "ios/NeuroPlans/NeuroPlans/SpecialtyConfig.swift"
+          ],
           "quickPrompt": "In the neuro-plans iOS project, remove the Supabase Swift SDK entirely. Delete SupabaseService.swift, remove the Supabase package from project.yml, and clean up SpecialtyConfig.",
           "fullPrompt": "## Task: Remove Supabase SDK\n\n**Repo:** neuro-plans (iOS)\n\n## Prerequisites\n- OTP email verification migrated to SES/RDS\n- All data calls using v2 API (APIService.swift)\n\n## Steps\n1. Remove Supabase package from project.yml\n2. Delete SupabaseService.swift\n3. Remove supabaseUrl and supabaseAnonKey from SpecialtyConfig\n4. Update EntitlementService to use new OTP endpoints\n5. Run xcodegen generate and verify build\n\n## Acceptance criteria\n- No Supabase imports in entire project\n- App builds and runs without Supabase SDK\n- All auth and data features work",
-          "manualSteps": ["Edit project.yml to remove Supabase package", "Delete SupabaseService.swift", "Clean up SpecialtyConfig.swift", "Update auth calls in EntitlementService", "Run xcodegen generate", "Build and test in Xcode"]
+          "manualSteps": [
+            "Edit project.yml to remove Supabase package",
+            "Delete SupabaseService.swift",
+            "Clean up SpecialtyConfig.swift",
+            "Update auth calls in EntitlementService",
+            "Run xcodegen generate",
+            "Build and test in Xcode"
+          ]
         },
         {
           "id": "submit-ios-update",
           "title": "Submit iOS update to App Store",
           "status": "pending",
           "complexity": "medium",
-          "description": "After Supabase is fully removed and all features tested, submit an updated Neuro Plans build to the App Store. This is a maintenance update — no new features, just backend migration.",
-          "prerequisites": ["Supabase SDK removed", "All endpoints tested", "Build succeeds"],
-          "keyFiles": ["ios/NeuroPlans/project.yml"],
+          "description": "After Supabase is fully removed and all features tested, submit an updated Neuro Plans build to the App Store. This is a maintenance update \u2014 no new features, just backend migration.",
+          "prerequisites": [
+            "Supabase SDK removed",
+            "All endpoints tested",
+            "Build succeeds"
+          ],
+          "keyFiles": [
+            "ios/NeuroPlans/project.yml"
+          ],
           "quickPrompt": "Build, archive, and submit the Neuro Plans iOS app to App Store Connect. This is a maintenance update migrating from Supabase to v2 REST API.",
           "fullPrompt": "## Task: Submit iOS Update\n\n**Repo:** neuro-plans (iOS)\n\n## Prerequisites\n- Supabase SDK fully removed\n- All v2 API endpoints tested and working\n- Build succeeds with xcodebuild\n\n## Steps\n1. Bump version number in project.yml\n2. Build and archive with xcodebuild\n3. Upload to App Store Connect with xcrun altool\n4. Submit for review with updated notes\n\n## Reviewer notes\nThis update migrates backend API calls from Supabase to our own REST API. No new features or UI changes. All data handling remains the same.",
-          "manualSteps": ["Update version in project.yml", "Archive: xcodebuild archive", "Upload: xcrun altool --upload-app", "Go to App Store Connect", "Select build and submit for review"]
+          "manualSteps": [
+            "Update version in project.yml",
+            "Archive: xcodebuild archive",
+            "Upload: xcrun altool --upload-app",
+            "Go to App Store Connect",
+            "Select build and submit for review"
+          ]
         }
       ]
     },
@@ -229,14 +422,26 @@
         {
           "id": "build-authenticated-pages",
           "title": "Build authenticated plan list and detail pages",
-          "status": "pending",
+          "status": "done",
           "complexity": "medium",
           "description": "Build the core authenticated pages for Cardio Plans v2: a plan list view showing all available cardiology plans and a detail view for individual plans. Uses Cognito auth and RDS data.",
-          "prerequisites": ["Cardio Plans v2 repo scaffolded", "Cognito user pool configured"],
-          "keyFiles": ["src/app/plans/page.tsx", "src/app/plans/[id]/page.tsx"],
+          "prerequisites": [
+            "Cardio Plans v2 repo scaffolded",
+            "Cognito user pool configured"
+          ],
+          "keyFiles": [
+            "src/app/plans/page.tsx",
+            "src/app/plans/[id]/page.tsx"
+          ],
           "quickPrompt": "In the cardio-plans-v2 repo, build authenticated plan list and detail pages. Use Cognito auth and fetch plans from RDS. Follow the same patterns as neuro-plans-v2.",
-          "fullPrompt": "## Task: Build Authenticated Pages\n\n**Repo:** cardio-plans-v2\n**Reference:** neuro-plans-v2 (same architecture)\n\n## Build\n1. Plan list page at /plans — shows all cardiology plans, requires auth\n2. Plan detail page at /plans/[id] — shows full plan content\n3. Cognito auth middleware (reuse pattern from neuro-plans-v2)\n4. RDS queries for plan data\n\n## Acceptance criteria\n- Unauthenticated users redirected to login\n- Plan list loads from RDS\n- Plan detail displays full content\n- Responsive layout matching Neuro Plans v2",
-          "manualSteps": ["Create src/app/plans/page.tsx", "Create src/app/plans/[id]/page.tsx", "Add Cognito auth middleware", "Create RDS query functions", "Test with authenticated user"]
+          "fullPrompt": "## Task: Build Authenticated Pages\n\n**Repo:** cardio-plans-v2\n**Reference:** neuro-plans-v2 (same architecture)\n\n## Build\n1. Plan list page at /plans \u2014 shows all cardiology plans, requires auth\n2. Plan detail page at /plans/[id] \u2014 shows full plan content\n3. Cognito auth middleware (reuse pattern from neuro-plans-v2)\n4. RDS queries for plan data\n\n## Acceptance criteria\n- Unauthenticated users redirected to login\n- Plan list loads from RDS\n- Plan detail displays full content\n- Responsive layout matching Neuro Plans v2",
+          "manualSteps": [
+            "Create src/app/plans/page.tsx",
+            "Create src/app/plans/[id]/page.tsx",
+            "Add Cognito auth middleware",
+            "Create RDS query functions",
+            "Test with authenticated user"
+          ]
         },
         {
           "id": "import-cardiology-content",
@@ -244,11 +449,23 @@
           "status": "pending",
           "complexity": "medium",
           "description": "Import cardiology-specific clinical plan content into the RDS database. This includes treatment protocols, monitoring parameters, and clinical decision points for common cardiology conditions.",
-          "prerequisites": ["Authenticated pages built", "RDS tables created"],
-          "keyFiles": ["scripts/import-plans.ts", "src/data/cardiology-plans/"],
+          "prerequisites": [
+            "Authenticated pages built",
+            "RDS tables created"
+          ],
+          "keyFiles": [
+            "scripts/import-plans.ts",
+            "src/data/cardiology-plans/"
+          ],
           "quickPrompt": "In the cardio-plans-v2 repo, import cardiology clinical plan content into RDS. Draft plans for common cardiology conditions following the same format as neuro-plans.",
           "fullPrompt": "## Task: Import Cardiology Content\n\n**Repo:** cardio-plans-v2\n\n## Steps\n1. Define plan schema matching Neuro Plans format\n2. Draft clinical content for core cardiology conditions\n3. Create import script to load into RDS\n4. Verify plans appear in app\n\n## Acceptance criteria\n- At least 20 cardiology plans imported\n- Content follows same format as Neuro Plans\n- Plans display correctly in detail view",
-          "manualSteps": ["Define plan content format", "Draft clinical plans for core conditions", "Create RDS import script", "Run import", "Verify in app"]
+          "manualSteps": [
+            "Define plan content format",
+            "Draft clinical plans for core conditions",
+            "Create RDS import script",
+            "Run import",
+            "Verify in app"
+          ]
         },
         {
           "id": "deploy-amplify-domain",
@@ -256,11 +473,23 @@
           "status": "pending",
           "complexity": "medium",
           "description": "Deploy Cardio Plans v2 to AWS Amplify and configure a custom domain (e.g., cardio.neuroplans.app) via Route 53.",
-          "prerequisites": ["App builds successfully", "AWS Amplify access"],
-          "keyFiles": ["amplify.yml"],
+          "prerequisites": [
+            "App builds successfully",
+            "AWS Amplify access"
+          ],
+          "keyFiles": [
+            "amplify.yml"
+          ],
           "quickPrompt": "Deploy cardio-plans-v2 to AWS Amplify and set up custom domain cardio.neuroplans.app via Route 53.",
           "fullPrompt": "## Task: Deploy to Amplify\n\n**Repo:** cardio-plans-v2\n\n## Steps\n1. Create Amplify app connected to GitHub repo\n2. Configure build settings (Next.js 16)\n3. Set environment variables (Cognito, RDS)\n4. Create custom domain in Route 53\n5. Associate domain with Amplify app\n\n## Acceptance criteria\n- App accessible at cardio.neuroplans.app\n- Auto-deploy on push to main\n- SSL certificate active",
-          "manualSteps": ["aws amplify create-app", "Connect GitHub repo", "Set build settings and env vars", "aws route53 create record", "aws amplify create-domain-association", "Verify HTTPS works"]
+          "manualSteps": [
+            "aws amplify create-app",
+            "Connect GitHub repo",
+            "Set build settings and env vars",
+            "aws route53 create record",
+            "aws amplify create-domain-association",
+            "Verify HTTPS works"
+          ]
         },
         {
           "id": "migrate-ios-to-v2",
@@ -268,11 +497,22 @@
           "status": "pending",
           "complexity": "medium",
           "description": "Update the Cardio Plans iOS app to call the v2 REST API instead of Supabase PostgREST, following the same pattern used for the Neuro Plans iOS migration.",
-          "prerequisites": ["v2 API deployed and tested", "Cardio Plans v2 with custom domain"],
-          "keyFiles": ["ios/CardioPlans/CardioPlans/Services/APIService.swift"],
+          "prerequisites": [
+            "v2 API deployed and tested",
+            "Cardio Plans v2 with custom domain"
+          ],
+          "keyFiles": [
+            "ios/CardioPlans/CardioPlans/Services/APIService.swift"
+          ],
           "quickPrompt": "In the cardio-plans iOS project, migrate data API calls from Supabase PostgREST to the v2 REST API at cardio.neuroplans.app. Follow the same pattern as neuro-plans APIService.swift.",
           "fullPrompt": "## Task: Migrate iOS to v2 API\n\n**Repo:** neuro-plans (shared iOS project for Cardio Plans)\n\n## Context\nFollow the exact same pattern used for Neuro Plans iOS migration. Create APIService.swift, update SpecialtyConfig, keep Supabase for auth only.\n\n## Steps\n1. Create APIService.swift with v2 endpoint calls\n2. Update SpecialtyConfig with Cardio Plans v2 base URL\n3. Replace Supabase data calls in EntitlementService\n4. Test all endpoints\n\n## Acceptance criteria\n- All data calls use v2 API\n- Auth still works via Supabase\n- No regressions in app functionality",
-          "manualSteps": ["Create CardioPlans APIService.swift", "Update SpecialtyConfig.swift", "Replace Supabase data calls", "Build and test in Xcode", "Test all three endpoints"]
+          "manualSteps": [
+            "Create CardioPlans APIService.swift",
+            "Update SpecialtyConfig.swift",
+            "Replace Supabase data calls",
+            "Build and test in Xcode",
+            "Test all three endpoints"
+          ]
         }
       ]
     },
@@ -286,11 +526,21 @@
           "status": "pending",
           "complexity": "low",
           "description": "After v1.0.1 is approved, decide whether to keep the Bring Your Own Key (BYOK) feature for OpenAI or remove it to simplify the app. BYOK lets users enter their own API key instead of using the edge function proxy.",
-          "prerequisites": ["v1.0.1 approved on App Store"],
-          "keyFiles": ["RepGenius/Settings/SettingsView.swift"],
+          "prerequisites": [
+            "v1.0.1 approved on App Store"
+          ],
+          "keyFiles": [
+            "RepGenius/Settings/SettingsView.swift"
+          ],
           "quickPrompt": "Review the RepGenius BYOK feature and decide whether to keep or remove it. If removing, clean up SettingsView.swift and API key storage.",
           "fullPrompt": "## Task: BYOK Decision\n\n**Repo:** RepGenius\n\n## Context\nRepGenius supports BYOK (Bring Your Own Key) where users can enter their own OpenAI API key. The edge function proxy is the default. BYOK adds complexity but gives power users control.\n\n## Decision factors\n- Does BYOK add enough value to justify maintenance?\n- Does it complicate App Store review (AI data practices)?\n- Would removing it simplify the settings UI?\n\n## If removing\n1. Remove API key input from SettingsView.swift\n2. Remove UserDefaults key storage\n3. Simplify WorkoutGenerationService to always use edge function\n4. Submit update to App Store",
-          "manualSteps": ["Review BYOK usage analytics if available", "Decide keep vs remove", "If removing: clean up SettingsView", "If removing: simplify API service", "Test and submit update"]
+          "manualSteps": [
+            "Review BYOK usage analytics if available",
+            "Decide keep vs remove",
+            "If removing: clean up SettingsView",
+            "If removing: simplify API service",
+            "Test and submit update"
+          ]
         },
         {
           "id": "core-data-migration",
@@ -298,11 +548,23 @@
           "status": "pending",
           "complexity": "high",
           "description": "Migrate workout history storage from UserDefaults to Core Data for persistent, queryable workout history. UserDefaults is not designed for large datasets and has size limits.",
-          "prerequisites": ["v1.0.1 approved"],
-          "keyFiles": ["RepGenius/Models/", "RepGenius/Services/WorkoutHistoryService.swift"],
+          "prerequisites": [
+            "v1.0.1 approved"
+          ],
+          "keyFiles": [
+            "RepGenius/Models/",
+            "RepGenius/Services/WorkoutHistoryService.swift"
+          ],
           "quickPrompt": "In RepGenius, migrate workout history from UserDefaults to Core Data. Create Core Data model, migration logic, and update all reads/writes.",
           "fullPrompt": "## Task: Core Data Migration\n\n**Repo:** RepGenius\n\n## Context\nWorkout history is stored in UserDefaults as encoded JSON. This works for small amounts but won't scale. Core Data provides proper persistence, querying, and migration support.\n\n## Build\n1. Create Core Data model (.xcdatamodeld) with Workout, Exercise, Set entities\n2. Write migration logic to move existing UserDefaults data to Core Data\n3. Update WorkoutHistoryService to use Core Data\n4. Add Core Data stack to app lifecycle\n5. Test migration with existing data\n\n## Acceptance criteria\n- Existing workout history preserved after migration\n- New workouts save to Core Data\n- Query performance is fast (< 100ms for history list)\n- UserDefaults workout data cleaned up after successful migration",
-          "manualSteps": ["Create .xcdatamodeld in Xcode", "Define Workout/Exercise/Set entities", "Write migration service", "Update WorkoutHistoryService", "Test with existing data", "Clean up UserDefaults after migration"]
+          "manualSteps": [
+            "Create .xcdatamodeld in Xcode",
+            "Define Workout/Exercise/Set entities",
+            "Write migration service",
+            "Update WorkoutHistoryService",
+            "Test with existing data",
+            "Clean up UserDefaults after migration"
+          ]
         },
         {
           "id": "apple-watch-companion",
@@ -310,11 +572,21 @@
           "status": "pending",
           "complexity": "medium",
           "description": "Polish and test the Apple Watch companion app for RepGenius. Show current workout, rep counting, and basic controls on the watch.",
-          "prerequisites": ["Core Data migration complete (shared data store)"],
-          "keyFiles": ["RepGenius Watch App/"],
+          "prerequisites": [
+            "Core Data migration complete (shared data store)"
+          ],
+          "keyFiles": [
+            "RepGenius Watch App/"
+          ],
           "quickPrompt": "In RepGenius, polish the Apple Watch companion app. Ensure workout display, rep counting, and controls work reliably on watchOS.",
           "fullPrompt": "## Task: Apple Watch Companion Polish\n\n**Repo:** RepGenius\n\n## Build\n1. Review existing Watch app code\n2. Ensure workout sync between phone and watch\n3. Rep counting display on watch face\n4. Start/pause/skip controls\n5. Test on physical Apple Watch\n\n## Acceptance criteria\n- Watch shows current exercise and rep count\n- Controls work reliably\n- Data syncs with phone app\n- Battery impact is reasonable",
-          "manualSteps": ["Open Watch App target in Xcode", "Review existing UI", "Fix data sync issues", "Test on physical watch", "Check battery impact"]
+          "manualSteps": [
+            "Open Watch App target in Xcode",
+            "Review existing UI",
+            "Fix data sync issues",
+            "Test on physical watch",
+            "Check battery impact"
+          ]
         }
       ]
     },
@@ -328,11 +600,22 @@
           "status": "in-progress",
           "complexity": "high",
           "description": "Build infrastructure to support multiple monitoring devices per patient (iPhone, Apple Watch, iPad). Includes device registration, data normalization across device types, and unified patient dashboard.",
-          "prerequisites": ["SevaroMonitor repo cloned", "RDS access"],
-          "keyFiles": ["SevaroMonitor/Services/AWSService.swift", "lambda/sevaro-monitor-api/"],
+          "prerequisites": [
+            "SevaroMonitor repo cloned",
+            "RDS access"
+          ],
+          "keyFiles": [
+            "SevaroMonitor/Services/AWSService.swift",
+            "lambda/sevaro-monitor-api/"
+          ],
           "quickPrompt": "In the SevaroMonitor repo, build multi-device RPM infrastructure. Support multiple devices per patient with device registration, data normalization, and unified dashboard.",
           "fullPrompt": "## Task: Multi-Device RPM Infrastructure\n\n**Repo:** SevaroMonitor\n\n## Context\nCurrently supports single device per patient. Need to support iPhone + Apple Watch + potentially iPad.\n\n## Build\n1. Device registration endpoint in Lambda API\n2. Data normalization across device types\n3. Unified patient view in dashboard\n4. Device-specific assessment capabilities\n\n## Acceptance criteria\n- Multiple devices register for same patient\n- Data from all devices appears in unified view\n- Device-specific features (Watch IMU, phone camera) work independently",
-          "manualSteps": ["Add device registration to Lambda API", "Create device normalization layer", "Update dashboard for multi-device view", "Test with iPhone and Watch simultaneously"]
+          "manualSteps": [
+            "Add device registration to Lambda API",
+            "Create device normalization layer",
+            "Update dashboard for multi-device view",
+            "Test with iPhone and Watch simultaneously"
+          ]
         },
         {
           "id": "spiral-gait-polish",
@@ -340,11 +623,22 @@
           "status": "pending",
           "complexity": "medium",
           "description": "Polish the spiral drawing (for tremor assessment) and gait assessment UI. These assessments exist but need UI refinement for clinical usability.",
-          "prerequisites": ["SevaroMonitor repo cloned"],
-          "keyFiles": ["SevaroMonitor/Views/Assessments/"],
+          "prerequisites": [
+            "SevaroMonitor repo cloned"
+          ],
+          "keyFiles": [
+            "SevaroMonitor/Views/Assessments/"
+          ],
           "quickPrompt": "In the SevaroMonitor repo, polish the spiral drawing and gait assessment UIs for clinical usability. Focus on clear instructions, smooth drawing capture, and results display.",
-          "fullPrompt": "## Task: Assessment UI Polish\n\n**Repo:** SevaroMonitor\n\n## Assessments to polish\n1. Spiral drawing — capture finger-drawn spirals for tremor analysis\n2. Gait assessment — walk test with IMU data capture\n\n## Focus areas\n- Clear patient-facing instructions\n- Smooth drawing capture (spiral)\n- Accurate timing and step counting (gait)\n- Results display with clinical context\n\n## Acceptance criteria\n- Both assessments are intuitive for patients\n- Data captures are accurate and complete\n- Results show clinically meaningful metrics",
-          "manualSteps": ["Open spiral drawing view", "Improve drawing capture smoothness", "Add clear instructions", "Open gait assessment view", "Improve step counting display", "Test both assessments end-to-end"]
+          "fullPrompt": "## Task: Assessment UI Polish\n\n**Repo:** SevaroMonitor\n\n## Assessments to polish\n1. Spiral drawing \u2014 capture finger-drawn spirals for tremor analysis\n2. Gait assessment \u2014 walk test with IMU data capture\n\n## Focus areas\n- Clear patient-facing instructions\n- Smooth drawing capture (spiral)\n- Accurate timing and step counting (gait)\n- Results display with clinical context\n\n## Acceptance criteria\n- Both assessments are intuitive for patients\n- Data captures are accurate and complete\n- Results show clinically meaningful metrics",
+          "manualSteps": [
+            "Open spiral drawing view",
+            "Improve drawing capture smoothness",
+            "Add clear instructions",
+            "Open gait assessment view",
+            "Improve step counting display",
+            "Test both assessments end-to-end"
+          ]
         },
         {
           "id": "healthkit-passive",
@@ -352,11 +646,22 @@
           "status": "pending",
           "complexity": "medium",
           "description": "Add HealthKit integration to passively collect heart rate, step count, sleep data, and activity metrics without requiring active assessments.",
-          "prerequisites": ["Multi-device RPM infrastructure complete"],
-          "keyFiles": ["SevaroMonitor/Services/HealthKitService.swift"],
+          "prerequisites": [
+            "Multi-device RPM infrastructure complete"
+          ],
+          "keyFiles": [
+            "SevaroMonitor/Services/HealthKitService.swift"
+          ],
           "quickPrompt": "In the SevaroMonitor repo, add HealthKit passive data collection for heart rate, steps, sleep, and activity. Upload to RDS via Lambda API.",
           "fullPrompt": "## Task: HealthKit Passive Collection\n\n**Repo:** SevaroMonitor\n\n## Build\n1. Request HealthKit permissions for relevant data types\n2. Background delivery for heart rate, steps, sleep\n3. Batch upload to Lambda API at regular intervals\n4. Display passive data in patient dashboard\n\n## Acceptance criteria\n- HealthKit data flows to RDS without user action\n- Dashboard shows passive metrics alongside assessment data\n- Battery impact is minimal (background delivery, not polling)",
-          "manualSteps": ["Add HealthKit capability in Xcode", "Create HealthKitService.swift", "Request permissions on first launch", "Set up background delivery", "Batch upload to API", "Display in dashboard"]
+          "manualSteps": [
+            "Add HealthKit capability in Xcode",
+            "Create HealthKitService.swift",
+            "Request permissions on first launch",
+            "Set up background delivery",
+            "Batch upload to API",
+            "Display in dashboard"
+          ]
         },
         {
           "id": "production-deploy-pilot",
@@ -364,11 +669,25 @@
           "status": "pending",
           "complexity": "high",
           "description": "Deploy SevaroMonitor for production clinical use. Includes final security audit, HIPAA compliance review, and initial clinical pilot with real patients.",
-          "prerequisites": ["Multi-device RPM complete", "HealthKit working", "Assessment UIs polished"],
-          "keyFiles": ["lambda/sevaro-monitor-api/", "SevaroMonitor/"],
+          "prerequisites": [
+            "Multi-device RPM complete",
+            "HealthKit working",
+            "Assessment UIs polished"
+          ],
+          "keyFiles": [
+            "lambda/sevaro-monitor-api/",
+            "SevaroMonitor/"
+          ],
           "quickPrompt": "Prepare SevaroMonitor for production clinical deployment. Security audit, HIPAA compliance review, and clinical pilot setup.",
-          "fullPrompt": "## Task: Production Deploy\n\n**Repo:** SevaroMonitor\n\n## Steps\n1. Security audit — API auth, data encryption, access controls\n2. HIPAA compliance review — BAA coverage, audit logging, data retention\n3. TestFlight beta with clinical staff\n4. Clinical pilot with 5-10 patients\n5. Production deployment\n\n## Acceptance criteria\n- Security audit passed\n- HIPAA requirements met\n- Clinical staff trained\n- 5+ patients successfully monitored",
-          "manualSteps": ["Run security audit on API and app", "Review HIPAA compliance checklist", "Deploy TestFlight beta", "Train clinical staff", "Onboard pilot patients", "Monitor for issues"]
+          "fullPrompt": "## Task: Production Deploy\n\n**Repo:** SevaroMonitor\n\n## Steps\n1. Security audit \u2014 API auth, data encryption, access controls\n2. HIPAA compliance review \u2014 BAA coverage, audit logging, data retention\n3. TestFlight beta with clinical staff\n4. Clinical pilot with 5-10 patients\n5. Production deployment\n\n## Acceptance criteria\n- Security audit passed\n- HIPAA requirements met\n- Clinical staff trained\n- 5+ patients successfully monitored",
+          "manualSteps": [
+            "Run security audit on API and app",
+            "Review HIPAA compliance checklist",
+            "Deploy TestFlight beta",
+            "Train clinical staff",
+            "Onboard pilot patients",
+            "Monitor for issues"
+          ]
         }
       ]
     },
@@ -381,12 +700,25 @@
           "title": "End-to-end speech pipeline validation on headset",
           "status": "in-progress",
           "complexity": "high",
-          "description": "Validate the full speech analysis pipeline on the VR headset — from audio capture through acoustic analysis to clinical metrics. Both temporal and acoustic metrics need to flow correctly.",
-          "prerequisites": ["SDNE repo cloned", "VR headset available", "Lambda deployed"],
-          "keyFiles": ["aws/acoustic/", "unity/"],
+          "description": "Validate the full speech analysis pipeline on the VR headset \u2014 from audio capture through acoustic analysis to clinical metrics. Both temporal and acoustic metrics need to flow correctly.",
+          "prerequisites": [
+            "SDNE repo cloned",
+            "VR headset available",
+            "Lambda deployed"
+          ],
+          "keyFiles": [
+            "aws/acoustic/",
+            "unity/"
+          ],
           "quickPrompt": "In the SDNE repo, validate the end-to-end speech pipeline on the VR headset. Ensure temporal and acoustic metrics flow from headset capture through Lambda analysis to results display.",
-          "fullPrompt": "## Task: Speech Pipeline Validation\n\n**Repo:** SDNE\n\n## Pipeline\nHeadset mic → Unity audio capture → Upload to S3 → Lambda acoustic analysis → Results in RDS → Dashboard display\n\n## Validate\n1. Audio capture quality on headset mic\n2. Upload reliability to S3\n3. Lambda processing (acoustic features extraction)\n4. Results accuracy vs known-good samples\n5. Dashboard display of results\n\n## Acceptance criteria\n- Full pipeline works end-to-end on headset\n- Acoustic metrics match expected values for test recordings\n- No data loss in pipeline",
-          "manualSteps": ["Set up headset with SDNE app", "Run speech tasks (sustained vowel, passage reading)", "Verify upload to S3", "Check Lambda execution in CloudWatch", "Compare results to known-good baselines"]
+          "fullPrompt": "## Task: Speech Pipeline Validation\n\n**Repo:** SDNE\n\n## Pipeline\nHeadset mic \u2192 Unity audio capture \u2192 Upload to S3 \u2192 Lambda acoustic analysis \u2192 Results in RDS \u2192 Dashboard display\n\n## Validate\n1. Audio capture quality on headset mic\n2. Upload reliability to S3\n3. Lambda processing (acoustic features extraction)\n4. Results accuracy vs known-good samples\n5. Dashboard display of results\n\n## Acceptance criteria\n- Full pipeline works end-to-end on headset\n- Acoustic metrics match expected values for test recordings\n- No data loss in pipeline",
+          "manualSteps": [
+            "Set up headset with SDNE app",
+            "Run speech tasks (sustained vowel, passage reading)",
+            "Verify upload to S3",
+            "Check Lambda execution in CloudWatch",
+            "Compare results to known-good baselines"
+          ]
         },
         {
           "id": "gait-task-testing",
@@ -394,11 +726,23 @@
           "status": "pending",
           "complexity": "medium",
           "description": "Test the T15 and T16 gait assessment tasks on the VR headset. These tasks measure walking patterns and require headset IMU data for movement tracking.",
-          "prerequisites": ["Speech pipeline validated", "Headset available"],
-          "keyFiles": ["unity/Tasks/T15_Gait/", "unity/Tasks/T16_Gait/"],
+          "prerequisites": [
+            "Speech pipeline validated",
+            "Headset available"
+          ],
+          "keyFiles": [
+            "unity/Tasks/T15_Gait/",
+            "unity/Tasks/T16_Gait/"
+          ],
           "quickPrompt": "In the SDNE repo, test T15 and T16 gait tasks on the VR headset. Verify IMU data capture and gait metrics calculation.",
           "fullPrompt": "## Task: Gait Task Testing\n\n**Repo:** SDNE\n\n## Tasks\n- T15: Timed walk test\n- T16: Dual-task walking (walking + cognitive task)\n\n## Test\n1. Run both tasks on headset\n2. Verify IMU data capture (acceleration, rotation)\n3. Check gait metrics (step count, cadence, symmetry)\n4. Compare to manual measurement\n\n## Acceptance criteria\n- Both tasks run without crashes\n- IMU data captures reliably\n- Gait metrics are clinically plausible",
-          "manualSteps": ["Load SDNE on headset", "Run T15 timed walk", "Run T16 dual-task walk", "Verify IMU data in results", "Compare metrics to manual measurement"]
+          "manualSteps": [
+            "Load SDNE on headset",
+            "Run T15 timed walk",
+            "Run T16 dual-task walk",
+            "Verify IMU data in results",
+            "Compare metrics to manual measurement"
+          ]
         },
         {
           "id": "clinical-threshold-tuning",
@@ -406,11 +750,24 @@
           "status": "pending",
           "complexity": "high",
           "description": "Tune clinical thresholds (normal/abnormal boundaries) using real patient data instead of synthetic test data. Requires collecting baseline data from healthy controls and patients with known conditions.",
-          "prerequisites": ["Speech pipeline validated", "Access to clinical subjects"],
-          "keyFiles": ["aws/acoustic/thresholds.py", "dashboard/"],
+          "prerequisites": [
+            "Speech pipeline validated",
+            "Access to clinical subjects"
+          ],
+          "keyFiles": [
+            "aws/acoustic/thresholds.py",
+            "dashboard/"
+          ],
           "quickPrompt": "In the SDNE repo, tune clinical thresholds using real patient data. Collect baselines from healthy controls and compare to patients with known conditions.",
           "fullPrompt": "## Task: Clinical Threshold Tuning\n\n**Repo:** SDNE\n\n## Context\nCurrent thresholds are based on literature values and synthetic data. Need real patient data to calibrate.\n\n## Steps\n1. Collect baseline data from 10+ healthy controls\n2. Collect data from patients with known speech/motor conditions\n3. Analyze distributions and set clinically meaningful thresholds\n4. Update threshold configuration\n5. Validate with held-out data\n\n## Acceptance criteria\n- Thresholds based on real clinical data\n- Sensitivity/specificity acceptable for screening\n- Dashboard displays normal/abnormal correctly",
-          "manualSteps": ["Recruit healthy controls", "Run assessment battery on each", "Collect patient data", "Analyze distributions", "Set thresholds", "Validate with new data"]
+          "manualSteps": [
+            "Recruit healthy controls",
+            "Run assessment battery on each",
+            "Collect patient data",
+            "Analyze distributions",
+            "Set thresholds",
+            "Validate with new data"
+          ]
         },
         {
           "id": "watch-imu-integration",
@@ -418,11 +775,23 @@
           "status": "pending",
           "complexity": "high",
           "description": "Integrate Apple Watch IMU data for motor and gait tasks (T09 finger tapping, T10 hand movements, T11 pronation-supination, T15/T16 gait). The watch provides higher-quality wrist/hand movement data than the headset.",
-          "prerequisites": ["Headset pipeline validated", "Apple Watch development setup"],
-          "keyFiles": ["watch/", "unity/Tasks/"],
+          "prerequisites": [
+            "Headset pipeline validated",
+            "Apple Watch development setup"
+          ],
+          "keyFiles": [
+            "watch/",
+            "unity/Tasks/"
+          ],
           "quickPrompt": "In the SDNE repo, integrate Apple Watch IMU data for motor tasks T09, T10, T11, T15, T16. Capture accelerometer and gyroscope data from the watch during tasks.",
           "fullPrompt": "## Task: Watch IMU Integration\n\n**Repo:** SDNE\n\n## Tasks requiring Watch data\n- T09: Finger tapping\n- T10: Hand movements\n- T11: Pronation-supination\n- T15/T16: Gait\n\n## Build\n1. Watch app for IMU data capture\n2. BLE sync between watch and headset/phone\n3. Time-sync IMU data with task timestamps\n4. Upload watch data alongside headset data\n5. Combined analysis in Lambda\n\n## Acceptance criteria\n- Watch captures IMU at 100Hz during tasks\n- Data syncs with headset task timing\n- Combined metrics available in dashboard",
-          "manualSteps": ["Create watchOS app with IMU capture", "Set up BLE communication", "Implement time synchronization", "Test data capture during tasks", "Verify combined analysis"]
+          "manualSteps": [
+            "Create watchOS app with IMU capture",
+            "Set up BLE communication",
+            "Implement time synchronization",
+            "Test data capture during tasks",
+            "Verify combined analysis"
+          ]
         },
         {
           "id": "deploy-dashboard",
@@ -430,11 +799,22 @@
           "status": "pending",
           "complexity": "medium",
           "description": "Deploy the SDNE clinical dashboard so the research team can view assessment results, compare sessions, and track patient progress over time.",
-          "prerequisites": ["Speech pipeline validated", "Dashboard built"],
-          "keyFiles": ["dashboard/"],
+          "prerequisites": [
+            "Speech pipeline validated",
+            "Dashboard built"
+          ],
+          "keyFiles": [
+            "dashboard/"
+          ],
           "quickPrompt": "Deploy the SDNE dashboard to AWS Amplify with authentication so the research team can access clinical assessment results.",
           "fullPrompt": "## Task: Deploy Dashboard\n\n**Repo:** SDNE\n\n## Steps\n1. Set up Amplify hosting for dashboard\n2. Add Cognito auth for team access\n3. Configure custom domain\n4. Connect to RDS for assessment data\n5. Deploy and verify\n\n## Acceptance criteria\n- Dashboard accessible via custom domain\n- Only authenticated team members can access\n- Assessment data loads from RDS\n- Session comparison view works",
-          "manualSteps": ["Create Amplify app", "Add Cognito auth", "Set up custom domain in Route 53", "Configure RDS connection", "Deploy and test with team"]
+          "manualSteps": [
+            "Create Amplify app",
+            "Add Cognito auth",
+            "Set up custom domain in Route 53",
+            "Configure RDS connection",
+            "Deploy and test with team"
+          ]
         }
       ]
     },
@@ -447,36 +827,71 @@
           "title": "Note generation pipeline polish (120s Lambda timeout)",
           "status": "in-progress",
           "complexity": "medium",
-          "description": "The note generation Lambda has a 120-second timeout which is occasionally hit on complex encounters. Polish the pipeline to be more reliable — optimize prompt sizes, add progress feedback, and handle timeout gracefully.",
-          "prerequisites": ["SevaroNeuro-scribe-chrome repo cloned", "Lambda access"],
-          "keyFiles": ["lambda/generate-note/", "src/services/NoteGenerationService.ts"],
-          "quickPrompt": "In the SevaroNeuro-scribe-chrome repo, polish the note generation pipeline. Optimize for the 120s Lambda timeout — reduce prompt sizes, add progress feedback, handle timeouts gracefully.",
-          "fullPrompt": "## Task: Note Generation Polish\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Problem\nThe generate-note Lambda occasionally times out at 120s on complex encounters. Need to optimize.\n\n## Fix approach\n1. Measure current prompt token counts\n2. Trim unnecessary context from prompts\n3. Add progress feedback to UI (generating... section 1/3...)\n4. Graceful timeout handling — save partial results\n5. Consider splitting into multiple Lambda calls for very long encounters\n\n## Acceptance criteria\n- No timeouts on typical encounters\n- Progress feedback visible in UI\n- Partial results saved on timeout",
-          "manualSteps": ["Check Lambda logs for timeout frequency", "Measure prompt token counts", "Optimize longest prompts", "Add progress feedback UI", "Test with long encounter transcripts"]
+          "description": "The note generation Lambda has a 120-second timeout which is occasionally hit on complex encounters. Polish the pipeline to be more reliable \u2014 optimize prompt sizes, add progress feedback, and handle timeout gracefully.",
+          "prerequisites": [
+            "SevaroNeuro-scribe-chrome repo cloned",
+            "Lambda access"
+          ],
+          "keyFiles": [
+            "lambda/generate-note/",
+            "src/services/NoteGenerationService.ts"
+          ],
+          "quickPrompt": "In the SevaroNeuro-scribe-chrome repo, polish the note generation pipeline. Optimize for the 120s Lambda timeout \u2014 reduce prompt sizes, add progress feedback, handle timeouts gracefully.",
+          "fullPrompt": "## Task: Note Generation Polish\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Problem\nThe generate-note Lambda occasionally times out at 120s on complex encounters. Need to optimize.\n\n## Fix approach\n1. Measure current prompt token counts\n2. Trim unnecessary context from prompts\n3. Add progress feedback to UI (generating... section 1/3...)\n4. Graceful timeout handling \u2014 save partial results\n5. Consider splitting into multiple Lambda calls for very long encounters\n\n## Acceptance criteria\n- No timeouts on typical encounters\n- Progress feedback visible in UI\n- Partial results saved on timeout",
+          "manualSteps": [
+            "Check Lambda logs for timeout frequency",
+            "Measure prompt token counts",
+            "Optimize longest prompts",
+            "Add progress feedback UI",
+            "Test with long encounter transcripts"
+          ]
         },
         {
           "id": "chart-prep-transition",
           "title": "Chart prep to visit transition workflow",
           "status": "pending",
           "complexity": "medium",
-          "description": "When a clinician finishes chart prep and starts a visit, the extension should smoothly transition — carrying forward chart prep notes and switching to encounter recording mode.",
-          "prerequisites": ["Note generation pipeline polished"],
-          "keyFiles": ["src/components/ChartPrepView.tsx", "src/components/EncounterView.tsx"],
+          "description": "When a clinician finishes chart prep and starts a visit, the extension should smoothly transition \u2014 carrying forward chart prep notes and switching to encounter recording mode.",
+          "prerequisites": [
+            "Note generation pipeline polished"
+          ],
+          "keyFiles": [
+            "src/components/ChartPrepView.tsx",
+            "src/components/EncounterView.tsx"
+          ],
           "quickPrompt": "In the SevaroNeuro-scribe-chrome repo, build the chart prep to visit transition workflow. Carry forward chart prep notes into the encounter and switch to recording mode.",
-          "fullPrompt": "## Task: Chart Prep to Visit Transition\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Workflow\n1. Clinician completes chart prep (reviews prior notes, labs, imaging)\n2. Patient arrives — clinician clicks 'Start Visit'\n3. Extension carries forward chart prep context\n4. Switches to encounter recording mode\n5. Chart prep data available as reference during encounter\n\n## Build\n1. 'Start Visit' button in chart prep view\n2. Context transfer from chart prep to encounter\n3. Split-view or reference panel during encounter\n4. Ensure recording captures only the encounter, not chart prep\n\n## Acceptance criteria\n- Smooth transition from chart prep to visit\n- Chart prep notes accessible during encounter\n- Recording starts fresh for the encounter",
-          "manualSteps": ["Add Start Visit button to ChartPrepView", "Build context transfer logic", "Create reference panel in EncounterView", "Test full workflow", "Verify recording only captures encounter"]
+          "fullPrompt": "## Task: Chart Prep to Visit Transition\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Workflow\n1. Clinician completes chart prep (reviews prior notes, labs, imaging)\n2. Patient arrives \u2014 clinician clicks 'Start Visit'\n3. Extension carries forward chart prep context\n4. Switches to encounter recording mode\n5. Chart prep data available as reference during encounter\n\n## Build\n1. 'Start Visit' button in chart prep view\n2. Context transfer from chart prep to encounter\n3. Split-view or reference panel during encounter\n4. Ensure recording captures only the encounter, not chart prep\n\n## Acceptance criteria\n- Smooth transition from chart prep to visit\n- Chart prep notes accessible during encounter\n- Recording starts fresh for the encounter",
+          "manualSteps": [
+            "Add Start Visit button to ChartPrepView",
+            "Build context transfer logic",
+            "Create reference panel in EncounterView",
+            "Test full workflow",
+            "Verify recording only captures encounter"
+          ]
         },
         {
           "id": "wire-deepgram-streaming",
           "title": "Wire up Deepgram streaming (implemented but not connected)",
           "status": "pending",
           "complexity": "medium",
-          "description": "The DeepgramService class is fully implemented but never instantiated — streaming transcription is not wired up. Currently uses batch transcription via Lambda. Connect the streaming service for real-time transcription during encounters.",
-          "prerequisites": ["Deepgram API key with streaming access"],
-          "keyFiles": ["src/services/DeepgramService.ts", "src/offscreen/offscreen.ts"],
+          "description": "The DeepgramService class is fully implemented but never instantiated \u2014 streaming transcription is not wired up. Currently uses batch transcription via Lambda. Connect the streaming service for real-time transcription during encounters.",
+          "prerequisites": [
+            "Deepgram API key with streaming access"
+          ],
+          "keyFiles": [
+            "src/services/DeepgramService.ts",
+            "src/offscreen/offscreen.ts"
+          ],
           "quickPrompt": "In the SevaroNeuro-scribe-chrome repo, wire up the existing DeepgramService for real-time streaming transcription. The class is implemented but not instantiated anywhere.",
-          "fullPrompt": "## Task: Wire Up Deepgram Streaming\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Context\nDeepgramService.ts is fully implemented with WebSocket subprotocol auth. But it's never instantiated — the extension uses batch transcription via Lambda /transcribe endpoint.\n\n## Wire up\n1. Instantiate DeepgramService in the offscreen document\n2. Connect microphone audio to Deepgram WebSocket\n3. Display interim results in real-time in the side panel\n4. Replace final transcription with Deepgram finals\n5. Keep batch transcription as fallback\n\n## Acceptance criteria\n- Words appear in real-time during recording\n- Final transcript quality matches or exceeds batch\n- Fallback to batch if streaming fails\n- No memory leaks from WebSocket connections",
-          "manualSteps": ["Open src/services/DeepgramService.ts", "Find where to instantiate it in offscreen.ts", "Connect audio stream", "Wire interim results to side panel display", "Test streaming vs batch quality", "Add fallback logic"]
+          "fullPrompt": "## Task: Wire Up Deepgram Streaming\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Context\nDeepgramService.ts is fully implemented with WebSocket subprotocol auth. But it's never instantiated \u2014 the extension uses batch transcription via Lambda /transcribe endpoint.\n\n## Wire up\n1. Instantiate DeepgramService in the offscreen document\n2. Connect microphone audio to Deepgram WebSocket\n3. Display interim results in real-time in the side panel\n4. Replace final transcription with Deepgram finals\n5. Keep batch transcription as fallback\n\n## Acceptance criteria\n- Words appear in real-time during recording\n- Final transcript quality matches or exceeds batch\n- Fallback to batch if streaming fails\n- No memory leaks from WebSocket connections",
+          "manualSteps": [
+            "Open src/services/DeepgramService.ts",
+            "Find where to instantiate it in offscreen.ts",
+            "Connect audio stream",
+            "Wire interim results to side panel display",
+            "Test streaming vs batch quality",
+            "Add fallback logic"
+          ]
         },
         {
           "id": "transcribe-medical-hipaa",
@@ -484,11 +899,23 @@
           "status": "pending",
           "complexity": "high",
           "description": "Replace or supplement Deepgram with Amazon Transcribe Medical for HIPAA-compliant transcription. The Lambda endpoint already exists (sevaro-transcribe-staging) but needs to be integrated into the extension.",
-          "prerequisites": ["Deepgram streaming wired up (to compare quality)", "sevaro-transcribe-staging Lambda deployed"],
-          "keyFiles": ["src/services/TranscriptionService.ts", "lambda/sevaro-transcribe-staging/"],
+          "prerequisites": [
+            "Deepgram streaming wired up (to compare quality)",
+            "sevaro-transcribe-staging Lambda deployed"
+          ],
+          "keyFiles": [
+            "src/services/TranscriptionService.ts",
+            "lambda/sevaro-transcribe-staging/"
+          ],
           "quickPrompt": "In the SevaroNeuro-scribe-chrome repo, integrate Amazon Transcribe Medical for HIPAA-compliant transcription. The Lambda endpoint exists at sevaro-transcribe-staging.",
           "fullPrompt": "## Task: Amazon Transcribe Medical Integration\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Context\nDeepgram is not HIPAA-covered without an Enterprise BAA. AWS Transcribe Medical is covered under the existing AWS BAA.\n\n## Build\n1. Create TranscriptionService that uses sevaro-transcribe-staging Lambda\n2. Support both streaming (WebSocket) and batch modes\n3. Compare quality with Deepgram Nova-3 Medical\n4. Make transcription provider configurable\n\n## Acceptance criteria\n- HIPAA-compliant transcription available\n- Quality comparable to Deepgram\n- Provider switchable via config\n- No PHI sent to non-HIPAA services",
-          "manualSteps": ["Review sevaro-transcribe-staging Lambda", "Create TranscriptionService wrapper", "Wire into extension recording flow", "Compare output quality with Deepgram", "Configure as default for production"]
+          "manualSteps": [
+            "Review sevaro-transcribe-staging Lambda",
+            "Create TranscriptionService wrapper",
+            "Wire into extension recording flow",
+            "Compare output quality with Deepgram",
+            "Configure as default for production"
+          ]
         }
       ]
     },
@@ -502,11 +929,25 @@
           "status": "pending",
           "complexity": "low",
           "description": "DEV_MODE is true in constants.ts which bypasses all Cognito authentication. The auth flow is implemented but has never been tested in production mode. Set DEV_MODE=false and verify the full login/logout cycle works.",
-          "prerequisites": ["sevaro-scribe repo cloned", "Cognito user pool configured"],
-          "keyFiles": ["src/constants.ts", "src/auth/CognitoAuth.ts"],
+          "prerequisites": [
+            "sevaro-scribe repo cloned",
+            "Cognito user pool configured"
+          ],
+          "keyFiles": [
+            "src/constants.ts",
+            "src/auth/CognitoAuth.ts"
+          ],
           "quickPrompt": "In the sevaro-scribe repo, set DEV_MODE=false in src/constants.ts and test the full Cognito auth flow. Fix any issues that surface.",
-          "fullPrompt": "## Task: Test Cognito Auth\n\n**Repo:** sevaro-scribe\n\n## Context\nDEV_MODE=true in constants.ts bypasses all auth. The Cognito popup login flow is implemented but untested in production mode.\n\n## Steps\n1. Set DEV_MODE=false in src/constants.ts\n2. Load extension in Chrome\n3. Click extension icon — should show login popup\n4. Log in with steve@sevaro.com\n5. Verify authenticated state persists\n6. Test logout\n7. Fix any auth flow issues\n\n## Acceptance criteria\n- Login popup appears when not authenticated\n- Login succeeds with valid credentials\n- Authenticated state persists across popup open/close\n- Logout clears state\n- Extension features only accessible when authenticated",
-          "manualSteps": ["Edit src/constants.ts: set DEV_MODE=false", "Load extension in Chrome", "Click extension icon", "Log in with steve@sevaro.com", "Verify auth state persists", "Test logout", "Fix any issues"]
+          "fullPrompt": "## Task: Test Cognito Auth\n\n**Repo:** sevaro-scribe\n\n## Context\nDEV_MODE=true in constants.ts bypasses all auth. The Cognito popup login flow is implemented but untested in production mode.\n\n## Steps\n1. Set DEV_MODE=false in src/constants.ts\n2. Load extension in Chrome\n3. Click extension icon \u2014 should show login popup\n4. Log in with steve@sevaro.com\n5. Verify authenticated state persists\n6. Test logout\n7. Fix any auth flow issues\n\n## Acceptance criteria\n- Login popup appears when not authenticated\n- Login succeeds with valid credentials\n- Authenticated state persists across popup open/close\n- Logout clears state\n- Extension features only accessible when authenticated",
+          "manualSteps": [
+            "Edit src/constants.ts: set DEV_MODE=false",
+            "Load extension in Chrome",
+            "Click extension icon",
+            "Log in with steve@sevaro.com",
+            "Verify auth state persists",
+            "Test logout",
+            "Fix any issues"
+          ]
         },
         {
           "id": "migrate-to-transcribe-medical",
@@ -514,11 +955,24 @@
           "status": "pending",
           "complexity": "medium",
           "description": "Replace Deepgram Nova-3 streaming with Amazon Transcribe Medical for HIPAA compliance. The Lambda endpoint (/get-credentials) already exists to vend temporary credentials.",
-          "prerequisites": ["Cognito auth working", "sevaro-transcribe-staging Lambda deployed"],
-          "keyFiles": ["src/services/DeepgramService.ts", "src/offscreen/offscreen.ts"],
+          "prerequisites": [
+            "Cognito auth working",
+            "sevaro-transcribe-staging Lambda deployed"
+          ],
+          "keyFiles": [
+            "src/services/DeepgramService.ts",
+            "src/offscreen/offscreen.ts"
+          ],
           "quickPrompt": "In the sevaro-scribe repo, replace Deepgram Nova-3 streaming with Amazon Transcribe Medical. Use the existing /get-credentials Lambda endpoint for temp credentials.",
           "fullPrompt": "## Task: Migrate to Transcribe Medical\n\n**Repo:** sevaro-scribe\n\n## Context\nCurrently uses Deepgram Nova-3 via WebSocket subprotocol auth. Need HIPAA-compliant alternative.\n\n## Build\n1. Create TranscribeMedicalService replacing DeepgramService\n2. Use /get-credentials Lambda for temporary AWS credentials\n3. Stream audio to Transcribe Medical WebSocket\n4. Handle interim and final results\n5. Compare quality with Deepgram\n\n## Acceptance criteria\n- Real-time transcription works with Transcribe Medical\n- Quality acceptable for clinical dictation\n- No Deepgram API calls in production mode\n- Fallback available if Transcribe is unavailable",
-          "manualSteps": ["Create TranscribeMedicalService.ts", "Get temp credentials from Lambda", "Set up Transcribe Medical WebSocket", "Wire audio stream", "Test real-time transcription", "Compare quality with Deepgram"]
+          "manualSteps": [
+            "Create TranscribeMedicalService.ts",
+            "Get temp credentials from Lambda",
+            "Set up Transcribe Medical WebSocket",
+            "Wire audio stream",
+            "Test real-time transcription",
+            "Compare quality with Deepgram"
+          ]
         },
         {
           "id": "fix-client-punctuation",
@@ -526,11 +980,21 @@
           "status": "pending",
           "complexity": "low",
           "description": "The smart_format parameter is disabled for Deepgram, causing poor punctuation in transcription output. Either re-enable smart_format (without dictation mode) or add client-side punctuation rules.",
-          "prerequisites": ["sevaro-scribe repo cloned"],
-          "keyFiles": ["src/services/DeepgramService.ts"],
+          "prerequisites": [
+            "sevaro-scribe repo cloned"
+          ],
+          "keyFiles": [
+            "src/services/DeepgramService.ts"
+          ],
           "quickPrompt": "In the sevaro-scribe repo, fix punctuation in transcription output. Re-enable smart_format or add client-side punctuation rules.",
           "fullPrompt": "## Task: Fix Punctuation\n\n**Repo:** sevaro-scribe\n\n## Problem\nsmart_format is disabled, causing poor punctuation. Note: dictation=true suppresses punctuate=true (known Deepgram bug).\n\n## Fix options\n1. Enable smart_format=true without dictation mode\n2. Add client-side punctuation rules\n3. Post-process with AI cleanup\n\n## Acceptance criteria\n- Proper sentence capitalization and periods\n- Medical terms correctly formatted\n- No regression in transcription accuracy",
-          "manualSteps": ["Open DeepgramService.ts", "Check current WebSocket params", "Enable smart_format=true, ensure dictation=false", "Test with sample dictation", "Verify punctuation quality"]
+          "manualSteps": [
+            "Open DeepgramService.ts",
+            "Check current WebSocket params",
+            "Enable smart_format=true, ensure dictation=false",
+            "Test with sample dictation",
+            "Verify punctuation quality"
+          ]
         }
       ]
     },
@@ -544,11 +1008,22 @@
           "status": "in-progress",
           "complexity": "medium",
           "description": "Address findings from the steel man test: improve logging consistency, fix thread safety issues, validate CRC32C checksums, and remove dead code paths.",
-          "prerequisites": ["VoiceTranscriber repo cloned", "Xcode 15+"],
-          "keyFiles": ["VoiceTranscriber/"],
+          "prerequisites": [
+            "VoiceTranscriber repo cloned",
+            "Xcode 15+"
+          ],
+          "keyFiles": [
+            "VoiceTranscriber/"
+          ],
           "quickPrompt": "In the VoiceTranscriber repo, address steel man test findings: fix logging consistency, thread safety issues, CRC32C validation, and remove dead code.",
           "fullPrompt": "## Task: Steel Man Remediations\n\n**Repo:** VoiceTranscriber\n\n## Findings to address\n1. Logging: Inconsistent log levels, some debug logs in release builds\n2. Thread safety: UI updates from background threads in some paths\n3. CRC32C: Checksum validation not verified in all upload paths\n4. Dead code: Unused functions and obsolete feature flags\n\n## Acceptance criteria\n- All logs use consistent format and appropriate levels\n- No UI updates from background threads (use @MainActor)\n- CRC32C validated in all data paths\n- Dead code removed\n- Build succeeds with no warnings",
-          "manualSteps": ["Audit logging calls for consistency", "Search for DispatchQueue.main.async patterns", "Verify CRC32C in upload paths", "Find and remove dead code", "Build and test"]
+          "manualSteps": [
+            "Audit logging calls for consistency",
+            "Search for DispatchQueue.main.async patterns",
+            "Verify CRC32C in upload paths",
+            "Find and remove dead code",
+            "Build and test"
+          ]
         },
         {
           "id": "evaluate-transcribe-vs-deepgram",
@@ -556,11 +1031,23 @@
           "status": "pending",
           "complexity": "medium",
           "description": "Compare AWS Transcribe Medical and Deepgram Nova-3 for production transcription quality. Test with the shared test audio corpus to measure accuracy, latency, and medical term recognition.",
-          "prerequisites": ["Both services configured", "Test audio corpus at ~/dev/test-audio/"],
-          "keyFiles": ["VoiceTranscriber/Services/TranscriptionService.swift"],
+          "prerequisites": [
+            "Both services configured",
+            "Test audio corpus at ~/dev/test-audio/"
+          ],
+          "keyFiles": [
+            "VoiceTranscriber/Services/TranscriptionService.swift"
+          ],
           "quickPrompt": "Evaluate AWS Transcribe Medical vs Deepgram Nova-3 for VoiceTranscriber production use. Test with ~/dev/test-audio/ corpus and compare accuracy, latency, and medical terms.",
-          "fullPrompt": "## Task: Transcription Service Evaluation\n\n**Repo:** VoiceTranscriber\n\n## Test plan\n1. Run all test audio files through both services\n2. Measure: word error rate, latency, medical term accuracy\n3. Compare cost per hour of audio\n4. Document findings\n\n## Test corpus\n~/dev/test-audio/ — 16kHz 16-bit PCM WAV files\nIncludes: clinical dictation, encounters, ER scenarios, elderly speakers\n\n## Decision criteria\n- Medical term accuracy is most important\n- Latency under 500ms for streaming\n- Cost-effective at projected volume\n- HIPAA compliance mandatory for production",
-          "manualSteps": ["Run test audio through Deepgram Nova-3", "Run same audio through Transcribe Medical", "Compare word error rates", "Measure streaming latency", "Calculate cost projections", "Document recommendation"]
+          "fullPrompt": "## Task: Transcription Service Evaluation\n\n**Repo:** VoiceTranscriber\n\n## Test plan\n1. Run all test audio files through both services\n2. Measure: word error rate, latency, medical term accuracy\n3. Compare cost per hour of audio\n4. Document findings\n\n## Test corpus\n~/dev/test-audio/ \u2014 16kHz 16-bit PCM WAV files\nIncludes: clinical dictation, encounters, ER scenarios, elderly speakers\n\n## Decision criteria\n- Medical term accuracy is most important\n- Latency under 500ms for streaming\n- Cost-effective at projected volume\n- HIPAA compliance mandatory for production",
+          "manualSteps": [
+            "Run test audio through Deepgram Nova-3",
+            "Run same audio through Transcribe Medical",
+            "Compare word error rates",
+            "Measure streaming latency",
+            "Calculate cost projections",
+            "Document recommendation"
+          ]
         },
         {
           "id": "app-store-prep",
@@ -568,11 +1055,23 @@
           "status": "pending",
           "complexity": "medium",
           "description": "Prepare VoiceTranscriber for Mac App Store submission. Includes sandboxing, entitlements review, screenshots, privacy policy, and app metadata.",
-          "prerequisites": ["Steel man remediations complete", "Transcription service decided"],
-          "keyFiles": ["VoiceTranscriber/VoiceTranscriber.entitlements"],
+          "prerequisites": [
+            "Steel man remediations complete",
+            "Transcription service decided"
+          ],
+          "keyFiles": [
+            "VoiceTranscriber/VoiceTranscriber.entitlements"
+          ],
           "quickPrompt": "Prepare VoiceTranscriber for Mac App Store submission. Review sandboxing, entitlements, create screenshots, and prepare app metadata.",
           "fullPrompt": "## Task: App Store Submission Prep\n\n**Repo:** VoiceTranscriber\n\n## Steps\n1. Review and configure app sandboxing\n2. Set up proper entitlements (microphone, network)\n3. Create App Store screenshots\n4. Write app description and keywords\n5. Prepare privacy policy\n6. Test sandboxed build\n\n## Acceptance criteria\n- App works correctly in sandboxed mode\n- Screenshots show key features\n- Privacy policy covers microphone and transcription data\n- Ready to upload to App Store Connect",
-          "manualSteps": ["Enable app sandbox in Xcode", "Configure entitlements", "Take screenshots of key features", "Write App Store description", "Create privacy policy", "Archive and test sandboxed build"]
+          "manualSteps": [
+            "Enable app sandbox in Xcode",
+            "Configure entitlements",
+            "Take screenshots of key features",
+            "Write App Store description",
+            "Create privacy policy",
+            "Archive and test sandboxed build"
+          ]
         }
       ]
     },
@@ -585,12 +1084,24 @@
           "title": "TestFlight build and beta testing",
           "status": "pending",
           "complexity": "medium",
-          "description": "Create a TestFlight build of PostSeed for beta testing. The v1 feature set is complete — this is about packaging, signing, and distributing for feedback.",
-          "prerequisites": ["PostSeed repo cloned", "Apple Developer account"],
-          "keyFiles": ["PostSeed.xcodeproj/"],
+          "description": "Create a TestFlight build of PostSeed for beta testing. The v1 feature set is complete \u2014 this is about packaging, signing, and distributing for feedback.",
+          "prerequisites": [
+            "PostSeed repo cloned",
+            "Apple Developer account"
+          ],
+          "keyFiles": [
+            "PostSeed.xcodeproj/"
+          ],
           "quickPrompt": "Build PostSeed for TestFlight distribution. Archive, upload to App Store Connect, and create a TestFlight beta group for testing.",
           "fullPrompt": "## Task: TestFlight Build\n\n**Repo:** PostSeed\n\n## Steps\n1. Review bundle ID and signing configuration\n2. Archive with xcodebuild\n3. Upload to App Store Connect\n4. Create TestFlight beta group\n5. Invite beta testers\n\n## Acceptance criteria\n- Build uploads successfully to ASC\n- TestFlight link works for beta testers\n- No crashes on launch\n- Core features (capture, voice, transcription, journal) work",
-          "manualSteps": ["Configure signing in Xcode", "Archive: xcodebuild archive", "Upload: xcrun altool --upload-app", "Go to App Store Connect", "Create TestFlight group", "Invite testers"]
+          "manualSteps": [
+            "Configure signing in Xcode",
+            "Archive: xcodebuild archive",
+            "Upload: xcrun altool --upload-app",
+            "Go to App Store Connect",
+            "Create TestFlight group",
+            "Invite testers"
+          ]
         },
         {
           "id": "app-store-submission",
@@ -598,11 +1109,23 @@
           "status": "pending",
           "complexity": "medium",
           "description": "Submit PostSeed to the App Store after beta testing. Includes screenshots, description, privacy policy, and review notes.",
-          "prerequisites": ["TestFlight beta testing complete", "No P0 bugs"],
-          "keyFiles": ["PostSeed.xcodeproj/"],
+          "prerequisites": [
+            "TestFlight beta testing complete",
+            "No P0 bugs"
+          ],
+          "keyFiles": [
+            "PostSeed.xcodeproj/"
+          ],
           "quickPrompt": "Submit PostSeed to the App Store. Prepare screenshots, description, privacy policy, and submit for review.",
           "fullPrompt": "## Task: App Store Submission\n\n**Repo:** PostSeed\n\n## Steps\n1. Create App Store screenshots (iPhone 15 Pro, iPad Pro)\n2. Write app description and keywords\n3. Prepare privacy policy (camera, microphone, location, photos)\n4. Configure app metadata in ASC\n5. Submit for review\n\n## Acceptance criteria\n- All required screenshots uploaded\n- Privacy policy covers all data types\n- App passes review on first attempt",
-          "manualSteps": ["Take screenshots on simulator", "Write App Store description", "Create privacy policy page", "Upload screenshots to ASC", "Fill in app metadata", "Submit for review"]
+          "manualSteps": [
+            "Take screenshots on simulator",
+            "Write App Store description",
+            "Create privacy policy page",
+            "Upload screenshots to ASC",
+            "Fill in app metadata",
+            "Submit for review"
+          ]
         },
         {
           "id": "cloud-sync",
@@ -610,11 +1133,22 @@
           "status": "pending",
           "complexity": "high",
           "description": "Add cloud sync so journal moments persist across devices. Decision needed: iCloud (simpler, Apple-only) or custom API backend (cross-platform potential).",
-          "prerequisites": ["App Store submission approved"],
-          "keyFiles": ["PostSeed/Services/"],
+          "prerequisites": [
+            "App Store submission approved"
+          ],
+          "keyFiles": [
+            "PostSeed/Services/"
+          ],
           "quickPrompt": "Add cloud sync to PostSeed. Decide between iCloud (simpler) or custom API backend, then implement. Start with iCloud unless cross-platform is needed.",
-          "fullPrompt": "## Task: Cloud Sync\n\n**Repo:** PostSeed\n\n## Options\n1. iCloud + CloudKit — automatic sync, no server, Apple-only\n2. Custom API + RDS — full control, cross-platform, more work\n\n## Recommendation: Start with iCloud\n- Simpler implementation\n- No server costs\n- Automatic conflict resolution\n- Can add API backend later if needed\n\n## Build (iCloud path)\n1. Enable CloudKit capability\n2. Create CKRecord types for Moments\n3. Sync on-device data with CloudKit\n4. Handle conflicts and offline mode\n\n## Acceptance criteria\n- Moments sync across iPhone and iPad\n- Offline capture works (syncs when online)\n- No data loss on conflict",
-          "manualSteps": ["Enable CloudKit in Xcode capabilities", "Create CloudKit record types", "Build sync service", "Test cross-device sync", "Test offline then online sync", "Verify no data loss"]
+          "fullPrompt": "## Task: Cloud Sync\n\n**Repo:** PostSeed\n\n## Options\n1. iCloud + CloudKit \u2014 automatic sync, no server, Apple-only\n2. Custom API + RDS \u2014 full control, cross-platform, more work\n\n## Recommendation: Start with iCloud\n- Simpler implementation\n- No server costs\n- Automatic conflict resolution\n- Can add API backend later if needed\n\n## Build (iCloud path)\n1. Enable CloudKit capability\n2. Create CKRecord types for Moments\n3. Sync on-device data with CloudKit\n4. Handle conflicts and offline mode\n\n## Acceptance criteria\n- Moments sync across iPhone and iPad\n- Offline capture works (syncs when online)\n- No data loss on conflict",
+          "manualSteps": [
+            "Enable CloudKit in Xcode capabilities",
+            "Create CloudKit record types",
+            "Build sync service",
+            "Test cross-device sync",
+            "Test offline then online sync",
+            "Verify no data loss"
+          ]
         },
         {
           "id": "tags-search-filtering",
@@ -622,11 +1156,89 @@
           "status": "pending",
           "complexity": "medium",
           "description": "Add organization features to the journal: tags for categorizing moments, full-text search across transcriptions, and filtering by date/tag/media type.",
-          "prerequisites": ["Cloud sync working"],
-          "keyFiles": ["PostSeed/Views/JournalView.swift", "PostSeed/Models/Moment.swift"],
+          "prerequisites": [
+            "Cloud sync working"
+          ],
+          "keyFiles": [
+            "PostSeed/Views/JournalView.swift",
+            "PostSeed/Models/Moment.swift"
+          ],
           "quickPrompt": "In PostSeed, add tags, search, and filtering to the journal. Users should be able to tag moments, search transcriptions, and filter by date/tag/media type.",
           "fullPrompt": "## Task: Tags, Search, and Filtering\n\n**Repo:** PostSeed\n\n## Build\n1. Tag model and UI (create, assign, color-code)\n2. Full-text search across moment transcriptions\n3. Filter bar: by date range, tag, media type (photo/video/voice)\n4. Combine search and filters\n\n## Acceptance criteria\n- Users can create and assign tags\n- Search finds moments by transcription content\n- Filters narrow journal view\n- Performance good with 100+ moments",
-          "manualSteps": ["Add Tag model to data layer", "Build tag creation UI", "Add tag assignment to moments", "Implement full-text search", "Build filter bar component", "Test with many moments"]
+          "manualSteps": [
+            "Add Tag model to data layer",
+            "Build tag creation UI",
+            "Add tag assignment to moments",
+            "Implement full-text search",
+            "Build filter bar component",
+            "Test with many moments"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "market-day-vr",
+      "name": "Market Day VR",
+      "milestones": [
+        {
+          "id": "sprint2-sonali-integration",
+          "title": "Sprint 2: performance metrics + Sonali Phase 1 voice coaching",
+          "status": "done",
+          "complexity": "high",
+          "description": "Integrated performance metrics tracking and Sonali AI voice coaching (Phase 1) into the Market Day VR grocery exercise scene.",
+          "prerequisites": [
+            "Galaxy XR headset connected via ADB",
+            "Unity 6 LTS project open"
+          ],
+          "keyFiles": [
+            "MarketDayVR/Assets/Scripts/"
+          ],
+          "quickPrompt": "In the market-day-vr repo, continue Sprint 2 Sonali integration work.",
+          "fullPrompt": "In the market-day-vr repo, continue Sprint 2 Sonali integration work. Check current state of Sonali voice coaching in the grocery exercise scene.",
+          "manualSteps": [
+            "Connect Galaxy XR headset via USB",
+            "Build APK and install: adb -s R32Y8003FKF install -r MarketDayVR/Builds/MarketDayVR-dev.apk"
+          ]
+        },
+        {
+          "id": "sprint3-additional-exercises",
+          "title": "Sprint 3: additional exercise types and difficulty levels",
+          "status": "pending",
+          "complexity": "high",
+          "description": "Add new exercise types beyond grocery shopping, implement difficulty scaling, and expand cognitive/motor assessment coverage.",
+          "prerequisites": [
+            "Sprint 2 merged to main"
+          ],
+          "keyFiles": [
+            "MarketDayVR/Assets/Scripts/",
+            "MarketDayVR/Assets/Scenes/"
+          ],
+          "quickPrompt": "In the market-day-vr repo, implement Sprint 3: add new exercise types and difficulty scaling.",
+          "fullPrompt": "In the market-day-vr repo, implement Sprint 3. Add at least 2 new exercise types beyond the grocery scene. Implement difficulty scaling (easy/medium/hard). Ensure each exercise tracks motor and cognitive metrics.",
+          "manualSteps": [
+            "Build APK after each major change",
+            "Test on Galaxy XR headset via ADB"
+          ]
+        },
+        {
+          "id": "clinical-outcomes-tracking",
+          "title": "Clinical outcomes tracking (motor assessment scores to cloud)",
+          "status": "pending",
+          "complexity": "medium",
+          "description": "Send exercise session outcomes (completion time, error rate, motor scores) to AWS Lambda / RDS for clinical review.",
+          "prerequisites": [
+            "AWS Lambda endpoint configured",
+            "SevaroMonitor RDS schema extended for VR assessments"
+          ],
+          "keyFiles": [
+            "MarketDayVR/Assets/Scripts/"
+          ],
+          "quickPrompt": "In the market-day-vr repo, add clinical outcomes tracking: POST session results to AWS API Gateway.",
+          "fullPrompt": "In the market-day-vr repo, implement clinical outcomes tracking. After each exercise session, POST results (completion time, error count, motor accuracy) to the SevaroMonitor Lambda API. Store in RDS for clinician review.",
+          "manualSteps": [
+            "Verify Lambda API endpoint is reachable from headset network",
+            "Test data appears in RDS after session"
+          ]
         }
       ]
     }
