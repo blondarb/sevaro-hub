@@ -45,9 +45,18 @@ export async function verifyToken(token: string): Promise<VerifiedUser | null> {
 }
 
 export function extractToken(request: Request): string | null {
+  // Check Authorization header first (for direct API calls)
   const auth = request.headers.get('Authorization');
   if (auth?.startsWith('Bearer ')) {
     return auth.slice(7);
   }
+
+  // Fall back to id_token cookie (for OAuth SSO flow)
+  const cookieHeader = request.headers.get('Cookie');
+  if (cookieHeader) {
+    const match = cookieHeader.match(/(?:^|;\s*)id_token=([^;]+)/);
+    if (match) return match[1];
+  }
+
   return null;
 }

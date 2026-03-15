@@ -2,24 +2,19 @@
 
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
 import type { AuthUser } from '@/lib/auth';
-import type { CognitoUser } from 'amazon-cognito-identity-js';
 
 interface AuthContextValue {
   user: AuthUser | null;
   isAdmin: boolean;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: string | null; newPasswordRequired?: boolean; cognitoUser?: CognitoUser }>;
-  completeNewPassword: (cognitoUser: CognitoUser, newPassword: string) => Promise<{ error: string | null }>;
-  signOut: () => Promise<void>;
+  signOut: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue>({
   user: null,
   isAdmin: false,
   loading: true,
-  signIn: async () => ({ error: 'Not initialized' }),
-  completeNewPassword: async () => ({ error: 'Not initialized' }),
-  signOut: async () => {},
+  signOut: () => {},
 });
 
 export function useAuth() {
@@ -31,30 +26,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const checkAdmin = useCallback(async (token: string) => {
-    try {
-      const res = await fetch('/api/admin/check', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setIsAdmin(data.isAdmin);
-      }
-    } catch {
-      setIsAdmin(false);
-    }
-  }, []);
-
   const refreshUser = useCallback(async () => {
     try {
-      const { getCurrentUser, getIdToken } = await import('@/lib/auth');
-      const currentUser = await getCurrentUser();
-      setUser(currentUser);
-      if (currentUser) {
-        const token = await getIdToken();
-        if (token) await checkAdmin(token);
-      } else {
+      // Check auth session via cookie-based API
+      const res = await fetch('/api/auth/me');
+      if (!res.ok) {
+        setUser(null);
         setIsAdmin(false);
+        return;
+      }
+      const userData = await res.json();
+      setUser(userData);
+
+      // Check admin status
+      const tokenRes = await fetch('/api/auth/token');
+      if (tokenRes.ok) {
+        const { idToken } = await tokenRes.json();
+        if (idToken) {
+          const adminRes = await fetch('/api/admin/check', {
+            headers: { Authorization: `Bearer ${idToken}` },
+          });
+          if (adminRes.ok) {
+            const adminData = await adminRes.json();
+            setIsAdmin(adminData.isAdmin);
+          }
+        }
       }
     } catch {
       setUser(null);
@@ -62,35 +58,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [checkAdmin]);
+  }, []);
 
   useEffect(() => {
     refreshUser();
   }, [refreshUser]);
 
-  const handleSignIn = useCallback(async (email: string, password: string) => {
-    const { signIn } = await import('@/lib/auth');
-    const result = await signIn(email, password);
-    if (!result.error && !result.newPasswordRequired) {
-      await refreshUser();
-    }
-    return result;
-  }, [refreshUser]);
-
-  const handleCompleteNewPassword = useCallback(async (cognitoUser: CognitoUser, newPassword: string) => {
-    const { completeNewPassword } = await import('@/lib/auth');
-    const result = await completeNewPassword(cognitoUser, newPassword);
-    if (!result.error) {
-      await refreshUser();
-    }
-    return result;
-  }, [refreshUser]);
-
-  const handleSignOut = useCallback(async () => {
-    const { signOut } = await import('@/lib/auth');
-    await signOut();
-    setUser(null);
-    setIsAdmin(false);
+  const handleSignOut = useCallback(() => {
+    // Redirect to OAuth logout endpoint (clears cookies + Cognito session)
+    window.location.href = '/api/auth/logout';
   }, []);
 
   return (
@@ -98,8 +74,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       isAdmin,
       loading,
-      signIn: handleSignIn,
-      completeNewPassword: handleCompleteNewPassword,
       signOut: handleSignOut,
     }}>
       {children}

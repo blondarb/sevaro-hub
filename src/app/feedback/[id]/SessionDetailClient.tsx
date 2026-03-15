@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { FeedbackSession, FeedbackEvent, ActionItem, ReviewStatus } from '@/lib/feedback-api';
 import { formatDuration, formatTimestamp } from '@/lib/feedback-api';
-import { getIdToken } from '@/lib/auth';
+// Auth tokens are passed automatically via httpOnly cookies
 
 const SEVERITY_COLORS: Record<string, string> = {
   critical: '#ef4444',
@@ -72,10 +72,9 @@ export function SessionDetailClient({ session, events, actionItems, audioUrl, cl
   const handleStatusUpdate = async () => {
     setSaving(true);
     try {
-      const token = await getIdToken();
       const res = await fetch(`/api/feedback/${session.sessionId}?appId=${session.appId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reviewStatus, resolutionNote }),
       });
       if (!res.ok) throw new Error('Failed to update status');
@@ -84,7 +83,7 @@ export function SessionDetailClient({ session, events, actionItems, audioUrl, cl
         try {
           await fetch(`/api/feedback/${session.sessionId}/notify`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               to: session.userLabel,
               appName: session.appId,
@@ -109,10 +108,8 @@ export function SessionDetailClient({ session, events, actionItems, audioUrl, cl
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      const token = await getIdToken();
       const res = await fetch(`/api/feedback/${session.sessionId}?appId=${session.appId}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('Failed to delete');
       router.push('/feedback');

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { getIdToken } from '@/lib/auth';
+// Auth tokens are passed automatically via httpOnly cookies
 
 interface Theme {
   name: string;
@@ -40,10 +40,9 @@ export default function AnalyzePage() {
     setResult(null);
 
     try {
-      const token = await getIdToken();
       const res = await fetch('/api/feedback/analyze', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ days }),
       });
 

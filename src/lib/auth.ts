@@ -1,11 +1,6 @@
-import {
-  CognitoUserPool,
-  CognitoUser,
-  AuthenticationDetails,
-  CognitoUserSession,
-} from 'amazon-cognito-identity-js';
+// OAuth-based auth helpers for Cognito Hosted UI SSO
 
-const USER_POOL_ID = process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID || '';
+const COGNITO_DOMAIN = 'auth.neuroplans.app';
 const CLIENT_ID = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || '';
 
 export interface AuthUser {
@@ -13,101 +8,54 @@ export interface AuthUser {
   email: string;
 }
 
-function getUserPool(): CognitoUserPool {
-  return new CognitoUserPool({
-    UserPoolId: USER_POOL_ID,
-    ClientId: CLIENT_ID,
+/**
+ * Build the Cognito Hosted UI login URL.
+ * After login, Cognito redirects to /api/auth/callback with an authorization code.
+ */
+export function getLoginUrl(redirectUri: string): string {
+  const params = new URLSearchParams({
+    response_type: 'code',
+    client_id: CLIENT_ID,
+    redirect_uri: redirectUri,
+    scope: 'openid email profile',
   });
+  return `https://${COGNITO_DOMAIN}/oauth2/authorize?${params}`;
 }
 
-export function getCurrentUser(): Promise<AuthUser | null> {
-  return new Promise((resolve) => {
-    const pool = getUserPool();
-    const cognitoUser = pool.getCurrentUser();
-    if (!cognitoUser) {
-      resolve(null);
-      return;
-    }
-
-    cognitoUser.getSession((err: Error | null, session: CognitoUserSession | null) => {
-      if (err || !session || !session.isValid()) {
-        resolve(null);
-        return;
-      }
-      const payload = session.getIdToken().decodePayload();
-      resolve({
-        id: payload.sub,
-        email: payload.email,
-      });
-    });
+/**
+ * Build the Cognito logout URL.
+ */
+export function getLogoutUrl(redirectUri: string): string {
+  const params = new URLSearchParams({
+    client_id: CLIENT_ID,
+    logout_uri: redirectUri,
   });
+  return `https://${COGNITO_DOMAIN}/logout?${params}`;
 }
 
-export function getIdToken(): Promise<string | null> {
-  return new Promise((resolve) => {
-    const pool = getUserPool();
-    const cognitoUser = pool.getCurrentUser();
-    if (!cognitoUser) {
-      resolve(null);
-      return;
-    }
-
-    cognitoUser.getSession((err: Error | null, session: CognitoUserSession | null) => {
-      if (err || !session || !session.isValid()) {
-        resolve(null);
-        return;
-      }
-      resolve(session.getIdToken().getJwtToken());
-    });
-  });
+/**
+ * Get the current user from the auth session (calls /api/auth/me).
+ */
+export async function getCurrentUser(): Promise<AuthUser | null> {
+  try {
+    const res = await fetch('/api/auth/me');
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
 }
 
-export function signIn(
-  email: string,
-  password: string,
-): Promise<{ error: string | null; newPasswordRequired?: boolean; cognitoUser?: CognitoUser }> {
-  return new Promise((resolve) => {
-    const pool = getUserPool();
-    const cognitoUser = new CognitoUser({ Username: email, Pool: pool });
-    const authDetails = new AuthenticationDetails({ Username: email, Password: password });
-
-    cognitoUser.authenticateUser(authDetails, {
-      onSuccess: () => {
-        resolve({ error: null });
-      },
-      onFailure: (err) => {
-        resolve({ error: err.message || 'Sign in failed' });
-      },
-      newPasswordRequired: () => {
-        resolve({ error: null, newPasswordRequired: true, cognitoUser });
-      },
-    });
-  });
-}
-
-export function completeNewPassword(
-  cognitoUser: CognitoUser,
-  newPassword: string,
-): Promise<{ error: string | null }> {
-  return new Promise((resolve) => {
-    cognitoUser.completeNewPasswordChallenge(newPassword, {}, {
-      onSuccess: () => {
-        resolve({ error: null });
-      },
-      onFailure: (err) => {
-        resolve({ error: err.message || 'Failed to set new password' });
-      },
-    });
-  });
-}
-
-export function signOut(): Promise<void> {
-  return new Promise((resolve) => {
-    const pool = getUserPool();
-    const cognitoUser = pool.getCurrentUser();
-    if (cognitoUser) {
-      cognitoUser.signOut();
-    }
-    resolve();
-  });
+/**
+ * Get the ID token from the auth session cookie (calls /api/auth/token).
+ */
+export async function getIdToken(): Promise<string | null> {
+  try {
+    const res = await fetch('/api/auth/token');
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.idToken || null;
+  } catch {
+    return null;
+  }
 }
