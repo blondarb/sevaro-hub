@@ -13,18 +13,24 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 - **Email**: SES from `feedback@neuroplans.app` (DKIM verified)
 - **AI**: Bedrock Sonnet for feedback pattern analysis
 - **Feedback API**: Lambda `sevaro-feedback-api` via API Gateway `8uagz9y5bh`
+- **What's New API**: Lambda `sevaro-whats-new-api` via API Gateway `5168ofhh8k`
+  - DynamoDB table: `sevaro-whats-new` (PK: `appId`, SK: `timestamp`)
+  - JWT verified via `aws-jwt-verify` (Cognito signature + claims)
+  - Public: `GET /whats-new?appId=...&since=...`
+  - Admin: `GET /whats-new/all`, `POST /whats-new`, `DELETE /whats-new`
 
 ## Admin Access
 
 - Controlled by `ADMIN_EMAILS` env var (default: `steve@sevaro.com`)
 - JWT verification via Cognito JWKS
-- Protected routes: `/feedback`, `/feedback/analyze`, `/feedback/[id]`
+- Protected routes: `/feedback`, `/feedback/analyze`, `/feedback/[id]`, `/admin/whats-new`
 
 ## Body of Work
 
 **Status**: Active
 
 ### Recent
+- Added "What's New" system — central API (Lambda + DynamoDB + API Gateway), admin UI at `/admin/whats-new`, and `<WhatsNewBadge />` component in nav bar
 - Added Cognito auth with admin role gating (login page, JWT verification, admin check API)
 - Added feedback admin dashboard with review status management (open/in_progress/resolved/dismissed)
 - Added delete feedback with full S3 cleanup (audio, screenshots, transcript)
