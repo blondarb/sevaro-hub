@@ -1,5 +1,5 @@
 import { getSession, formatDuration, formatTimestamp, generateClaudeCodePrompt } from '@/lib/feedback-api';
-import type { FeedbackEvent, ActionItem } from '@/lib/feedback-api';
+import type { FeedbackEvent, ActionItem, ChatMessage, ScreenshotAnnotation, ChatSummary } from '@/lib/feedback-api';
 import Link from 'next/link';
 import { SessionDetailClient } from './SessionDetailClient';
 
@@ -35,6 +35,9 @@ export default async function SessionDetailPage({ params, searchParams }: Props)
 
   const events = (Array.isArray(session.events) ? session.events : []) as FeedbackEvent[];
   const actionItems = (Array.isArray(session.actionItems) ? session.actionItems : []) as ActionItem[];
+  const chatMessages = (Array.isArray(session.chatMessages) ? session.chatMessages : []) as ChatMessage[];
+  const annotations = (Array.isArray(session.annotations) ? session.annotations : []) as ScreenshotAnnotation[];
+  const chatSummary = (typeof session.chatSummary === 'object' && session.chatSummary !== null ? session.chatSummary : null) as ChatSummary | null;
   const audioUrl = session.audioUrl || '';
 
   // Generate Claude Code prompt if there are action items
@@ -47,6 +50,9 @@ export default async function SessionDetailPage({ params, searchParams }: Props)
       session={session}
       events={events}
       actionItems={actionItems}
+      chatMessages={chatMessages}
+      annotations={annotations}
+      chatSummary={chatSummary}
       audioUrl={audioUrl}
       claudePrompt={claudePrompt}
     />
