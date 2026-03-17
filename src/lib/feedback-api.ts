@@ -2,6 +2,46 @@ const API_URL = process.env.FEEDBACK_API_URL || 'https://8uagz9y5bh.execute-api.
 
 export type ReviewStatus = 'open' | 'in_progress' | 'resolved' | 'dismissed';
 
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+  attachments?: ChatAttachment[];
+}
+
+export interface ChatAttachment {
+  type: 'annotation' | 'voice-transcript';
+  key?: string;
+  url?: string;
+  annotation?: ScreenshotAnnotation;
+}
+
+export interface ScreenshotAnnotation {
+  screenshotKey: string;
+  screenshotUrl?: string;
+  coordinates: { x: number; y: number };
+  elementInfo: {
+    selector: string;
+    tag: string;
+    text: string;
+    id?: string;
+    className?: string;
+  };
+  userComment?: string;
+  pageUrl: string;
+  viewport: { width: number; height: number };
+}
+
+export interface ChatSummary {
+  category: string;
+  severity: string;
+  title: string;
+  description: string;
+  actionItems: string[];
+  userSentiment: string;
+}
+
 export interface FeedbackSession {
   sessionId: string;
   appId: string;
@@ -19,6 +59,9 @@ export interface FeedbackSession {
   aiSummary?: string;
   actionItems?: ActionItem[] | string;
   events: FeedbackEvent[] | string;
+  chatMessages?: ChatMessage[] | string;
+  annotations?: ScreenshotAnnotation[] | string;
+  chatSummary?: ChatSummary | string;
   status: string;
   reviewStatus?: ReviewStatus;
   resolutionNote?: string;
@@ -67,6 +110,15 @@ function normalizeSession(session: FeedbackSession): FeedbackSession {
   }
   if (typeof session.actionItems === 'string') {
     session.actionItems = JSON.parse(session.actionItems);
+  }
+  if (typeof session.chatMessages === 'string') {
+    session.chatMessages = JSON.parse(session.chatMessages);
+  }
+  if (typeof session.annotations === 'string') {
+    session.annotations = JSON.parse(session.annotations);
+  }
+  if (typeof session.chatSummary === 'string') {
+    session.chatSummary = JSON.parse(session.chatSummary);
   }
   return session;
 }

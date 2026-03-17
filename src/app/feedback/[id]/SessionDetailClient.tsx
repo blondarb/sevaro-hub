@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import type { FeedbackSession, FeedbackEvent, ActionItem, ReviewStatus } from '@/lib/feedback-api';
+import type { FeedbackSession, FeedbackEvent, ActionItem, ReviewStatus, ChatMessage, ScreenshotAnnotation, ChatSummary } from '@/lib/feedback-api';
 import { formatDuration, formatTimestamp } from '@/lib/feedback-api';
 // Auth tokens are passed automatically via httpOnly cookies
 
@@ -32,11 +32,14 @@ interface Props {
   session: FeedbackSession;
   events: FeedbackEvent[];
   actionItems: ActionItem[];
+  chatMessages: ChatMessage[];
+  annotations: ScreenshotAnnotation[];
+  chatSummary: ChatSummary | null;
   audioUrl: string;
   claudePrompt: string | null;
 }
 
-export function SessionDetailClient({ session, events, actionItems, audioUrl, claudePrompt }: Props) {
+export function SessionDetailClient({ session, events, actionItems, chatMessages, annotations, chatSummary, audioUrl, claudePrompt }: Props) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const router = useRouter();
   const [copied, setCopied] = useState(false);
@@ -168,7 +171,22 @@ export function SessionDetailClient({ session, events, actionItems, audioUrl, cl
         .sd-prompt-box { margin-top: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 16px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.82rem; color: #b0b8c8; white-space: pre-wrap; line-height: 1.6; max-height: 400px; overflow-y: auto; }
         .sd-copy-btn { margin-top: 8px; padding: 8px 16px; border-radius: 6px; border: none; background: #0d9488; color: #fff; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
         .sd-copy-btn:hover { background: #0f766e; }
-        @media (max-width: 600px) { .sd-meta { flex-direction: column; gap: 4px; } }
+        .sd-chat-transcript { display: flex; flex-direction: column; gap: 10px; }
+        .sd-chat-msg { display: flex; }
+        .sd-chat-msg-user { justify-content: flex-end; }
+        .sd-chat-msg-assistant { justify-content: flex-start; }
+        .sd-chat-bubble { max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 0.88rem; line-height: 1.5; word-break: break-word; }
+        .sd-chat-bubble-user { background: rgba(13,148,136,0.2); color: #a7f3d0; border-bottom-right-radius: 3px; }
+        .sd-chat-bubble-assistant { background: rgba(255,255,255,0.05); color: #c0c8d8; border-bottom-left-radius: 3px; }
+        .sd-chat-time { font-size: 0.68rem; color: #5a6580; margin-top: 3px; }
+        .sd-chat-summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .sd-chat-summary-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 12px 14px; }
+        .sd-chat-summary-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #5a6580; margin-bottom: 4px; }
+        .sd-chat-summary-value { font-size: 0.9rem; color: #c0c8d8; }
+        .sd-annotation { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+        .sd-annotation-element { font-family: 'SF Mono', monospace; font-size: 0.78rem; color: #7aa2d4; }
+        .sd-annotation-meta { font-size: 0.78rem; color: #5a6580; }
+        @media (max-width: 600px) { .sd-meta { flex-direction: column; gap: 4px; } .sd-chat-summary-grid { grid-template-columns: 1fr; } }
       `}</style>
 
       {notification && (
@@ -201,6 +219,8 @@ export function SessionDetailClient({ session, events, actionItems, audioUrl, cl
             <span>{formatDuration(session.duration || 0)}</span>
             <span>{session.screenSize || 'Unknown screen'}</span>
             <span>{events.length} events</span>
+            {chatMessages.length > 0 && <span>{chatMessages.length} chat msgs</span>}
+            {annotations.length > 0 && <span>{annotations.length} annotations</span>}
           </div>
         </div>
 
@@ -293,6 +313,96 @@ export function SessionDetailClient({ session, events, actionItems, audioUrl, cl
           <div className="sd-summary">
             <div className="sd-summary-label">AI Summary</div>
             <div className="sd-summary-text">{session.aiSummary}</div>
+          </div>
+        )}
+
+        {/* Chat Summary (from AI chatbot conversation) */}
+        {chatSummary && (
+          <div className="sd-summary">
+            <div className="sd-summary-label">Chat Summary (AI-Generated)</div>
+            <div style={{ marginBottom: 12 }}>
+              <div className="sd-badges" style={{ marginBottom: 8 }}>
+                <span className="sd-badge" style={{ background: `${SEVERITY_COLORS[chatSummary.severity] || '#6b7280'}20`, color: SEVERITY_COLORS[chatSummary.severity] || '#6b7280' }}>{chatSummary.severity}</span>
+                <span className="sd-badge" style={{ background: 'rgba(60,160,240,0.15)', color: '#60a5fa' }}>{chatSummary.category}</span>
+                <span className="sd-badge" style={{ background: chatSummary.userSentiment === 'frustrated' ? 'rgba(239,68,68,0.15)' : chatSummary.userSentiment === 'positive' ? 'rgba(34,197,94,0.15)' : 'rgba(160,160,180,0.15)', color: chatSummary.userSentiment === 'frustrated' ? '#f87171' : chatSummary.userSentiment === 'positive' ? '#4ade80' : '#9ca3af' }}>{chatSummary.userSentiment}</span>
+              </div>
+              <div style={{ fontSize: '1rem', fontWeight: 600, color: '#d0d8e8', marginBottom: 6 }}>{chatSummary.title}</div>
+              <div className="sd-summary-text">{chatSummary.description}</div>
+            </div>
+            {chatSummary.actionItems.length > 0 && (
+              <div>
+                <div style={{ fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#5a6580', marginBottom: 6 }}>Action Items from Chat</div>
+                <ul style={{ margin: 0, paddingLeft: 20, color: '#b0b8c8', fontSize: '0.85rem', lineHeight: 1.6 }}>
+                  {chatSummary.actionItems.map((item, i) => <li key={i}>{item}</li>)}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Chat Transcript */}
+        {chatMessages.length > 0 && (
+          <div className="sd-section">
+            <div className="sd-section-title">Chat Transcript ({chatMessages.length} messages)</div>
+            <div className="sd-chat-transcript">
+              {chatMessages
+                .filter(msg => msg.content !== '__init__')
+                .map((msg, i) => (
+                <div key={msg.id || i} className={`sd-chat-msg sd-chat-msg-${msg.role}`}>
+                  <div>
+                    <div className={`sd-chat-bubble sd-chat-bubble-${msg.role}`}>
+                      {msg.content}
+                      {msg.attachments?.some(a => a.type === 'annotation') && (
+                        <div style={{ marginTop: 6, fontSize: '0.75rem', color: msg.role === 'user' ? '#6ee7b7' : '#7aa2d4', display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /><circle cx="12" cy="13" r="3" /></svg>
+                          Screenshot annotation attached
+                        </div>
+                      )}
+                    </div>
+                    {msg.timestamp && (
+                      <div className="sd-chat-time" style={{ textAlign: msg.role === 'user' ? 'right' : 'left' }}>
+                        {new Date(msg.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Screenshot Annotations */}
+        {annotations.length > 0 && (
+          <div className="sd-section">
+            <div className="sd-section-title">Screenshot Annotations ({annotations.length})</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {annotations.map((ann, i) => (
+                <div key={i} className="sd-annotation">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span className="sd-badge" style={{ background: 'rgba(236,72,153,0.15)', color: '#f472b6' }}>Annotation {i + 1}</span>
+                    <span style={{ fontSize: '0.78rem', color: '#5a6580' }}>
+                      ({ann.coordinates.x}, {ann.coordinates.y}) on {ann.viewport.width}x{ann.viewport.height}
+                    </span>
+                  </div>
+                  <div className="sd-annotation-element">
+                    &lt;{ann.elementInfo.tag}&gt; {ann.elementInfo.selector}
+                  </div>
+                  {ann.elementInfo.text && (
+                    <div style={{ fontSize: '0.82rem', color: '#8890a4' }}>
+                      Text: &ldquo;{ann.elementInfo.text.slice(0, 150)}{ann.elementInfo.text.length > 150 ? '...' : ''}&rdquo;
+                    </div>
+                  )}
+                  <div className="sd-annotation-meta">
+                    Page: {ann.pageUrl}
+                  </div>
+                  {ann.userComment && (
+                    <div style={{ fontSize: '0.85rem', color: '#7aa2d4', fontStyle: 'italic' }}>
+                      &ldquo;{ann.userComment}&rdquo;
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

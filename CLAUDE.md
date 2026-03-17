@@ -35,6 +35,7 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 **Status**: Active
 
 ### Recent
+- Updated feedback session detail page to display chat transcripts, screenshot annotations, and AI chat summaries
 - Added Improvement Queue system — central API (Lambda + DynamoDB + API Gateway `ael0orzmsk`), admin UI at `/admin/improvements`, Claude Code skill `/improvement-queue`, 9 prompts seeded from 3 repos
 - Added "What's New" system — central API (Lambda + DynamoDB + API Gateway), admin UI at `/admin/whats-new`, and `<WhatsNewBadge />` component in nav bar
 - Added Cognito auth with admin role gating (login page, JWT verification, admin check API)
