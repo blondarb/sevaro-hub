@@ -18,18 +18,24 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
   - JWT verified via `aws-jwt-verify` (Cognito signature + claims)
   - Public: `GET /whats-new?appId=...&since=...`
   - Admin: `GET /whats-new/all`, `POST /whats-new`, `DELETE /whats-new`
+- **Improvement Queue API**: Lambda `sevaro-improvement-queue-api` via API Gateway `ael0orzmsk`
+  - DynamoDB table: `sevaro-improvement-queue` (PK: `repoName`, SK: `promptId`)
+  - JWT verified via `aws-jwt-verify` (Cognito signature + claims)
+  - Admin: `GET /improvements`, `POST /improvements`, `PATCH /improvements`, `DELETE /improvements`
+  - Lambda source: `lambda/sevaro-improvement-queue-api/`
 
 ## Admin Access
 
 - Controlled by `ADMIN_EMAILS` env var (default: `steve@sevaro.com`)
 - JWT verification via Cognito JWKS
-- Protected routes: `/feedback`, `/feedback/analyze`, `/feedback/[id]`, `/admin/whats-new`
+- Protected routes: `/feedback`, `/feedback/analyze`, `/feedback/[id]`, `/admin/whats-new`, `/admin/improvements`
 
 ## Body of Work
 
 **Status**: Active
 
 ### Recent
+- Added Improvement Queue system — central API (Lambda + DynamoDB + API Gateway `ael0orzmsk`), admin UI at `/admin/improvements`, Claude Code skill `/improvement-queue`, 9 prompts seeded from 3 repos
 - Added "What's New" system — central API (Lambda + DynamoDB + API Gateway), admin UI at `/admin/whats-new`, and `<WhatsNewBadge />` component in nav bar
 - Added Cognito auth with admin role gating (login page, JWT verification, admin check API)
 - Added feedback admin dashboard with review status management (open/in_progress/resolved/dismissed)
