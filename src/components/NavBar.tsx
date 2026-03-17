@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useAuth } from './AuthProvider';
+import { WhatsNewBadge } from './WhatsNewBadge';
 
 export function NavBar() {
   const { user, isAdmin, loading, signOut } = useAuth();
@@ -27,11 +28,13 @@ export function NavBar() {
           <>
             <Link href="/feedback" style={linkStyle}>Feedback</Link>
             <Link href="/feedback/analyze" style={linkStyle}>Analyze</Link>
+            <Link href="/admin/whats-new" style={linkStyle}>What&apos;s New</Link>
           </>
         )}
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <WhatsNewBadge appId="sevaro-hub" />
         {loading ? null : user ? (
           <>
             <span style={{ color: '#5a6580', fontSize: '0.8rem' }}>{user.email}</span>
