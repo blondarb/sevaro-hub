@@ -1,7 +1,7 @@
 # Improvement Queue Skill — Centralized Prompt-Driven Development
 
 **Created**: 2026-03-17
-**Status**: Planned
+**Status**: Implemented
 **Priority**: P2
 **Scope**: Workspace-level skill + per-repo prompt files + Hub tracking UI
 
