@@ -2,6 +2,11 @@
 
 Splash page and admin dashboard for Sevaro apps. Includes feedback management with Cognito auth, pattern analysis via Bedrock, and email notifications via SES. Hosted on AWS Amplify at `hub.neuroplans.app`.
 
+## Design System (MANDATORY)
+- **Reference:** `~/dev/repos/sevaro-design-system/DESIGN_SYSTEM.md` — all colors, typography, components
+- **Figma:** [Sevaro Design System](https://www.figma.com/design/2SvpMV4WE5CFjxvsxTRg1w/Sevaro-Design-System) (file key: `2SvpMV4WE5CFjxvsxTRg1w`)
+- All UI must match the design system 1:1. Read the reference doc before building any UI component.
+
 ## Tech Stack
 
 - **Type**: Next.js 15 (App Router, SSR)
@@ -35,17 +40,13 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 **Status**: Active
 
 ### Recent
-- Updated feedback session detail page to display chat transcripts, screenshot annotations, and AI chat summaries
-- Added Improvement Queue system — central API (Lambda + DynamoDB + API Gateway `ael0orzmsk`), admin UI at `/admin/improvements`, Claude Code skill `/improvement-queue`, 9 prompts seeded from 3 repos
-- Added "What's New" system — central API (Lambda + DynamoDB + API Gateway), admin UI at `/admin/whats-new`, and `<WhatsNewBadge />` component in nav bar
-- Added Cognito auth with admin role gating (login page, JWT verification, admin check API)
-- Added feedback admin dashboard with review status management (open/in_progress/resolved/dismissed)
-- Added delete feedback with full S3 cleanup (audio, screenshots, transcript)
-- Added AI pattern analysis page using Bedrock Sonnet (themes, severity, recommendations)
-- Added email notification to users when feedback is resolved (SES)
-- Added nav bar with admin-only links
+- Chat transcript, annotations, and summary display on feedback session detail (PR #7)
+- Improvement Queue system — Lambda + DynamoDB API, admin UI, Claude Code skill (PR #6)
+- "What's New" cross-app notification system with admin UI and `<WhatsNewBadge />` (PR #5)
+- Cognito Hosted UI OAuth SSO (replaced direct login) with post-login redirect fix
+- Feedback admin dashboard with auth, status management, AI analysis, email notifications (PR #4)
 - Migrated from npm to pnpm
-- Updated hub cards with current project statuses and added missing sections
+- Interactive milestone drawer with clickable roadmap items
 
 ### In Progress
 - None

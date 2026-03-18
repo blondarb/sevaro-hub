@@ -57,7 +57,7 @@
           "title": "Deploy document-processor + kb-sync Lambdas for automated KB updates",
           "status": "pending",
           "complexity": "high",
-          "description": "Currently the Knowledge Base (1,472 docs) is updated manually by uploading files to S3. Build two Lambda functions: document-processor (fetches new content from PubMed/FDA/ClinicalTrials, formats for KB) and kb-sync (triggers KB re-ingestion after new docs land in S3).",
+          "description": "Currently the Knowledge Base (~26,524 docs) is updated manually by uploading files to S3. Build two Lambda functions: document-processor (fetches new content from PubMed/FDA/ClinicalTrials, formats for KB) and kb-sync (triggers KB re-ingestion after new docs land in S3).",
           "prerequisites": [
             "AWS Bedrock KB access",
             "S3 bucket sevaro-evidence-kb",
@@ -69,7 +69,7 @@
             "src/lib/evidence-tools.ts"
           ],
           "quickPrompt": "In the Evidence Engine repo, create two Lambda functions: document-processor (fetches new clinical content from PubMed/FDA, formats for KB ingestion) and kb-sync (triggers Bedrock KB re-ingestion). Deploy with SAM.",
-          "fullPrompt": "## Task: Automated KB Update Pipeline\n\n**Repo:** sevaro-evidence-engine\n**New files:** lambda/document-processor/, lambda/kb-sync/\n\n## Context\nThe Bedrock KB (T4W8S8RNMN) has ~1,472 docs in S3 sources/external/active/. Currently updated manually.\n\n## Build\n1. document-processor Lambda: Scheduled daily, fetches new content from PubMed, FDA, ClinicalTrials APIs, formats as text files, uploads to S3\n2. kb-sync Lambda: Triggered by S3 events, calls Bedrock StartIngestionJob to re-index\n3. SAM template for deployment\n4. EventBridge rule for daily schedule\n\n## Acceptance criteria\n- New docs appear in S3 after Lambda runs\n- KB re-ingests automatically\n- No duplicate documents\n- CloudWatch logs for monitoring",
+          "fullPrompt": "## Task: Automated KB Update Pipeline\n\n**Repo:** sevaro-evidence-engine\n**New files:** lambda/document-processor/, lambda/kb-sync/\n\n## Context\nThe Bedrock KB (T4W8S8RNMN) has ~26,524 docs in S3 sources/external/active/. Currently updated manually via fetcher Lambdas.\n\n## Build\n1. document-processor Lambda: Scheduled daily, fetches new content from PubMed, FDA, ClinicalTrials APIs, formats as text files, uploads to S3\n2. kb-sync Lambda: Triggered by S3 events, calls Bedrock StartIngestionJob to re-index\n3. SAM template for deployment\n4. EventBridge rule for daily schedule\n\n## Acceptance criteria\n- New docs appear in S3 after Lambda runs\n- KB re-ingests automatically\n- No duplicate documents\n- CloudWatch logs for monitoring",
           "manualSteps": [
             "Create lambda/document-processor/ directory with index.js",
             "Create lambda/kb-sync/ directory with index.js",
@@ -78,6 +78,36 @@
             "Set up EventBridge daily trigger",
             "Verify KB re-ingestion in Bedrock console"
           ]
+        },
+        {
+          "id": "neurology-reasoning-engine",
+          "title": "Neurology Reasoning Engine — DDx Builder + Exam Interpreter + Validator",
+          "status": "done",
+          "complexity": "high",
+          "description": "Three-stage AI reasoning: Sonnet reasons with tool-use, Haiku synthesizes evidence, Haiku validates. DDx Builder produces three-tiered differentials. Exam Interpreter provides neuroanatomical localization. Shipped in PR #69.",
+          "prerequisites": [],
+          "keyFiles": [
+            "src/lib/reasoning-prompts.ts",
+            "src/lib/reasoning-validator.ts",
+            "src/lib/bedrock-converse.ts"
+          ],
+          "quickPrompt": "The Neurology Reasoning Engine is shipped (PR #69). DDx Builder, Exam Interpreter, and Validator Agent at /reasoning.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "telehealth-neuro-exam",
+          "title": "Comprehensive single-page telehealth neuro exam",
+          "status": "done",
+          "complexity": "high",
+          "description": "Full telehealth neurological examination on a single page with favorites system, mode filtering (in-person/telehealth), deselect toggle, scroll-to navigation, and Chrome extension alignment. Shipped in PRs #70-72, #74, #76.",
+          "prerequisites": [],
+          "keyFiles": [
+            "src/app/exam/page.tsx"
+          ],
+          "quickPrompt": "The telehealth neuro exam is shipped (PRs #70-76). Single-page exam at /exam with favorites, mode filtering, and Chrome extension support.",
+          "fullPrompt": "",
+          "manualSteps": []
         }
       ]
     },
@@ -96,8 +126,8 @@
             "AWS Transcribe or Deepgram API access"
           ],
           "keyFiles": [
-            "src/components/TranscriptionPanel.tsx",
-            "src/lib/transcription.ts"
+            "src/lib/transcribe-streaming.ts",
+            "src/app/api/ai/transcribe/"
           ],
           "quickPrompt": "In the OPSAmple repo, add real-time voice streaming during encounters. Currently post-recording only. Use WebSocket streaming to show words as they're spoken.",
           "fullPrompt": "## Task: Real-Time Voice Streaming\n\n**Repo:** OPSAmplehtml\n**Key area:** Transcription components\n\n## Context\nOPSAmple has post-recording transcription but no live streaming. Clinicians want to see words appear in real-time during encounters.\n\n## Approach\n1. Add WebSocket connection to streaming transcription service\n2. Display interim results in real-time, replace with finals\n3. Handle microphone permissions and audio capture in browser\n4. Consider AWS Transcribe Medical for HIPAA compliance\n\n## Acceptance criteria\n- Words appear within 500ms of being spoken\n- Final transcription matches post-recording quality\n- Works on Chrome and Safari\n- Graceful fallback if streaming unavailable",
@@ -820,7 +850,7 @@
     },
     {
       "id": "neuroscribe",
-      "name": "SevaroNeuro Scribe",
+      "name": "NeuroScribe (Evidence Engine Chrome Extension)",
       "milestones": [
         {
           "id": "note-generation-polish",
@@ -829,14 +859,14 @@
           "complexity": "medium",
           "description": "The note generation Lambda has a 120-second timeout which is occasionally hit on complex encounters. Polish the pipeline to be more reliable \u2014 optimize prompt sizes, add progress feedback, and handle timeout gracefully.",
           "prerequisites": [
-            "SevaroNeuro-scribe-chrome repo cloned",
+            "sevaro-evidence-engine repo (chrome-extension/ directory) cloned",
             "Lambda access"
           ],
           "keyFiles": [
             "lambda/generate-note/",
             "src/services/NoteGenerationService.ts"
           ],
-          "quickPrompt": "In the SevaroNeuro-scribe-chrome repo, polish the note generation pipeline. Optimize for the 120s Lambda timeout \u2014 reduce prompt sizes, add progress feedback, handle timeouts gracefully.",
+          "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), polish the note generation pipeline. Optimize for the 120s Lambda timeout \u2014 reduce prompt sizes, add progress feedback, handle timeouts gracefully.",
           "fullPrompt": "## Task: Note Generation Polish\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Problem\nThe generate-note Lambda occasionally times out at 120s on complex encounters. Need to optimize.\n\n## Fix approach\n1. Measure current prompt token counts\n2. Trim unnecessary context from prompts\n3. Add progress feedback to UI (generating... section 1/3...)\n4. Graceful timeout handling \u2014 save partial results\n5. Consider splitting into multiple Lambda calls for very long encounters\n\n## Acceptance criteria\n- No timeouts on typical encounters\n- Progress feedback visible in UI\n- Partial results saved on timeout",
           "manualSteps": [
             "Check Lambda logs for timeout frequency",
@@ -859,7 +889,7 @@
             "src/components/ChartPrepView.tsx",
             "src/components/EncounterView.tsx"
           ],
-          "quickPrompt": "In the SevaroNeuro-scribe-chrome repo, build the chart prep to visit transition workflow. Carry forward chart prep notes into the encounter and switch to recording mode.",
+          "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), build the chart prep to visit transition workflow. Carry forward chart prep notes into the encounter and switch to recording mode.",
           "fullPrompt": "## Task: Chart Prep to Visit Transition\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Workflow\n1. Clinician completes chart prep (reviews prior notes, labs, imaging)\n2. Patient arrives \u2014 clinician clicks 'Start Visit'\n3. Extension carries forward chart prep context\n4. Switches to encounter recording mode\n5. Chart prep data available as reference during encounter\n\n## Build\n1. 'Start Visit' button in chart prep view\n2. Context transfer from chart prep to encounter\n3. Split-view or reference panel during encounter\n4. Ensure recording captures only the encounter, not chart prep\n\n## Acceptance criteria\n- Smooth transition from chart prep to visit\n- Chart prep notes accessible during encounter\n- Recording starts fresh for the encounter",
           "manualSteps": [
             "Add Start Visit button to ChartPrepView",
@@ -882,7 +912,7 @@
             "src/services/DeepgramService.ts",
             "src/offscreen/offscreen.ts"
           ],
-          "quickPrompt": "In the SevaroNeuro-scribe-chrome repo, wire up the existing DeepgramService for real-time streaming transcription. The class is implemented but not instantiated anywhere.",
+          "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), wire up the existing DeepgramService for real-time streaming transcription. The class is implemented but not instantiated anywhere.",
           "fullPrompt": "## Task: Wire Up Deepgram Streaming\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Context\nDeepgramService.ts is fully implemented with WebSocket subprotocol auth. But it's never instantiated \u2014 the extension uses batch transcription via Lambda /transcribe endpoint.\n\n## Wire up\n1. Instantiate DeepgramService in the offscreen document\n2. Connect microphone audio to Deepgram WebSocket\n3. Display interim results in real-time in the side panel\n4. Replace final transcription with Deepgram finals\n5. Keep batch transcription as fallback\n\n## Acceptance criteria\n- Words appear in real-time during recording\n- Final transcript quality matches or exceeds batch\n- Fallback to batch if streaming fails\n- No memory leaks from WebSocket connections",
           "manualSteps": [
             "Open src/services/DeepgramService.ts",
@@ -907,7 +937,7 @@
             "src/services/TranscriptionService.ts",
             "lambda/sevaro-transcribe-staging/"
           ],
-          "quickPrompt": "In the SevaroNeuro-scribe-chrome repo, integrate Amazon Transcribe Medical for HIPAA-compliant transcription. The Lambda endpoint exists at sevaro-transcribe-staging.",
+          "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), integrate Amazon Transcribe Medical for HIPAA-compliant transcription. The Lambda endpoint exists at sevaro-transcribe-staging.",
           "fullPrompt": "## Task: Amazon Transcribe Medical Integration\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Context\nDeepgram is not HIPAA-covered without an Enterprise BAA. AWS Transcribe Medical is covered under the existing AWS BAA.\n\n## Build\n1. Create TranscriptionService that uses sevaro-transcribe-staging Lambda\n2. Support both streaming (WebSocket) and batch modes\n3. Compare quality with Deepgram Nova-3 Medical\n4. Make transcription provider configurable\n\n## Acceptance criteria\n- HIPAA-compliant transcription available\n- Quality comparable to Deepgram\n- Provider switchable via config\n- No PHI sent to non-HIPAA services",
           "manualSteps": [
             "Review sevaro-transcribe-staging Lambda",
@@ -1201,6 +1231,20 @@
           ]
         },
         {
+          "id": "grab-physics-sorting",
+          "title": "Grab physics, sorting bins, task instructor, and interaction sounds",
+          "status": "done",
+          "complexity": "high",
+          "description": "PinchGrabDetector with throw physics, 3 sorting bins (Fruit/Vegetable/Bread), TaskInstructor (Sonali gives instructions + encouragement), procedural interaction sounds, 20 Sketchfab textured items, articulated hands, store room layout. PR #5.",
+          "prerequisites": [],
+          "keyFiles": [
+            "MarketDayVR/Assets/Scripts/"
+          ],
+          "quickPrompt": "Grab physics and sorting bins shipped in PR #5.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
           "id": "sprint3-additional-exercises",
           "title": "Sprint 3: additional exercise types and difficulty levels",
           "status": "pending",
@@ -1239,6 +1283,79 @@
             "Verify Lambda API endpoint is reachable from headset network",
             "Test data appears in RDS after session"
           ]
+        }
+      ]
+    },
+    {
+      "id": "xr-test-companion",
+      "name": "XR Test Companion",
+      "milestones": [
+        {
+          "id": "sprints-1-5-complete",
+          "title": "Sprints 1-5: Full companion app with voice, metrics, video, AI analysis, keyboard shortcuts",
+          "status": "done",
+          "complexity": "high",
+          "description": "macOS SwiftUI companion for Galaxy XR testing. Sprint 1: scaffold + ADB + logcat. Sprint 2: Deepgram voice + screenshots. Sprint 3: metrics + video + export. Sprint 4: Bedrock AI analysis. Sprint 5: keyboard shortcuts + session history + timed capture.",
+          "prerequisites": [],
+          "keyFiles": [
+            "Sources/"
+          ],
+          "quickPrompt": "Sprints 1-5 are complete. Next: session comparison, app icon, real-world usage iteration.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "session-comparison",
+          "title": "Session comparison and real-world iteration",
+          "status": "pending",
+          "complexity": "medium",
+          "description": "Add ability to compare two sessions side-by-side (metrics, logs, AI analysis). Polish based on real-world Galaxy XR testing sessions.",
+          "prerequisites": [
+            "Sprints 1-5 complete"
+          ],
+          "keyFiles": [
+            "Sources/"
+          ],
+          "quickPrompt": "In the xr-test-companion repo, add session comparison UI. Allow side-by-side viewing of two sessions' metrics, logs, and AI analysis.",
+          "fullPrompt": "",
+          "manualSteps": []
+        }
+      ]
+    },
+    {
+      "id": "sevaro-feedback",
+      "name": "Sevaro Feedback",
+      "milestones": [
+        {
+          "id": "feedback-widget-v1",
+          "title": "Feedback widget v1 — voice recording, chatbot, screenshot annotation, navigation guidance",
+          "status": "done",
+          "complexity": "high",
+          "description": "Embeddable @sevaro/feedback package with voice recording, AI chatbot (Bedrock Haiku 4.5), screenshot annotation, navigation guidance. Integrated into Evidence Engine and OPSAmple. Lambda API + S3 + DynamoDB backend.",
+          "prerequisites": [],
+          "keyFiles": [
+            "src/",
+            "lambda/"
+          ],
+          "quickPrompt": "Feedback widget v1 is shipped and integrated into Evidence Engine and OPSAmple.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "voice-transcription",
+          "title": "Wire up voice-in-chat transcription",
+          "status": "pending",
+          "complexity": "medium",
+          "description": "Voice-in-chat records audio but transcription is not yet wired up. Integrate Deepgram or AWS Transcribe to convert voice messages to text within chat sessions.",
+          "prerequisites": [
+            "Feedback widget v1 complete"
+          ],
+          "keyFiles": [
+            "src/hooks/useChatApi.ts"
+          ],
+          "quickPrompt": "In the sevaro-feedback repo, wire up voice-in-chat transcription. Audio is recorded but not yet transcribed. Use Deepgram or AWS Transcribe.",
+          "fullPrompt": "",
+          "manualSteps": []
         }
       ]
     }
