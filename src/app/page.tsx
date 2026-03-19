@@ -106,7 +106,7 @@ export default function HomePage() {
         .section { margin-bottom: 48px; }
         .section-title {
           font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
-          letter-spacing: 0.12em; color: #5a6580; margin-bottom: 16px; padding-left: 4px;
+          letter-spacing: 0.12em; color: #9ba3b8; margin-bottom: 16px; padding-left: 4px;
         }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
         .card {
@@ -120,7 +120,7 @@ export default function HomePage() {
         .card-title { font-size: 1.05rem; font-weight: 600; color: #d0d8e8; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .card-title a { color: inherit; text-decoration: none; }
         .card-title a:hover { text-decoration: underline; }
-        .card-desc { font-size: 0.88rem; color: #6a7490; line-height: 1.5; }
+        .card-desc { font-size: 0.88rem; color: #9ba3b8; line-height: 1.5; }
         .badge { display: inline-block; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 7px; border-radius: 4px; }
         .badge-live { background: rgba(50,180,100,0.15); color: #4ade80; }
         .badge-api { background: rgba(160,120,240,0.15); color: #b89afc; }
@@ -132,7 +132,7 @@ export default function HomePage() {
         .card-next { display: block; font-size: 0.78rem; color: #7aa2d4; margin-top: 8px; font-style: italic; }
         .card-nolink { cursor: default; }
         .card-nolink:hover { transform: none; box-shadow: none; background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
-        footer { text-align: center; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.05); color: #3a4260; font-size: 0.82rem; }
+        footer { text-align: center; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.05); color: #9ba3b8; font-size: 0.82rem; }
         @media (max-width: 600px) { .container { padding: 40px 16px 60px; } header h1 { font-size: 1.8rem; } .grid { grid-template-columns: 1fr; } }
         .milestone-link {
           color: #7aa2d4;
