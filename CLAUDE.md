@@ -40,13 +40,13 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 **Status**: Active
 
 ### Recent
+- **Prompt Review hub page** — AI-powered prompt refinement interface (PR #8)
+- **Fixed 23 WCAG 2.2 AA color-contrast violations** on splash page
 - Chat transcript, annotations, and summary display on feedback session detail (PR #7)
 - Improvement Queue system — Lambda + DynamoDB API, admin UI, Claude Code skill (PR #6)
 - "What's New" cross-app notification system with admin UI and `<WhatsNewBadge />` (PR #5)
 - Cognito Hosted UI OAuth SSO (replaced direct login) with post-login redirect fix
 - Feedback admin dashboard with auth, status management, AI analysis, email notifications (PR #4)
-- Migrated from npm to pnpm
-- Interactive milestone drawer with clickable roadmap items
 
 ### In Progress
 - None

@@ -189,9 +189,9 @@
         {
           "id": "migrate-supabase-to-rds",
           "title": "Migrate remaining Supabase DB/auth to RDS/Cognito",
-          "status": "pending",
+          "status": "done",
           "complexity": "high",
-          "description": "OPSAmple still has some Supabase dependencies for older features. Complete the migration to RDS for data and Cognito for auth. Most infra is already on AWS but some legacy paths remain.",
+          "description": "OPSAmple Supabase removal complete (PRs #85-86, Mar 2026). Zero Supabase imports remain. All data on RDS, all auth on Cognito. Supabase SDK removed from package.json.",
           "prerequisites": [
             "OPSAmple repo cloned",
             "AWS RDS and Cognito access"
