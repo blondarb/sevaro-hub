@@ -6,10 +6,10 @@
       "milestones": [
         {
           "id": "optimize-synthesis-speed",
-          "title": "Further optimize Haiku 4.5 synthesis speed (partially addressed, still 7-14s on complex queries)",
+          "title": "Further optimize Haiku 4.5 synthesis speed for complex queries (still 7-14s)",
           "status": "pending",
           "complexity": "medium",
-          "description": "The Haiku 4.5 synthesis step in the two-stage reasoning pipeline takes 7-14 seconds on complex clinical queries. This is the main bottleneck \u2014 Sonnet reasoning is fast (2-4s) but synthesis lags. Investigate prompt length reduction, token limits, and whether streaming the synthesis response can reduce perceived wait time.",
+          "description": "Three-tier adaptive routing (PR #83, Mar 2026) fixed simple queries to 2-4s via a Haiku fast path. But complex clinical queries still take 7-14s in the standard/deep tiers. The Sonnet reasoning step is fast; Haiku synthesis is the bottleneck for complex cases. Streaming already mitigates perceived latency; reducing prompt context size is the next lever.",
           "prerequisites": [
             "Evidence Engine repo cloned",
             "AWS Bedrock access configured"
@@ -18,15 +18,74 @@
             "src/lib/bedrock-converse.ts",
             "src/lib/evidence-tools.ts"
           ],
-          "quickPrompt": "In the Evidence Engine repo, further optimize the Haiku 4.5 synthesis step in src/lib/bedrock-converse.ts. Initial token reduction was done in PR #43 but complex queries still take 7-14s. Investigate streaming the response, prompt restructuring, or alternative models. Target: under 5s for typical queries.",
-          "fullPrompt": "## Task: Optimize Evidence Engine Synthesis Speed\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/lib/bedrock-converse.ts, src/lib/evidence-tools.ts\n\n## Context\nThe two-stage reasoning pipeline uses Sonnet 4.6 for reasoning (2-4s) then Haiku 4.5 for synthesis (7-14s). The synthesis step is the bottleneck.\n\n## Investigation areas\n1. Measure prompt token count going to Haiku \u2014 are we sending too much context?\n2. Check if KB results can be trimmed before synthesis\n3. Evaluate streaming the synthesis response to reduce perceived latency\n4. Consider if Haiku 4.5 is the right model or if a faster option exists\n\n## Acceptance criteria\n- Typical queries synthesize in under 5 seconds\n- Complex queries under 8 seconds\n- No quality regression in synthesis output\n- Run qa/run_smoke.sh to verify",
+          "quickPrompt": "In the Evidence Engine repo, optimize Haiku 4.5 synthesis for complex queries (currently 7-14s). Adaptive routing already handles simple queries fast. Focus on reducing context sent to Haiku in standard/deep tiers — trim KB results, shorten synthesis prompt, or evaluate a faster model.",
+          "fullPrompt": "## Task: Optimize Evidence Engine Synthesis Speed for Complex Queries\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/lib/bedrock-converse.ts, src/lib/evidence-tools.ts\n\n## Context\nAdaptive routing (PR #83) handles simple queries in 2-4s via a Haiku fast path. Complex/deep tier queries still hit Haiku synthesis at 7-14s.\n\n## Investigation areas\n1. Measure prompt token count for standard/deep tier — are we sending too much context?\n2. Trim KB results before synthesis (cap at top-N most relevant)\n3. Evaluate Haiku 4.5 vs a faster alternative for synthesis\n4. Reduce synthesis prompt verbosity\n\n## Acceptance criteria\n- Complex queries synthesize in under 8 seconds\n- No quality regression in synthesis output\n- Run qa/run_smoke.sh to verify",
           "manualSteps": [
             "Open src/lib/bedrock-converse.ts and find the synthesis function",
-            "Add timing logs around the Haiku invocation",
-            "Check the prompt token count being sent",
+            "Log prompt token count for complex queries",
             "Reduce context if over 2000 tokens",
             "Test with qa/run_smoke.sh"
           ]
+        },
+        {
+          "id": "three-tier-adaptive-routing",
+          "title": "Three-tier adaptive query routing (simple/standard/deep)",
+          "status": "done",
+          "complexity": "medium",
+          "description": "Implemented three-tier query classification: simple queries take a fast Haiku path (2-4s), standard queries use full two-stage reasoning, deep queries run extended analysis. Dramatically improved latency for common queries. Shipped in PR #83 (Mar 2026).",
+          "prerequisites": [],
+          "keyFiles": [
+            "src/lib/query-router.ts",
+            "src/lib/bedrock-converse.ts"
+          ],
+          "quickPrompt": "Three-tier adaptive routing is done (PR #83). Simple queries: 2-4s fast path. Standard: two-stage reasoning. Deep: extended analysis.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "bedrock-guardrail-semantic-cache",
+          "title": "Bedrock Guardrail + semantic response cache + validator re-synthesis",
+          "status": "done",
+          "complexity": "medium",
+          "description": "Shipped three safety and performance upgrades: Bedrock Guardrail (content safety, PII detect/anonymize, LOW content filters) applied to reasoning pipeline; DynamoDB semantic response cache for instant repeat queries; automatic re-synthesis triggered on validator critical failures. PRs #81-84 (Mar 2026).",
+          "prerequisites": [],
+          "keyFiles": [
+            "src/lib/bedrock-converse.ts",
+            "src/lib/reasoning-validator.ts"
+          ],
+          "quickPrompt": "Guardrail + semantic cache + validator re-synthesis are shipped (PRs #81-84).",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "kb-expansion-metadata-filtering",
+          "title": "KB expansion Phases 1-6 + Phase 2 metadata filtering",
+          "status": "done",
+          "complexity": "high",
+          "description": "Completed KB expansion pipeline: Phase 1 query expansion + non-human cleanup; Phase 2 metadata sidecar generator (36,877 sidecars); Phase 3 non-human document cleanup; Phase 4-5 AHRQ and CADTH Playwright fetcher scripts; Phase 6 freshness pipeline. Phase 2 metadata filtering wired into KB retrieval for improved result quality. PRs #84-85 and multiple commits (Mar 2026).",
+          "prerequisites": [],
+          "keyFiles": [
+            "scripts/",
+            "src/lib/kb-retrieval.ts"
+          ],
+          "quickPrompt": "KB expansion Phases 1-6 and metadata filtering are complete. 36,877 sidecars generated, AHRQ/CADTH sources added, freshness pipeline active.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "telemedicine-extension-audio",
+          "title": "Chrome extension: two-way audio capture for telemedicine visits",
+          "status": "done",
+          "complexity": "medium",
+          "description": "Chrome extension now captures two-way audio during telemedicine visits (Zoom, Doxy.me, Google Meet, Sevaro Video). Auto-detects the active telemedicine tab; falls back to the active tab if no known telemed URL is detected. Background processing + auto-refresh for multitasking during recordings. Unified patient list (removed duplicate 'Ready for Visit' section). Mar 23, 2026.",
+          "prerequisites": [],
+          "keyFiles": [
+            "chrome-extension/src/background/",
+            "chrome-extension/src/offscreen/"
+          ],
+          "quickPrompt": "Two-way telemedicine audio capture is shipped. Extension auto-detects video visit tabs and records both microphone and tab audio.",
+          "fullPrompt": "",
+          "manualSteps": []
         },
         {
           "id": "improve-pubmed-queries",
@@ -185,6 +244,21 @@
             "Add speaker label editing",
             "Test with multi-speaker audio"
           ]
+        },
+        {
+          "id": "neuro-intake-engine",
+          "title": "Integrated Neuro Intake Engine + simulated patient E2E tests",
+          "status": "done",
+          "complexity": "high",
+          "description": "Implemented a 7-phase structured neuro intake pipeline with /consult page for end-to-end clinical encounter flow. Added simulated patient E2E test agent covering stroke and migraine personas with full API format validation. PRs #87-90 (Mar 2026).",
+          "prerequisites": [],
+          "keyFiles": [
+            "src/app/consult/",
+            "scripts/simulated-patient-agent/"
+          ],
+          "quickPrompt": "Integrated Neuro Intake Engine (Phases 1-7) and simulated patient E2E tests are shipped (PRs #87-90).",
+          "fullPrompt": "",
+          "manualSteps": []
         },
         {
           "id": "migrate-supabase-to-rds",
@@ -1292,15 +1366,15 @@
       "milestones": [
         {
           "id": "sprints-1-5-complete",
-          "title": "Sprints 1-5: Full companion app with voice, metrics, video, AI analysis, keyboard shortcuts",
+          "title": "Sprints 1-5 + post-sprint polish: Full companion app shipped",
           "status": "done",
           "complexity": "high",
-          "description": "macOS SwiftUI companion for Galaxy XR testing. Sprint 1: scaffold + ADB + logcat. Sprint 2: Deepgram voice + screenshots. Sprint 3: metrics + video + export. Sprint 4: Bedrock AI analysis. Sprint 5: keyboard shortcuts + session history + timed capture.",
+          "description": "macOS SwiftUI companion for Galaxy XR testing. Sprint 1-2: ADB/logcat, Deepgram voice, screenshots. Sprint 3: metrics, video, export, settings. Sprint 4: Bedrock AI analysis (Converse API, SigV4). Sprint 5: keyboard shortcuts, session history, timed capture, mic indicator. Post-sprint (PRs #5-6, Mar 2026): async ADB deadlock fix, ServiceHealth indicators, Bedrock credential pre-flight, Claude Prompt handoff, custom app icon.",
           "prerequisites": [],
           "keyFiles": [
             "Sources/"
           ],
-          "quickPrompt": "Sprints 1-5 are complete. Next: session comparison, app icon, real-world usage iteration.",
+          "quickPrompt": "Sprints 1-5 + post-sprint polish complete (PRs #5-6). App icon, Bedrock pre-flight, Claude Prompt handoff all shipped. Next: session comparison.",
           "fullPrompt": "",
           "manualSteps": []
         },
