@@ -159,7 +159,7 @@ export default function HomePage() {
           <div className="grid">
             <div className="card">
               <div className="card-title"><a href="https://evidence.neuroplans.app" target="_blank" rel="noopener">Evidence Engine</a> <span className="badge badge-live">Live</span></div>
-              <div className="card-desc">Two-stage clinical AI: Claude Sonnet reasoning with Bedrock KB (1,472 docs) and live PubMed search, plus integrated NeuroScribe documentation workflow.
+              <div className="card-desc">Two-stage clinical AI: Claude Sonnet reasoning with Bedrock KB (1,472 docs) and live PubMed search, plus integrated NeuroScribe documentation workflow. Dot phrases with cloud persistence, two-way telemedicine audio capture, and evidence review.
                 <MilestoneLinks projectId="evidence-engine" milestones={getMilestones('evidence-engine')} onOpen={openDrawer} />
               </div>
             </div>
@@ -262,7 +262,7 @@ export default function HomePage() {
             </div>
             <div className="card card-nolink">
               <div className="card-title">Sevaro Scribe <span className="badge badge-ext">Extension</span></div>
-              <div className="card-desc">General clinical dictation with Deepgram Nova-3 streaming, Cognito auth, and AI-powered text refinement.
+              <div className="card-desc">General clinical dictation with side panel UI, persistent edge tab, Deepgram Nova-3 streaming, Cognito auth, and AI-powered text refinement.
                 <MilestoneLinks projectId="sevaro-scribe" milestones={getMilestones('sevaro-scribe')} onOpen={openDrawer} />
               </div>
             </div>
@@ -288,8 +288,45 @@ export default function HomePage() {
           <div className="grid">
             <div className="card card-nolink">
               <div className="card-title">Market Day VR <span className="badge badge-dev">Dev</span></div>
-              <div className="card-desc">Cognitive/motor rehabilitation VR for post-stroke adults. Samsung Galaxy XR, Unity 6 LTS + Sonali AI coaching.
+              <div className="card-desc">Cognitive/motor rehabilitation VR for post-stroke adults. Samsung Galaxy XR, Unity 6 LTS, hand tracking + Sonali AI coaching avatar.
                 <MilestoneLinks projectId="market-day-vr" milestones={getMilestones('market-day-vr')} onOpen={openDrawer} />
+              </div>
+            </div>
+            <div className="card card-nolink">
+              <div className="card-title">Sonali Agent <span className="badge badge-dev">Dev</span></div>
+              <div className="card-desc">AI coaching agent with AWS Polly voice synthesis and Bedrock Sonnet reasoning. 3D GLB avatar with lip sync in progress.
+                <MilestoneLinks projectId="sonali-agent" milestones={getMilestones('sonali-agent')} onOpen={openDrawer} />
+              </div>
+            </div>
+            <div className="card card-nolink">
+              <div className="card-title">XR Test Companion <span className="badge badge-dev">Dev</span></div>
+              <div className="card-desc">macOS companion for XR headset testing — voice narration, ADB screenshots, logcat, AI analysis, and Claude Prompt handoff.
+                <MilestoneLinks projectId="xr-test-companion" milestones={getMilestones('xr-test-companion')} onOpen={openDrawer} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Infrastructure & Ops */}
+        <div className="section">
+          <div className="section-title">Infrastructure &amp; Ops</div>
+          <div className="grid">
+            <div className="card card-nolink">
+              <div className="card-title">Sevaro Ops <span className="badge badge-new">New</span></div>
+              <div className="card-desc">Centralized operations monitoring: error-responder Lambda, CloudWatch alarms, metric filters across 10+ services.
+                <MilestoneLinks projectId="sevaro-ops" milestones={getMilestones('sevaro-ops')} onOpen={openDrawer} />
+              </div>
+            </div>
+            <div className="card card-nolink">
+              <div className="card-title">Admin API <span className="badge badge-new">New</span></div>
+              <div className="card-desc">Cognito + Bedrock management API with MCP server for Claude Code/Cowork integration.
+                <MilestoneLinks projectId="admin-api" milestones={getMilestones('admin-api')} onOpen={openDrawer} />
+              </div>
+            </div>
+            <div className="card card-nolink">
+              <div className="card-title">Sevaro Feedback <span className="badge badge-live">Live</span></div>
+              <div className="card-desc">In-app feedback widget with annotation overlay, screenshot capture, and voice recording across all Sevaro apps.
+                <MilestoneLinks projectId="sevaro-feedback" milestones={getMilestones('sevaro-feedback')} onOpen={openDrawer} />
               </div>
             </div>
           </div>
