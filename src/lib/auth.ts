@@ -1,6 +1,6 @@
 // OAuth-based auth helpers for Cognito Hosted UI SSO
 
-const COGNITO_DOMAIN = 'auth.neuroplans.app';
+const COGNITO_DOMAIN = process.env.NEXT_PUBLIC_COGNITO_DOMAIN || '';
 const CLIENT_ID = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || '';
 
 export interface AuthUser {
