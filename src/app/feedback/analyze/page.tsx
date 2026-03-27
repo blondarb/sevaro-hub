@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getIdToken } from '@/lib/auth';
+import { APP_TABS } from '@/lib/app-registry';
 
 interface Theme {
   name: string;
@@ -29,6 +31,18 @@ const SEVERITY_COLORS: Record<string, string> = {
 };
 
 export default function AnalyzePage() {
+  return (
+    <Suspense>
+      <AnalyzePageInner />
+    </Suspense>
+  );
+}
+
+function AnalyzePageInner() {
+  const searchParams = useSearchParams();
+  const initialApp = searchParams.get('app') || 'all';
+
+  const [appScope, setAppScope] = useState(initialApp);
   const [days, setDays] = useState(30);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -43,18 +57,21 @@ export default function AnalyzePage() {
       const token = await getIdToken();
       if (!token) throw new Error('Not authenticated — please sign in again');
 
+      const body: Record<string, unknown> = { days };
+      if (appScope !== 'all') body.appId = appScope;
+
       const res = await fetch('/api/feedback/analyze', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ days }),
+        body: JSON.stringify(body),
       });
 
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `Analysis failed: ${res.status}`);
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `Analysis failed: ${res.status}`);
       }
 
       setResult(await res.json());
@@ -63,6 +80,17 @@ export default function AnalyzePage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const selectStyle = {
+    padding: '8px 14px',
+    borderRadius: 8,
+    border: '1px solid rgba(255,255,255,0.1)',
+    background: 'rgba(255,255,255,0.05)',
+    color: '#e0e0e8',
+    fontSize: '0.85rem',
+    outline: 'none' as const,
+    fontFamily: 'inherit',
   };
 
   return (
@@ -93,13 +121,20 @@ export default function AnalyzePage() {
         display: 'flex', gap: 12, alignItems: 'center', marginBottom: 32, flexWrap: 'wrap',
       }}>
         <select
+          value={appScope}
+          onChange={(e) => setAppScope(e.target.value)}
+          style={selectStyle}
+        >
+          {APP_TABS.map((tab) => (
+            <option key={tab.id} value={tab.id}>
+              {tab.id === 'all' ? 'All Apps (cross-app trends)' : tab.label}
+            </option>
+          ))}
+        </select>
+        <select
           value={days}
           onChange={(e) => setDays(Number(e.target.value))}
-          style={{
-            padding: '8px 14px', borderRadius: 8,
-            border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)',
-            color: '#e0e0e8', fontSize: '0.85rem', outline: 'none',
-          }}
+          style={selectStyle}
         >
           <option value={7}>Last 7 days</option>
           <option value={14}>Last 14 days</option>
@@ -114,9 +149,10 @@ export default function AnalyzePage() {
             background: loading ? '#3a4560' : '#7aa2d4', color: '#fff',
             fontSize: '0.85rem', fontWeight: 600,
             cursor: loading ? 'not-allowed' : 'pointer',
+            fontFamily: 'inherit',
           }}
         >
-          {loading ? 'Analyzing...' : 'Analyze Recent Feedback'}
+          {loading ? 'Analyzing...' : 'Analyze'}
         </button>
       </div>
 

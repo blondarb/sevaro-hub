@@ -10,18 +10,11 @@ import {
   createUpdate,
   deleteUpdate,
 } from '@/lib/whats-new-api';
+import { APP_LIST } from '@/lib/app-registry';
 
 const APP_OPTIONS = [
   { value: 'all', label: 'All Apps' },
-  { value: 'sevaro-hub', label: 'Sevaro Hub' },
-  { value: 'evidence-engine', label: 'Evidence Engine' },
-  { value: 'opsample', label: 'OPSAmple' },
-  { value: 'workouts', label: 'Workouts' },
-  { value: 'showcase', label: 'GitHub Showcase' },
-  { value: 'neuroscribe-extension', label: 'NeuroScribe Extension' },
-  { value: 'sevaro-scribe', label: 'Sevaro Scribe' },
-  { value: 'repgenius', label: 'RepGenius' },
-  { value: 'sevaro-monitor', label: 'Sevaro Monitor' },
+  ...APP_LIST.map((t) => ({ value: t.id, label: t.label })),
 ];
 
 const CATEGORY_OPTIONS = [
