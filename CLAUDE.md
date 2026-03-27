@@ -13,7 +13,7 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 - **Hosting**: AWS Amplify (`d3n3e9vr1knkam`)
 - **Domain**: `hub.neuroplans.app`
 - **Deploy**: Auto-deploys on push to `main`
-- **Auth**: Amazon Cognito (`us-east-2_Owfb1zpgM`, client `7t8bjj2fjkvtu081qhledc627a`)
+- **Auth**: Amazon Cognito (`us-east-2_9y6XyJnXC`, client `2ejoumofnhhd3133gv9e9i6r1h`)
 - **IAM Role**: `SevaroHub-AmplifySSR` (SES, Bedrock, SSM permissions)
 - **Email**: SES from `feedback@neuroplans.app` (DKIM verified)
 - **AI**: Bedrock Sonnet for feedback pattern analysis
