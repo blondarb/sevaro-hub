@@ -14,22 +14,32 @@ export async function POST(request: Request) {
 
   const body = await request.json();
   const days = body.days || 30;
+  const appId: string | undefined = body.appId; // undefined = cross-app mode
 
   try {
     const sessions = await listSessions();
     const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
 
-    const unresolvedSessions = sessions.filter((s) => {
+    let unresolvedSessions = sessions.filter((s) => {
       const isRecent = s.createdAt >= cutoff;
       const isUnresolved = !s.reviewStatus || s.reviewStatus === 'open' || s.reviewStatus === 'in_progress';
       return isRecent && isUnresolved;
     });
 
+    // Filter by app if scoped
+    if (appId) {
+      unresolvedSessions = unresolvedSessions.filter((s) => s.appId === appId);
+    }
+
     if (unresolvedSessions.length === 0) {
       return NextResponse.json({
         themes: [],
-        summary: 'No unresolved feedback sessions found in the selected time period.',
+        summary: appId
+          ? `No unresolved feedback sessions for ${appId} in the last ${days} days.`
+          : `No unresolved feedback sessions found in the last ${days} days.`,
+        topPriority: '',
         sessionCount: 0,
+        analyzedDays: days,
       });
     }
 
@@ -52,27 +62,9 @@ export async function POST(request: Request) {
       };
     });
 
-    const prompt = `Analyze these ${sessionSummaries.length} unresolved feedback sessions from the last ${days} days across Sevaro apps. Identify patterns, recurring themes, and suggest prioritized actions.
-
-FEEDBACK DATA:
-${JSON.stringify(sessionSummaries, null, 2)}
-
-Respond with JSON in this exact format:
-{
-  "themes": [
-    {
-      "name": "Theme name",
-      "description": "What this theme covers",
-      "frequency": <number of sessions mentioning this>,
-      "severity": "critical" | "major" | "minor",
-      "affectedApps": ["app1", "app2"],
-      "relatedSessionIds": ["id1", "id2"],
-      "recommendation": "What to do about it"
-    }
-  ],
-  "summary": "1-2 sentence overall summary",
-  "topPriority": "Single most impactful thing to fix first"
-}`;
+    const prompt = appId
+      ? buildPerAppPrompt(sessionSummaries, days, appId)
+      : buildCrossAppPrompt(sessionSummaries, days);
 
     const converseResponse = await bedrock.send(new ConverseCommand({
       modelId: 'us.anthropic.claude-sonnet-4-6-20250514-v1:0',
@@ -82,7 +74,6 @@ Respond with JSON in this exact format:
 
     const responseText = converseResponse.output?.message?.content?.[0]?.text || '';
 
-    // Extract JSON from the response (may be wrapped in markdown code block)
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       return NextResponse.json({ error: 'Failed to parse analysis', raw: responseText }, { status: 500 });
@@ -102,4 +93,63 @@ Respond with JSON in this exact format:
       { status: 500 },
     );
   }
+}
+
+function buildPerAppPrompt(
+  sessionSummaries: Record<string, unknown>[],
+  days: number,
+  appId: string,
+): string {
+  return `Analyze these ${sessionSummaries.length} unresolved feedback sessions from the last ${days} days for the "${appId}" app. Identify bugs, patterns, recurring user pain points, and suggest prioritized actions specific to this app.
+
+FEEDBACK DATA:
+${JSON.stringify(sessionSummaries, null, 2)}
+
+Respond with JSON in this exact format:
+{
+  "themes": [
+    {
+      "name": "Theme name",
+      "description": "What this theme covers",
+      "frequency": <number of sessions mentioning this>,
+      "severity": "critical" | "major" | "minor",
+      "affectedApps": ["${appId}"],
+      "relatedSessionIds": ["id1", "id2"],
+      "recommendation": "Specific actionable fix for this app"
+    }
+  ],
+  "summary": "1-2 sentence summary of this app's feedback patterns",
+  "topPriority": "Single most impactful thing to fix in this app"
+}`;
+}
+
+function buildCrossAppPrompt(
+  sessionSummaries: Record<string, unknown>[],
+  days: number,
+): string {
+  return `Analyze these ${sessionSummaries.length} unresolved feedback sessions from the last ${days} days across multiple Sevaro apps. Focus on:
+
+1. CROSS-APP PATTERNS: Issues or themes that appear in 2+ different apps (e.g., "login confusion" across multiple products). These are the most valuable findings.
+2. PORTFOLIO HEALTH: Which apps have the most feedback, highest severity, and which are suspiciously quiet.
+3. SYSTEMIC RECOMMENDATIONS: Improvements that should be applied across the board — shared UX patterns, common infrastructure fixes, design consistency issues.
+
+FEEDBACK DATA:
+${JSON.stringify(sessionSummaries, null, 2)}
+
+Respond with JSON in this exact format:
+{
+  "themes": [
+    {
+      "name": "Theme name",
+      "description": "What this theme covers and which apps are affected",
+      "frequency": <number of sessions mentioning this>,
+      "severity": "critical" | "major" | "minor",
+      "affectedApps": ["app1", "app2"],
+      "relatedSessionIds": ["id1", "id2"],
+      "recommendation": "What to do about it across the portfolio"
+    }
+  ],
+  "summary": "1-2 sentence portfolio-level summary highlighting cross-app patterns",
+  "topPriority": "Single most impactful systemic improvement"
+}`;
 }
