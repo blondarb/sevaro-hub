@@ -40,6 +40,8 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 **Status**: Active
 
 ### Recent
+- **Admin auth + token refresh fix (PR #10, Mar 27)** — Added missing auth token to What's New API calls, Cognito token refresh on 401, env var for Cognito domain
+- **Roadmap milestones + 5 new projects (PR #9, Mar 24)** — Updated roadmap milestone tracking, added 5 new project entries
 - **Prompt Review hub page** — AI-powered prompt refinement interface (PR #8)
 - **Fixed 23 WCAG 2.2 AA color-contrast violations** on splash page
 - Chat transcript, annotations, and summary display on feedback session detail (PR #7)
