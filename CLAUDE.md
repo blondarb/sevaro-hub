@@ -40,6 +40,7 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 **Status**: Active
 
 ### Recent
+- **Feedback dashboard redesign (PR #11, Mar 27)** — Per-app tab navigation with unreviewed badges, inline category stats, scoped AI analysis (per-app + cross-app Bedrock prompts), shared app registry, sessions proxy route
 - **Admin auth + token refresh fix (PR #10, Mar 27)** — Added missing auth token to What's New API calls, Cognito token refresh on 401, env var for Cognito domain
 - **Roadmap milestones + 5 new projects (PR #9, Mar 24)** — Updated roadmap milestone tracking, added 5 new project entries
 - **Prompt Review hub page** — AI-powered prompt refinement interface (PR #8)
