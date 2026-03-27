@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-// Auth tokens are passed automatically via httpOnly cookies
+import { getIdToken } from '@/lib/auth';
 
 interface Theme {
   name: string;
@@ -40,9 +40,15 @@ export default function AnalyzePage() {
     setResult(null);
 
     try {
+      const token = await getIdToken();
+      if (!token) throw new Error('Not authenticated — please sign in again');
+
       const res = await fetch('/api/feedback/analyze', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ days }),
       });
 

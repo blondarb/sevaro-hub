@@ -56,7 +56,9 @@ export default function WhatsNewAdmin() {
   const fetchAll = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await getAllUpdates();
+      const token = await getIdToken();
+      if (!token) throw new Error('Not authenticated');
+      const data = await getAllUpdates(token);
       setUpdates(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load');
