@@ -67,7 +67,7 @@ export async function POST(request: Request) {
       : buildCrossAppPrompt(sessionSummaries, days);
 
     const converseResponse = await bedrock.send(new ConverseCommand({
-      modelId: 'us.anthropic.claude-sonnet-4-6-20250514-v1:0',
+      modelId: 'us.anthropic.claude-sonnet-4-6',
       messages: [{ role: 'user', content: [{ text: prompt }] }],
       inferenceConfig: { maxTokens: 2000, temperature: 0.2 },
     }));

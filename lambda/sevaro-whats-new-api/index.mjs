@@ -16,8 +16,8 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'steve@sevaro.com')
   .split(',')
   .map((e) => e.trim().toLowerCase());
 
-const USER_POOL_ID = process.env.COGNITO_USER_POOL_ID || 'us-east-2_Owfb1zpgM';
-const CLIENT_ID = process.env.COGNITO_CLIENT_ID || '7t8bjj2fjkvtu081qhledc627a';
+const USER_POOL_ID = process.env.COGNITO_USER_POOL_ID || 'us-east-2_9y6XyJnXC';
+const CLIENT_ID = process.env.COGNITO_CLIENT_ID || '2ejoumofnhhd3133gv9e9i6r1h';
 
 const verifier = CognitoJwtVerifier.create({
   userPoolId: USER_POOL_ID,
