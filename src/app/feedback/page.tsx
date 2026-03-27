@@ -37,8 +37,7 @@ const REVIEW_STATUS_STYLES: Record<string, { bg: string; text: string; label: st
 };
 
 function isOpen(session: FeedbackSession): boolean {
-  const rs = (session as unknown as Record<string, unknown>).reviewStatus as string | undefined;
-  return !rs || rs === 'open';
+  return !session.reviewStatus || session.reviewStatus === 'open';
 }
 
 export default function FeedbackDashboard() {
@@ -220,7 +219,7 @@ export default function FeedbackDashboard() {
             const date = session.createdAt
               ? new Date(session.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
               : '';
-            const rs = REVIEW_STATUS_STYLES[(session as unknown as Record<string, unknown>).reviewStatus as string] || REVIEW_STATUS_STYLES.open;
+            const rs = REVIEW_STATUS_STYLES[session.reviewStatus || 'open'] || REVIEW_STATUS_STYLES.open;
 
             return (
               <Link
