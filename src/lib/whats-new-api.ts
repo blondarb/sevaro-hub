@@ -28,8 +28,11 @@ export async function getUpdates(
   return data.updates || [];
 }
 
-export async function getAllUpdates(): Promise<WhatsNewEntry[]> {
-  const res = await fetch(`${API_URL}/whats-new/all`, { cache: 'no-store' });
+export async function getAllUpdates(token: string): Promise<WhatsNewEntry[]> {
+  const res = await fetch(`${API_URL}/whats-new/all`, {
+    cache: 'no-store',
+    headers: { Authorization: `Bearer ${token}` },
+  });
   if (!res.ok) throw new Error(`Failed to fetch all updates: ${res.status}`);
   const data = await res.json();
   return data.updates || [];
