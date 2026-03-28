@@ -193,6 +193,18 @@ export default function HomePage() {
                 <MilestoneLinks projectId="cardio-plans-v2" milestones={getMilestones('cardio-plans-v2')} onOpen={openDrawer} />
               </div>
             </a>
+            <div className="card card-nolink">
+              <div className="card-title">Pulm &amp; Crit Care Plans v2 <span className="badge badge-dev">Dev</span></div>
+              <div className="card-desc">Pulmonary &amp; critical care clinical plans website — vent calculators, ABG, severity scores. Next.js 16 with Cognito auth and RDS backend.
+                <MilestoneLinks projectId="pulm-crit-care-v2" milestones={getMilestones('pulm-crit-care-v2')} onOpen={openDrawer} />
+              </div>
+            </div>
+            <div className="card card-nolink">
+              <div className="card-title">Spine Surgery Plans v2 <span className="badge badge-dev">Dev</span></div>
+              <div className="card-desc">Spine surgery clinical plans website with Cognito OAuth auth and RDS backend. Next.js 16, re-themed from the Cardio Plans v2 template.
+                <MilestoneLinks projectId="spine-surgery-v2" milestones={getMilestones('spine-surgery-v2')} onOpen={openDrawer} />
+              </div>
+            </div>
           </div>
         </div>
 
