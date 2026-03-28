@@ -414,8 +414,8 @@
             "public/privacy-policy.html",
             "docs/SCOPE.md"
           ],
-          "quickPrompt": "In the Workouts repo, update the privacy policy and scope docs to reflect Bedrock AI, Cognito auth, and RDS backend (migrated from OpenAI/Supabase).",
-          "fullPrompt": "## Task: Update Privacy Policy and Scope\n\n**Repo:** Workouts\n\n## Context\nWorkouts migrated from OpenAI to AWS Bedrock, Supabase to Cognito/RDS. Privacy policy still references old providers.\n\n## Update\n1. Update privacy policy with current AI provider (Bedrock Haiku 4.5)\n2. Update auth provider reference (Cognito)\n3. Update data storage references (RDS)\n4. Review scope docs for accuracy\n\n## Acceptance criteria\n- Privacy policy accurately reflects current architecture\n- No references to OpenAI or Supabase",
+          "quickPrompt": "In the Workouts repo, update the privacy policy and scope docs to reflect Bedrock AI, Cognito Hosted UI OAuth auth, and RDS backend (migrated from OpenAI/Supabase). OAuth SSO migration completed in PR #11 (Mar 27). Also verify DEPLOY.md, PRIVACY.md, and SCOPE.md all reflect current architecture before production deploy.",
+          "fullPrompt": "## Task: Update Privacy Policy and Scope\n\n**Repo:** Workouts\n\n## Context\nWorkouts migrated from OpenAI to AWS Bedrock, Supabase to Cognito/RDS. OAuth SSO via Cognito Hosted UI completed (PR #11, Mar 27). Privacy policy and scope docs still reference old providers.\n\n## Update\n1. Update privacy policy with current AI provider (Bedrock Haiku 4.5)\n2. Update auth provider reference (Cognito Hosted UI OAuth, pool us-east-2_9y6XyJnXC)\n3. Update data storage references (RDS)\n4. Review SCOPE.md and DEPLOY.md for accuracy\n\n## Acceptance criteria\n- Privacy policy accurately reflects current architecture\n- No references to OpenAI or Supabase\n- All docs consistent before production deploy",
           "manualSteps": [
             "Open public/privacy-policy.html",
             "Replace OpenAI references with AWS Bedrock",
@@ -1010,8 +1010,8 @@
             "lambda/generate-note/",
             "src/services/NoteGenerationService.ts"
           ],
-          "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), polish note generation quality. The timeout issue is solved via async Lambda delegation (PRs #133-134). Focus on improving note structure, clinical accuracy, section formatting, and handling edge cases in transcription input.",
-          "fullPrompt": "## Task: Note Generation Quality Polish\n\n**Repo:** sevaro-evidence-engine (chrome-extension/ directory)\n\n## Context\nThe 30s Amplify timeout was solved via async Lambda delegation (PRs #133-134). Notes now generate reliably within the 120s Lambda timeout. Focus shifts to output quality.\n\n## Polish areas\n1. Note structure — ensure consistent section ordering (HPI, Exam, Assessment, Plan)\n2. Clinical accuracy — verify generated content matches transcription input faithfully\n3. Formatting — consistent bullet points, terminology, abbreviation handling\n4. Edge cases — handle partial transcriptions, multiple speakers, interruptions\n5. Template adherence — ensure notes match configured note templates\n\n## Acceptance criteria\n- Notes follow consistent structure across encounter types\n- No fabricated clinical details\n- Clean formatting suitable for EHR paste",
+          "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), continue polishing note generation quality. Recent improvements (Mar 26): draft-to-finalized section consistency (MEDICATIONS, PMH), Accept/Revert preview mode, verbosity reduction. Remaining: template adherence across encounter types, edge cases (short encounters, partial transcripts, multi-speaker), formatting consistency for EHR paste.",
+          "fullPrompt": "## Task: Note Generation Quality Polish\n\n**Repo:** sevaro-evidence-engine (chrome-extension/ directory)\n\n## Context\nThe 30s Amplify timeout was solved via async Lambda delegation (PRs #133-134). Recent quality improvements (Mar 26): draft-to-finalized section structure consistency, Accept/Revert preview mode before committing, verbosity reduction. Focus now on remaining edge cases.\n\n## Polish areas\n1. Template adherence — ensure notes match configured exam profile note templates across encounter types\n2. Edge cases — handle partial transcriptions, multiple speakers, interrupted recordings\n3. Multi-encounter consistency — verify output quality is stable across short/long encounters\n4. EHR paste formatting — clean bullet points, consistent terminology, no raw JSON artifacts\n\n## Acceptance criteria\n- Notes follow consistent structure across encounter types\n- No fabricated clinical details\n- Clean formatting suitable for EHR paste\n- Edge cases handled gracefully",
           "manualSteps": [
             "Review sample generated notes for quality issues",
             "Test with varied encounter types",
@@ -1867,6 +1867,234 @@
           "quickPrompt": "Request AWS SES production access for the Sevaro sandbox account (us-east-2). Currently in sandbox mode. Then implement automated weekly feedback digest emails using the existing What's New Lambda infrastructure.",
           "fullPrompt": "## Task: SES Production Access + Email Notifications\n\n**Account:** Sevaro Sandbox (us-east-2)\n\n## Steps\n1. Request SES production access via AWS console or CLI\n2. Set up verified sender domain (neuroplans.app)\n3. Implement weekly feedback digest email template\n4. Add scheduled Lambda to send digests every Monday\n\n## Acceptance criteria\n- SES in production mode\n- Verified sender domain\n- Test email sends successfully to non-verified recipient",
           "manualSteps": ["Submit SES production access request via AWS console", "Wait for AWS approval (24-48h)", "Verify sender domain via DNS"]
+        }
+      ]
+    },
+    {
+      "id": "neurocrit-care-v2",
+      "name": "NeuroCrit Care Plans v2",
+      "milestones": [
+        {
+          "id": "initial-build",
+          "title": "Initial build: 18 scales, 20 tools, mobile nav, ICP threshold fix",
+          "status": "done",
+          "complexity": "high",
+          "description": "Built NeuroCrit Care v2 from spine-surgery-v2 template: removed hardcoded client secret (PR #1), added mobile hamburger nav (PR #2), added 18 scoring scales and 20 clinical tools (PR #3), corrected ICP Crisis Tier threshold to 22 mmHg per BTF 4th Edition (PR #4). Red/amber theme for critical care identity.",
+          "prerequisites": [],
+          "keyFiles": [],
+          "quickPrompt": "",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "deploy-amplify-domain",
+          "title": "Deploy to Amplify with custom domain",
+          "status": "pending",
+          "complexity": "medium",
+          "description": "Deploy NeuroCrit Care Plans v2 to AWS Amplify and configure a custom domain (e.g., neurocrit.neuroplans.app) via Route 53.",
+          "prerequisites": ["App builds successfully", "AWS Amplify access"],
+          "keyFiles": ["amplify.yml"],
+          "quickPrompt": "Deploy neurocrit-care-v2 to AWS Amplify and set up custom domain neurocrit.neuroplans.app. Uses Cognito pool us-east-2_9y6XyJnXC, client 52l4jf338uogt9g3i43pguu75f. Follow the same pattern as cardio-plans-v2 and spine-surgery-v2.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "populate-plans-database",
+          "title": "Populate neurocritical care clinical plans via pipeline",
+          "status": "pending",
+          "complexity": "medium",
+          "description": "Run the sevaro-plan-pipeline to populate the neurocrit_care database with clinical plans for all 14 neurocritical care categories (stroke, TBI, status epilepticus, elevated ICP, CNS infections, etc.).",
+          "prerequisites": ["Amplify deployment configured", "sevaro-plan-pipeline access"],
+          "keyFiles": [],
+          "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the neurocrit_care RDS database with clinical plans for neurocritical care categories.",
+          "fullPrompt": "",
+          "manualSteps": []
+        }
+      ]
+    },
+    {
+      "id": "pmr-rehab-v2",
+      "name": "PM&R Rehab Plans v2",
+      "milestones": [
+        {
+          "id": "initial-build",
+          "title": "Initial build: 20 scales, 18 tools, JSONB pipeline schema support",
+          "status": "done",
+          "complexity": "high",
+          "description": "Built PM&R Rehab Plans v2 from neurocrit-care-v2 template. Added 20 clinical scales and 18 tools, updated query layer for pipeline JSONB schema (PR #1). Fixed JSONB data key mapping for Study, Treatment, Recommendation, Parameter headers.",
+          "prerequisites": [],
+          "keyFiles": [],
+          "quickPrompt": "",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "deploy-amplify-domain",
+          "title": "Deploy to Amplify with custom domain",
+          "status": "pending",
+          "complexity": "medium",
+          "description": "Deploy PM&R Rehab Plans v2 to AWS Amplify and configure a custom domain (e.g., pmr.neuroplans.app) via Route 53.",
+          "prerequisites": ["App builds successfully", "AWS Amplify access"],
+          "keyFiles": ["amplify.yml"],
+          "quickPrompt": "Deploy pmr-rehab-v2 to AWS Amplify and set up custom domain pmr.neuroplans.app. Follow the same pattern as neurocrit-care-v2.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "populate-plans-database",
+          "title": "Populate PM&R clinical plans via pipeline",
+          "status": "pending",
+          "complexity": "medium",
+          "description": "Run the sevaro-plan-pipeline to populate the pmr_rehab database with clinical plans for PM&R/Physiatry categories (spinal cord injury, stroke rehab, TBI rehab, orthopedic, pain management, etc.).",
+          "prerequisites": ["Amplify deployment configured", "sevaro-plan-pipeline access"],
+          "keyFiles": [],
+          "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the pmr_rehab RDS database with clinical plans for PM&R categories.",
+          "fullPrompt": "",
+          "manualSteps": []
+        }
+      ]
+    },
+    {
+      "id": "spine-surgery-v2",
+      "name": "Spine Surgery Plans v2",
+      "milestones": [
+        {
+          "id": "initial-build",
+          "title": "Initial build: 12 scales, 16 categories, OAuth, feedback widget, mobile nav",
+          "status": "done",
+          "complexity": "high",
+          "description": "Built Spine Surgery Plans v2 with emerald theme. OAuth SSO (PR #1), dosing display fix (PR #2), @sevaro/feedback widget (PR #3), replaced cardio tools with spine surgery tools (PR #4), promoted tool categories to top-level nav (PR #5), mobile hamburger nav (PR #6).",
+          "prerequisites": [],
+          "keyFiles": [],
+          "quickPrompt": "",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "deploy-amplify-domain",
+          "title": "Deploy to Amplify with custom domain",
+          "status": "pending",
+          "complexity": "medium",
+          "description": "Deploy Spine Surgery Plans v2 to AWS Amplify and configure a custom domain (e.g., spine.neuroplans.app) via Route 53.",
+          "prerequisites": ["App builds successfully", "AWS Amplify access"],
+          "keyFiles": ["amplify.yml"],
+          "quickPrompt": "Deploy spine-surgery-v2 to AWS Amplify and set up custom domain spine.neuroplans.app. Uses Cognito pool us-east-2_9y6XyJnXC, client 52l4jf338uogt9g3i43pguu75f.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "populate-plans-database",
+          "title": "Populate spine surgery clinical plans via pipeline",
+          "status": "pending",
+          "complexity": "medium",
+          "description": "Run the sevaro-plan-pipeline to populate the spine_surgery database with clinical plans for all spine surgery categories.",
+          "prerequisites": ["Amplify deployment configured", "sevaro-plan-pipeline access"],
+          "keyFiles": [],
+          "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the spine_surgery RDS database with clinical plans.",
+          "fullPrompt": "",
+          "manualSteps": []
+        }
+      ]
+    },
+    {
+      "id": "pulm-crit-care-v2",
+      "name": "Pulm & Crit Care Plans v2",
+      "milestones": [
+        {
+          "id": "initial-build",
+          "title": "Initial build: 15 scales, pulm tools, OAuth, feedback widget, mobile nav",
+          "status": "done",
+          "complexity": "high",
+          "description": "Built Pulm/Crit Care Plans v2 with blue/slate theme. Dosing display fix (PR #1), @sevaro/feedback widget (PR #2), pulm/crit care tools data (PR #3), promoted tool categories (PR #4), migrated to OAuth Hosted UI (PR #5), mobile hamburger nav (PR #6).",
+          "prerequisites": [],
+          "keyFiles": [],
+          "quickPrompt": "",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "deploy-amplify-domain",
+          "title": "Deploy to Amplify with custom domain",
+          "status": "pending",
+          "complexity": "medium",
+          "description": "Deploy Pulm/Crit Care Plans v2 to AWS Amplify and configure a custom domain (e.g., pulm.neuroplans.app). Note: Cognito client ID is TBD in CLAUDE.md — configure this first.",
+          "prerequisites": ["App builds successfully", "AWS Amplify access", "Cognito client ID configured"],
+          "keyFiles": ["amplify.yml"],
+          "quickPrompt": "Deploy pulm-crit-care-v2 to AWS Amplify and set up custom domain pulm.neuroplans.app. First configure the Cognito client ID (currently TBD in CLAUDE.md) — create a new app client in pool us-east-2_9y6XyJnXC.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "populate-plans-database",
+          "title": "Populate pulmonary & critical care plans via pipeline",
+          "status": "pending",
+          "complexity": "medium",
+          "description": "Run the sevaro-plan-pipeline to populate the pulm_crit_care database with clinical plans for pulmonary and critical care categories.",
+          "prerequisites": ["Amplify deployment configured", "sevaro-plan-pipeline access"],
+          "keyFiles": [],
+          "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the pulm_crit_care RDS database with clinical plans.",
+          "fullPrompt": "",
+          "manualSteps": []
+        }
+      ]
+    },
+    {
+      "id": "sevaro-eeg-reporter",
+      "name": "Sevaro EEG Reporter",
+      "milestones": [
+        {
+          "id": "eeg-builder-v1",
+          "title": "EEG Report Builder v1 — Phases 1-4, mobile, clinical efficiency improvements",
+          "status": "done",
+          "complexity": "high",
+          "description": "Built full EEG Report Builder at eeg.neuroplans.app. Phases 1-2: initial build. Mobile-responsive layout (PR #2). Fixed 7 usability issues (PR #3). Clinical efficiency improvements for normal EEG reporting (PR #4). Replaced activation dropdowns with toggle buttons (PR #5). OAuth Hosted UI auth matching neuro/plans sites.",
+          "prerequisites": [],
+          "keyFiles": [],
+          "quickPrompt": "",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "eeg-report-templates",
+          "title": "Customizable EEG report templates per neurologist",
+          "status": "pending",
+          "complexity": "medium",
+          "description": "Allow neurologists to save custom reporting templates — preferred normal/abnormal language, institution-specific findings, signature blocks — stored per Cognito user profile.",
+          "prerequisites": ["EEG Report Builder v1 deployed"],
+          "keyFiles": [],
+          "quickPrompt": "In the sevaro-eeg-reporter repo, add customizable report templates per neurologist. Allow saving preferred language patterns, institution-specific findings, and signature blocks via Cognito user profiles in RDS.",
+          "fullPrompt": "",
+          "manualSteps": []
+        }
+      ]
+    },
+    {
+      "id": "sevaro-plan-pipeline",
+      "name": "Sevaro Plan Pipeline",
+      "milestones": [
+        {
+          "id": "pipeline-v1",
+          "title": "7-layer verification pipeline with auto tool generation and clinical validator",
+          "status": "done",
+          "complexity": "high",
+          "description": "Built complete plan generation pipeline: 7-layer verification (Step Functions + Lambda), EnrichDosing + VerifyImport stages (PR #1), automatic specialty-specific clinical tool generation as default (PR #2), clinical consistency validator and GenerateTools JSON repair (PR #3). Supports neurocrit_care, spine_surgery, pmr_rehab databases.",
+          "prerequisites": [],
+          "keyFiles": [],
+          "quickPrompt": "",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "run-pipeline-v2-sites",
+          "title": "Run pipeline for all v2 clinical plan sites",
+          "status": "pending",
+          "complexity": "medium",
+          "description": "Execute the plan generation pipeline for neurocrit-care-v2, pmr-rehab-v2, spine-surgery-v2, and pulm-crit-care-v2 databases. Each run generates plans, scales.json, and tools.json with 7-layer verification.",
+          "prerequisites": ["All v2 sites deployed to Amplify", "Pipeline Lambda deployed in AWS"],
+          "keyFiles": [],
+          "quickPrompt": "Run the sevaro-plan-pipeline for each v2 clinical site database: neurocrit_care, pmr_rehab, spine_surgery, pulm_crit_care. Each run generates clinical plans with 7-layer verification, dosing enrichment, and specialty-specific tools. Use --no-tools flag only if tool generation should be skipped.",
+          "fullPrompt": "",
+          "manualSteps": []
         }
       ]
     }

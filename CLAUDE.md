@@ -40,16 +40,13 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 **Status**: Active
 
 ### Recent
+- **Cognito pool ID and Bedrock model ID fixes across Lambda functions (PR #12, Mar 28)** — Corrected Cognito pool IDs in Lambdas and Bedrock model ID
 - **Feedback dashboard redesign (PR #11, Mar 27)** — Per-app tab navigation with unreviewed badges, inline category stats, scoped AI analysis (per-app + cross-app Bedrock prompts), shared app registry, sessions proxy route
 - **Admin auth + token refresh fix (PR #10, Mar 27)** — Added missing auth token to What's New API calls, Cognito token refresh on 401, env var for Cognito domain
 - **Roadmap milestones + 5 new projects (PR #9, Mar 24)** — Updated roadmap milestone tracking, added 5 new project entries
 - **Prompt Review hub page** — AI-powered prompt refinement interface (PR #8)
 - **Fixed 23 WCAG 2.2 AA color-contrast violations** on splash page
 - Chat transcript, annotations, and summary display on feedback session detail (PR #7)
-- Improvement Queue system — Lambda + DynamoDB API, admin UI, Claude Code skill (PR #6)
-- "What's New" cross-app notification system with admin UI and `<WhatsNewBadge />` (PR #5)
-- Cognito Hosted UI OAuth SSO (replaced direct login) with post-login redirect fix
-- Feedback admin dashboard with auth, status management, AI analysis, email notifications (PR #4)
 
 ### In Progress
 - None
