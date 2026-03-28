@@ -18,8 +18,8 @@
             "src/lib/bedrock-converse.ts",
             "src/lib/evidence-tools.ts"
           ],
-          "quickPrompt": "In the Evidence Engine repo, optimize Haiku 4.5 synthesis for complex queries (currently 7-14s). Adaptive routing already handles simple queries fast. Focus on reducing context sent to Haiku in standard/deep tiers — trim KB results, shorten synthesis prompt, or evaluate a faster model.",
-          "fullPrompt": "## Task: Optimize Evidence Engine Synthesis Speed for Complex Queries\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/lib/bedrock-converse.ts, src/lib/evidence-tools.ts\n\n## Context\nAdaptive routing (PR #83) handles simple queries in 2-4s via a Haiku fast path. Complex/deep tier queries still hit Haiku synthesis at 7-14s.\n\n## Investigation areas\n1. Measure prompt token count for standard/deep tier — are we sending too much context?\n2. Trim KB results before synthesis (cap at top-N most relevant)\n3. Evaluate Haiku 4.5 vs a faster alternative for synthesis\n4. Reduce synthesis prompt verbosity\n\n## Acceptance criteria\n- Complex queries synthesize in under 8 seconds\n- No quality regression in synthesis output\n- Run qa/run_smoke.sh to verify",
+          "quickPrompt": "In the Evidence Engine repo, complex queries now run via async Lambda delegation (PR #133) but Haiku synthesis still takes 7-14s within the Lambda. Focus on reducing context sent to Haiku — trim KB results to top-N, shorten synthesis prompt, or evaluate streaming optimizations. Target: under 8s synthesis time.",
+          "fullPrompt": "## Task: Optimize Evidence Engine Synthesis Speed for Complex Queries\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/lib/bedrock-converse.ts, src/lib/evidence-tools.ts\n\n## Context\nAsync Lambda delegation (PRs #133-134) solved the Amplify 30s SSR timeout — all heavy workloads now run in dedicated Lambdas with 120s timeout. But Haiku synthesis itself still takes 7-14s for complex queries within the Lambda. Adaptive routing (PR #83) handles simple queries in 2-4s via a fast path.\n\n## Investigation areas\n1. Measure prompt token count for standard/deep tier within the Lambda — are we sending too much context?\n2. Trim KB results before synthesis (cap at top-N most relevant)\n3. Evaluate streaming optimizations to reduce perceived latency\n4. Reduce synthesis prompt verbosity\n\n## Acceptance criteria\n- Complex queries synthesize in under 8 seconds within the Lambda\n- No quality regression in synthesis output\n- Run qa/run_smoke.sh to verify",
           "manualSteps": [
             "Open src/lib/bedrock-converse.ts and find the synthesis function",
             "Log prompt token count for complex queries",
@@ -179,6 +179,30 @@
           "quickPrompt": "",
           "fullPrompt": "",
           "manualSteps": []
+        },
+        {
+          "id": "async-lambda-delegation",
+          "title": "Async Lambda delegation pattern for all heavy workloads",
+          "status": "done",
+          "complexity": "high",
+          "description": "Shifted reasoning, chat, chart prep, note review, and auto-split from inline SSR to async Lambda delegation (202 + poll pattern) to bypass Amplify's 30s SSR timeout. Each workload now runs in a dedicated Lambda with up to 120s timeout. Shipped in PRs #133-134 (Mar 2026).",
+          "prerequisites": [],
+          "keyFiles": ["src/lib/bedrock-converse.ts", "src/app/api/"],
+          "quickPrompt": "Async Lambda delegation shipped in PRs #133-134.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "extension-hardening",
+          "title": "Chrome extension reliability hardening (tab capture, recording persistence, note guards)",
+          "status": "done",
+          "complexity": "medium",
+          "description": "Hardened the Chrome extension with tab capture reliability improvements, recording persistence fixes, note finalization guards, AudioContext resume logic, dot phrase cloud persistence, and batch chart prep Lambda. Shipped across multiple PRs in Mar 2026.",
+          "prerequisites": [],
+          "keyFiles": [],
+          "quickPrompt": "Extension hardening shipped.",
+          "fullPrompt": "",
+          "manualSteps": []
         }
       ]
     },
@@ -296,6 +320,30 @@
             "Remove Supabase SDK",
             "Full regression test"
           ]
+        },
+        {
+          "id": "ehr-integration-phases",
+          "title": "EHR Integration Phases 1-5 (patient flow, historian, follow-ups, wearables, SDNE bridge)",
+          "status": "done",
+          "complexity": "high",
+          "description": "Shipped EHR integration in 5 phases: Phase 1 patient flow (PR #94), Phase 2 historian import (PR #95), Phase 3 follow-up triggers (PR #96), Phase 4 wearable unification (PR #97), Phase 5 SDNE bridge (PR #99). Complete intake-to-referral pipeline.",
+          "prerequisites": [],
+          "keyFiles": [],
+          "quickPrompt": "EHR integration phases 1-5 shipped.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "oauth-sso-migration",
+          "title": "OAuth SSO migration to Cognito Hosted UI",
+          "status": "done",
+          "complexity": "medium",
+          "description": "Migrated authentication from custom OTP/email to Cognito Hosted UI OAuth flow (PRs #100-101). Part of cross-app SSO consolidation to single Cognito pool us-east-2_9y6XyJnXC.",
+          "prerequisites": [],
+          "keyFiles": [],
+          "quickPrompt": "OAuth SSO migration shipped.",
+          "fullPrompt": "",
+          "manualSteps": []
         }
       ]
     },
@@ -455,29 +503,17 @@
         },
         {
           "id": "build-otp-email-verification",
-          "title": "Build OTP email verification via SES + RDS",
-          "status": "pending",
+          "title": "Auth migration to OAuth SSO via Cognito Hosted UI",
+          "status": "done",
           "complexity": "high",
-          "description": "Replace Supabase Auth OTP with a custom solution using Amazon SES for email delivery and RDS for OTP code storage. This is the last Supabase dependency in the iOS app.",
-          "prerequisites": [
-            "SES configured for sending",
-            "RDS access",
-            "v2 API deployed"
-          ],
+          "description": "OAuth SSO via Cognito Hosted UI is now the auth strategy (PR #8), superseding the original OTP email plan. Part of cross-app SSO consolidation to single Cognito pool us-east-2_9y6XyJnXC. Custom OTP via SES/RDS is no longer needed.",
+          "prerequisites": [],
           "keyFiles": [
-            "src/app/api/auth/send-otp/route.ts",
-            "src/app/api/auth/verify-otp/route.ts"
+            "src/app/api/auth/"
           ],
-          "quickPrompt": "In the neuro-plans-v2 repo, build OTP email verification using Amazon SES for delivery and RDS for code storage. Create /api/auth/send-otp and /api/auth/verify-otp endpoints.",
-          "fullPrompt": "## Task: Custom OTP Email Verification\n\n**Repo:** neuro-plans-v2\n\n## Context\nThe iOS app currently uses Supabase Auth for OTP email verification. This is the last Supabase dependency. Replace with SES + RDS.\n\n## Build\n1. POST /api/auth/send-otp — generate 6-digit code, store in RDS with expiry, send via SES\n2. POST /api/auth/verify-otp — validate code against RDS, return success/failure\n3. Rate limiting: max 5 attempts per email per hour\n4. Code expiry: 10 minutes\n\n## Acceptance criteria\n- Email arrives within 30 seconds\n- Code validates correctly\n- Expired codes are rejected\n- Rate limiting prevents abuse",
-          "manualSteps": [
-            "Set up SES for sending from your domain",
-            "Create OTP codes table in RDS",
-            "Build send-otp API route",
-            "Build verify-otp API route",
-            "Test end-to-end with real email",
-            "Update iOS app to call new endpoints"
-          ]
+          "quickPrompt": "OAuth SSO via Cognito Hosted UI shipped in PR #8, replacing the OTP email approach.",
+          "fullPrompt": "",
+          "manualSteps": []
         },
         {
           "id": "remove-supabase-sdk",
@@ -528,6 +564,18 @@
             "Go to App Store Connect",
             "Select build and submit for review"
           ]
+        },
+        {
+          "id": "specialty-hub-clinical-tools",
+          "title": "Specialty hub with 67 clinical tools across neurology, pulmonology, critical care",
+          "status": "done",
+          "complexity": "high",
+          "description": "Built specialty hub at plans.neuroplans.app with 67 clinical tools spanning scales, calculators, protocols, and references. Added Pulm/Crit Care specialty (PR #7), EEG Report Builder, feedback widget, and promoted scales/calculators to top-level navigation (PR #12). OAuth SSO via Cognito Hosted UI (PR #8).",
+          "prerequisites": [],
+          "keyFiles": [],
+          "quickPrompt": "Specialty hub shipped with 67 clinical tools.",
+          "fullPrompt": "",
+          "manualSteps": []
         }
       ]
     },
@@ -549,39 +597,24 @@
             "src/app/plans/page.tsx",
             "src/app/plans/[id]/page.tsx"
           ],
-          "quickPrompt": "In the cardio-plans-v2 repo, build authenticated plan list and detail pages. Use Cognito auth and fetch plans from RDS. Follow the same patterns as neuro-plans-v2.",
-          "fullPrompt": "## Task: Build Authenticated Pages\n\n**Repo:** cardio-plans-v2\n**Reference:** neuro-plans-v2 (same architecture)\n\n## Build\n1. Plan list page at /plans — shows all cardiology plans, requires auth\n2. Plan detail page at /plans/[id] — shows full plan content\n3. Cognito auth middleware (reuse pattern from neuro-plans-v2)\n4. RDS queries for plan data\n\n## Acceptance criteria\n- Unauthenticated users redirected to login\n- Plan list loads from RDS\n- Plan detail displays full content\n- Responsive layout matching Neuro Plans v2",
-          "manualSteps": [
-            "Create src/app/plans/page.tsx",
-            "Create src/app/plans/[id]/page.tsx",
-            "Add Cognito auth middleware",
-            "Create RDS query functions",
-            "Test with authenticated user"
-          ]
+          "quickPrompt": "Authenticated pages shipped in PR #1 with Cognito auth and RDS queries.",
+          "fullPrompt": "",
+          "manualSteps": []
         },
         {
           "id": "import-cardiology-content",
           "title": "Import cardiology clinical plan content",
-          "status": "pending",
+          "status": "done",
           "complexity": "medium",
-          "description": "Import cardiology-specific clinical plan content into the RDS database. This includes treatment protocols, monitoring parameters, and clinical decision points for common cardiology conditions.",
-          "prerequisites": [
-            "Authenticated pages built",
-            "RDS tables created"
-          ],
+          "description": "31 clinical tools (scales, calculators, protocols, references) shipped in PR #3. Full UX redesign in PR #2.",
+          "prerequisites": [],
           "keyFiles": [
             "scripts/import-plans.ts",
             "src/data/cardiology-plans/"
           ],
-          "quickPrompt": "In the cardio-plans-v2 repo, import cardiology clinical plan content into RDS. Draft plans for common cardiology conditions following the same format as neuro-plans.",
-          "fullPrompt": "## Task: Import Cardiology Content\n\n**Repo:** cardio-plans-v2\n\n## Steps\n1. Define plan schema matching Neuro Plans format\n2. Draft clinical content for core cardiology conditions\n3. Create import script to load into RDS\n4. Verify plans appear in app\n\n## Acceptance criteria\n- At least 20 cardiology plans imported\n- Content follows same format as Neuro Plans\n- Plans display correctly in detail view",
-          "manualSteps": [
-            "Define plan content format",
-            "Draft clinical plans for core conditions",
-            "Create RDS import script",
-            "Run import",
-            "Verify in app"
-          ]
+          "quickPrompt": "Cardiology content shipped: 31 clinical tools in PR #3, UX redesign in PR #2.",
+          "fullPrompt": "",
+          "manualSteps": []
         },
         {
           "id": "deploy-amplify-domain",
@@ -940,10 +973,10 @@
       "milestones": [
         {
           "id": "note-generation-polish",
-          "title": "Note generation pipeline polish (120s Lambda timeout)",
+          "title": "Note generation quality polish",
           "status": "in-progress",
           "complexity": "medium",
-          "description": "The note generation Lambda has a 120-second timeout which is occasionally hit on complex encounters. Polish the pipeline to be more reliable — optimize prompt sizes, add progress feedback, and handle timeout gracefully.",
+          "description": "The 30s Amplify SSR timeout was solved via async Lambda delegation pattern (PRs #133-134 in Evidence Engine). Note generation now runs in a dedicated Lambda with up to 120s timeout using a 202 + poll pattern. Remaining work is quality polishing of the generated notes — improving structure, clinical accuracy, and formatting consistency.",
           "prerequisites": [
             "sevaro-evidence-engine repo (chrome-extension/ directory) cloned",
             "Lambda access"
@@ -952,14 +985,13 @@
             "lambda/generate-note/",
             "src/services/NoteGenerationService.ts"
           ],
-          "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), polish the note generation pipeline. Optimize for the 120s Lambda timeout — reduce prompt sizes, add progress feedback, handle timeouts gracefully.",
-          "fullPrompt": "## Task: Note Generation Polish\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Problem\nThe generate-note Lambda occasionally times out at 120s on complex encounters. Need to optimize.\n\n## Fix approach\n1. Measure current prompt token counts\n2. Trim unnecessary context from prompts\n3. Add progress feedback to UI (generating... section 1/3...)\n4. Graceful timeout handling — save partial results\n5. Consider splitting into multiple Lambda calls for very long encounters\n\n## Acceptance criteria\n- No timeouts on typical encounters\n- Progress feedback visible in UI\n- Partial results saved on timeout",
+          "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), polish note generation quality. The timeout issue is solved via async Lambda delegation (PRs #133-134). Focus on improving note structure, clinical accuracy, section formatting, and handling edge cases in transcription input.",
+          "fullPrompt": "## Task: Note Generation Quality Polish\n\n**Repo:** sevaro-evidence-engine (chrome-extension/ directory)\n\n## Context\nThe 30s Amplify timeout was solved via async Lambda delegation (PRs #133-134). Notes now generate reliably within the 120s Lambda timeout. Focus shifts to output quality.\n\n## Polish areas\n1. Note structure — ensure consistent section ordering (HPI, Exam, Assessment, Plan)\n2. Clinical accuracy — verify generated content matches transcription input faithfully\n3. Formatting — consistent bullet points, terminology, abbreviation handling\n4. Edge cases — handle partial transcriptions, multiple speakers, interruptions\n5. Template adherence — ensure notes match configured note templates\n\n## Acceptance criteria\n- Notes follow consistent structure across encounter types\n- No fabricated clinical details\n- Clean formatting suitable for EHR paste",
           "manualSteps": [
-            "Check Lambda logs for timeout frequency",
-            "Measure prompt token counts",
-            "Optimize longest prompts",
-            "Add progress feedback UI",
-            "Test with long encounter transcripts"
+            "Review sample generated notes for quality issues",
+            "Test with varied encounter types",
+            "Verify note template adherence",
+            "Test edge cases (short encounters, partial transcriptions)"
           ]
         },
         {
@@ -1397,16 +1429,14 @@
         {
           "id": "item-grab-interaction",
           "title": "Item grab interaction for Galaxy XR",
-          "status": "in-progress",
+          "status": "done",
           "complexity": "medium",
-          "description": "Add item grab interaction so users can pick up and examine market items during cognitive exercises. Open PR #5.",
-          "prerequisites": [
-            "Hand tracking integrated"
-          ],
+          "description": "Grab physics, sorting bins, task instructor, and interaction sounds all shipped in PR #5. PinchGrabDetector with throw physics, 3 sorting bins, Sonali instruction/encouragement, procedural sounds, 20 Sketchfab textured items, articulated hands.",
+          "prerequisites": [],
           "keyFiles": [
             "Assets/Scripts/Interaction/"
           ],
-          "quickPrompt": "In the market-day-vr repo, implement item grab interaction for Galaxy XR hand tracking.",
+          "quickPrompt": "Item grab interaction shipped in PR #5.",
           "fullPrompt": "",
           "manualSteps": []
         }
@@ -1421,12 +1451,12 @@
           "title": "Sprints 1-5 + post-sprint polish: Full companion app shipped",
           "status": "done",
           "complexity": "high",
-          "description": "macOS SwiftUI companion for Galaxy XR testing. Sprint 1-2: ADB/logcat, Deepgram voice, screenshots. Sprint 3: metrics, video, export, settings. Sprint 4: Bedrock AI analysis (Converse API, SigV4). Sprint 5: keyboard shortcuts, session history, timed capture, mic indicator. Post-sprint (PRs #5-6, Mar 2026): async ADB deadlock fix, ServiceHealth indicators, Bedrock credential pre-flight, Claude Prompt handoff, custom app icon.",
+          "description": "macOS SwiftUI companion for Galaxy XR testing. Sprint 1-2: ADB/logcat, Deepgram voice, screenshots. Sprint 3: metrics, video, export, settings. Sprint 4: Bedrock AI analysis (Converse API, SigV4). Sprint 5: keyboard shortcuts, session history, timed capture, mic indicator. Post-sprint (PRs #5-6, Mar 2026): async ADB deadlock fix, ServiceHealth indicators, Bedrock credential pre-flight, Claude Prompt handoff, custom app icon. PRs #7-9: pipe deadlock fix, black screenshot fix, Unity in-app VR capture.",
           "prerequisites": [],
           "keyFiles": [
             "Sources/"
           ],
-          "quickPrompt": "Sprints 1-5 + post-sprint polish complete (PRs #5-6). App icon, Bedrock pre-flight, Claude Prompt handoff all shipped. Next: session comparison.",
+          "quickPrompt": "Sprints 1-5 + post-sprint polish complete (PRs #5-9). Includes pipe deadlock fix, black screenshot fix, Unity in-app VR capture. Next: session comparison.",
           "fullPrompt": "",
           "manualSteps": []
         },
@@ -1632,6 +1662,186 @@
           "quickPrompt": "In the sonali-agent repo, implement Tier 2 — 3D GLB avatar with lip sync using Polly viseme events.",
           "fullPrompt": "",
           "manualSteps": []
+        }
+      ]
+    },
+    {
+      "id": "reasoning-engine",
+      "name": "Reasoning Engine",
+      "milestones": [
+        {
+          "id": "reasoning-engine-shipped",
+          "title": "DDx Builder + Exam Interpreter + Validator shipped (PR #69)",
+          "status": "done",
+          "complexity": "high",
+          "description": "Deployed reasoning engine at /reasoning with three interconnected components: DDx Builder (differential diagnosis), Exam Interpreter (neuroanatomical localization), and Validator (quality checks). Sonnet reasons + calls KB/PubMed tools → Haiku synthesizes → Haiku validates (deadline-gated at 28s). Shipped in PR #69 (Mar 18, 2026).",
+          "prerequisites": [],
+          "keyFiles": ["src/app/reasoning/page.tsx", "src/lib/bedrock-converse.ts"],
+          "quickPrompt": "Reasoning Engine v1 shipped in PR #69.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "reasoning-speed-optimization",
+          "title": "Reduce reasoning latency from 16s to under 8s",
+          "status": "pending",
+          "complexity": "high",
+          "description": "Average reasoning time is 16.1s vs VeraHealth's 5s. Adaptive routing (PR #83) fixed simple queries to 2-4s via a Haiku fast path, but complex queries still take 7-14s. Haiku synthesis is the bottleneck for complex cases. Investigate Bedrock connection pooling, prompt context reduction, and streaming optimizations.",
+          "prerequisites": ["Evidence Engine repo cloned", "AWS Bedrock access configured"],
+          "keyFiles": ["src/lib/bedrock-converse.ts", "src/lib/evidence-tools.ts", "src/lib/query-router.ts"],
+          "quickPrompt": "In the Evidence Engine repo, optimize reasoning latency for complex queries (currently 7-14s after adaptive routing PR #83 fixed simple ones). Focus on reducing context sent to Haiku synthesis in standard/deep tiers — trim KB results, shorten synthesis prompt. Target: under 8s.",
+          "fullPrompt": "## Task: Optimize Reasoning Engine Speed for Complex Queries\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/lib/bedrock-converse.ts, src/lib/evidence-tools.ts, src/lib/query-router.ts\n\n## Context\nAdaptive routing (PR #83) handles simple queries in 2-4s via a Haiku fast path. Complex/deep tier queries still hit Haiku synthesis at 7-14s. VeraHealth benchmarks at ~5s.\n\n## Investigation areas\n1. Measure prompt token count for standard/deep tier — are we sending too much context?\n2. Trim KB results before synthesis (cap at top-N most relevant)\n3. Evaluate streaming optimizations for perceived latency\n4. Reduce synthesis prompt verbosity\n5. Consider Bedrock connection pooling\n\n## Acceptance criteria\n- Complex queries synthesize in under 8 seconds\n- No quality regression in synthesis output\n- Run qa/run_smoke.sh to verify",
+          "manualSteps": ["Open src/lib/bedrock-converse.ts and find the synthesis function", "Log prompt token count for complex queries", "Reduce context if over 2000 tokens", "Test with qa/run_smoke.sh"]
+        },
+        {
+          "id": "exam-to-reasoning-integration",
+          "title": "Wire exam findings into reasoning workflows",
+          "status": "pending",
+          "complexity": "medium",
+          "description": "Connect exam findings from /exams into reasoning workflows. Add a 'Generate DDx' button in chat that pre-populates with physical findings. Enable contextual differential diagnosis based on exam data.",
+          "prerequisites": ["Evidence Engine repo cloned", "Reasoning engine and exam features both working"],
+          "keyFiles": ["src/app/reasoning/page.tsx", "src/app/exams/page.tsx", "src/components/ChatInterface.tsx"],
+          "quickPrompt": "In the Evidence Engine repo, wire exam findings from /exams into the reasoning workflow. Add a 'Generate DDx from Exam' button that pre-populates reasoning context with physical findings and localization data from the exam interpreter.",
+          "fullPrompt": "## Task: Integrate Exam Findings into Reasoning Workflows\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/app/reasoning/page.tsx, src/app/exams/page.tsx, src/components/ChatInterface.tsx\n\n## Context\nThe reasoning engine (/reasoning) and exam interpreter (/exams) are separate features. Users should be able to take exam findings and generate a differential diagnosis in one flow.\n\n## Approach\n1. Add a 'Generate DDx from Exam' button on the exam results page\n2. When clicked, pre-populate the reasoning input with structured exam findings\n3. Include localization data (anatomy tables) as context for the DDx builder\n4. Ensure the reasoning engine handles pre-populated context correctly\n\n## Acceptance criteria\n- Button appears on exam results page\n- Clicking it navigates to /reasoning with exam context pre-filled\n- DDx output references the exam findings appropriately",
+          "manualSteps": []
+        }
+      ]
+    },
+    {
+      "id": "discord-cto",
+      "name": "Discord CTO Command Center",
+      "milestones": [
+        {
+          "id": "discord-bot-deployed",
+          "title": "CTOClaude bot deployed with channel map and morning briefing",
+          "status": "done",
+          "complexity": "medium",
+          "description": "Deployed CTOClaude Discord bot with channel mapping, morning briefing cron (6:57 AM MT daily), and command center functionality for monitoring Sevaro projects.",
+          "prerequisites": [],
+          "keyFiles": [],
+          "quickPrompt": "CTOClaude bot is deployed and running.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "discord-actionable-commands",
+          "title": "Add actionable slash commands for project management",
+          "status": "pending",
+          "complexity": "medium",
+          "description": "Add Discord slash commands for common operations: /status (project health), /deploy (trigger deploys), /review (kick off code review), /roadmap (show current milestones). Commands should integrate with the Hub API and GitHub.",
+          "prerequisites": ["Discord bot running", "Hub API accessible"],
+          "keyFiles": [],
+          "quickPrompt": "Add actionable slash commands to the CTOClaude Discord bot: /status for project health, /roadmap for current milestones from roadmap.json, /review to trigger code review. Integrate with the Hub API.",
+          "fullPrompt": "## Task: Add Slash Commands to CTOClaude Discord Bot\n\n## Context\nCTOClaude bot runs daily morning briefings. Add actionable slash commands for project management.\n\n## Commands to implement\n1. /status [project] — Show project health (recent deploys, error rates, last commit)\n2. /roadmap [project] — Show current milestones from roadmap.json\n3. /review [pr-url] — Trigger a code review\n\n## Acceptance criteria\n- Commands respond within 3 seconds\n- /roadmap reads from sevaro-hub roadmap.json\n- Error handling for unknown projects",
+          "manualSteps": []
+        }
+      ]
+    },
+    {
+      "id": "sevaro-design-system",
+      "name": "Sevaro Design System",
+      "milestones": [
+        {
+          "id": "design-system-extracted",
+          "title": "Design system extracted from Figma into DESIGN_SYSTEM.md",
+          "status": "done",
+          "complexity": "medium",
+          "description": "Extracted full design system reference from Figma (file key 2SvpMV4WE5CFjxvsxTRg1w) into DESIGN_SYSTEM.md. Covers all colors (primary scale, semantic colors, Apple HIG adaptive pairs), SF Pro typography, and 38+ component inventory. Referenced by all Sevaro UI projects.",
+          "prerequisites": [],
+          "keyFiles": ["DESIGN_SYSTEM.md"],
+          "quickPrompt": "Design system extraction complete.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "design-token-migration",
+          "title": "Token migration across all projects (230+ hardcoded values replaced)",
+          "status": "done",
+          "complexity": "medium",
+          "description": "Replaced 230+ hardcoded grays with design tokens across 31 files in Evidence Engine (PR, Mar 26). Established pattern for other projects to follow.",
+          "prerequisites": [],
+          "keyFiles": [],
+          "quickPrompt": "Token migration shipped for Evidence Engine.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "component-library-formalization",
+          "title": "Formalize component library with Figma Code Connect",
+          "status": "pending",
+          "complexity": "high",
+          "description": "Codify component variants, composition patterns, and accessibility specs. Map all 38+ Figma components to code components via Code Connect. Add Storybook for visual documentation.",
+          "prerequisites": ["Design system repo cloned", "Figma access"],
+          "keyFiles": ["DESIGN_SYSTEM.md"],
+          "quickPrompt": "In the sevaro-design-system repo, formalize the component library by mapping all 38+ Figma components to code components using Figma Code Connect. Start with the most-used components (Button, Input, Card, Dialog) and add Storybook stories for each.",
+          "fullPrompt": "## Task: Formalize Sevaro Design System Component Library\n\n**Repo:** sevaro-design-system\n**Key files:** DESIGN_SYSTEM.md\n\n## Context\nThe design system has 38+ Figma components documented in DESIGN_SYSTEM.md. These need to be formally connected to code implementations across projects.\n\n## Approach\n1. Set up Figma Code Connect for the design system file (2SvpMV4WE5CFjxvsxTRg1w)\n2. Map top-10 most-used components first: Button, Input, Card, Dialog, Drawer, Table, Dropdown, Badge, Alert, Toast\n3. Add component variant documentation\n4. Set up Storybook for visual regression testing\n\n## Acceptance criteria\n- Code Connect mappings for top 10 components\n- Storybook stories for each mapped component\n- Accessibility specs documented per component",
+          "manualSteps": []
+        }
+      ]
+    },
+    {
+      "id": "sevaro-hub-meta",
+      "name": "Sevaro Hub",
+      "milestones": [
+        {
+          "id": "hub-roadmap-dashboard",
+          "title": "Interactive roadmap dashboard with milestone drawers",
+          "status": "done",
+          "complexity": "high",
+          "description": "Built the Sevaro Hub as a Next.js 15 app on AWS Amplify. Features interactive milestone drawers, roadmap.json-driven project tracking, and Cognito SSO authentication.",
+          "prerequisites": [],
+          "keyFiles": ["src/app/page.tsx", "src/data/roadmap.json", "src/components/MilestoneDrawer.tsx"],
+          "quickPrompt": "Hub roadmap dashboard shipped.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "hub-feedback-dashboard",
+          "title": "Feedback dashboard with per-app tabs and Bedrock AI analysis",
+          "status": "done",
+          "complexity": "medium",
+          "description": "Deployed feedback dashboard (PR #11, Mar 27) with per-app tab navigation, unreviewed badges, inline category stats, scoped AI analysis via Bedrock (per-app + cross-app modes), and shared app registry.",
+          "prerequisites": [],
+          "keyFiles": ["src/app/admin/feedback/page.tsx"],
+          "quickPrompt": "Feedback dashboard shipped in PR #11.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "hub-whats-new-system",
+          "title": "What's New notification system with admin UI",
+          "status": "done",
+          "complexity": "medium",
+          "description": "Cross-app notification system with Lambda + DynamoDB backend, admin UI for creating announcements, and WhatsNewBadge component for consuming apps.",
+          "prerequisites": [],
+          "keyFiles": ["src/app/admin/whats-new/page.tsx", "lambda/sevaro-whats-new-api/"],
+          "quickPrompt": "What's New system shipped.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "hub-admin-management",
+          "title": "Admin management page with role-based access",
+          "status": "pending",
+          "complexity": "medium",
+          "description": "Build admin management page to view/add/remove administrators. Add audit trails and role-based access control (admin vs read-only feedback access). Currently admin access is hardcoded.",
+          "prerequisites": ["Hub repo cloned", "Cognito access"],
+          "keyFiles": ["src/app/admin/page.tsx", "src/lib/auth.ts"],
+          "quickPrompt": "In the sevaro-hub repo, build an admin management page at /admin/manage. Allow viewing, adding, and removing administrators via Cognito groups. Add role-based access (admin vs read-only) and audit logging.",
+          "fullPrompt": "## Task: Admin Management Page for Sevaro Hub\n\n**Repo:** sevaro-hub\n**Key files:** src/app/admin/page.tsx, src/lib/auth.ts, src/lib/cognito-verify.ts\n\n## Context\nAdmin access is currently managed through Cognito groups but there's no UI to manage admins. Need a self-service admin page.\n\n## Approach\n1. Create /admin/manage page\n2. List current admins from Cognito group\n3. Add/remove admin functionality (requires admin role)\n4. Audit trail (log who added/removed whom)\n5. Role differentiation: full admin vs read-only feedback viewer\n\n## Acceptance criteria\n- Admin list page renders with current admins\n- Can add/remove admins (with confirmation dialog)\n- Audit log visible to admins\n- Non-admins see 403",
+          "manualSteps": ["Test with a real Cognito user", "Verify role-based access works"]
+        },
+        {
+          "id": "hub-ses-production",
+          "title": "Request SES production access for email notifications",
+          "status": "pending",
+          "complexity": "low",
+          "description": "SES is in sandbox mode (verified recipients only). Request production access to unlock email notifications to any user. Then automate feedback digest emails.",
+          "prerequisites": ["AWS account access", "SES sandbox currently active"],
+          "keyFiles": ["lambda/sevaro-whats-new-api/"],
+          "quickPrompt": "Request AWS SES production access for the Sevaro sandbox account (us-east-2). Currently in sandbox mode. Then implement automated weekly feedback digest emails using the existing What's New Lambda infrastructure.",
+          "fullPrompt": "## Task: SES Production Access + Email Notifications\n\n**Account:** Sevaro Sandbox (us-east-2)\n\n## Steps\n1. Request SES production access via AWS console or CLI\n2. Set up verified sender domain (neuroplans.app)\n3. Implement weekly feedback digest email template\n4. Add scheduled Lambda to send digests every Monday\n\n## Acceptance criteria\n- SES in production mode\n- Verified sender domain\n- Test email sends successfully to non-verified recipient",
+          "manualSteps": ["Submit SES production access request via AWS console", "Wait for AWS approval (24-48h)", "Verify sender domain via DNS"]
         }
       ]
     }
