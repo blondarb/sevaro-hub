@@ -6,10 +6,10 @@
       "milestones": [
         {
           "id": "optimize-synthesis-speed",
-          "title": "Further optimize Haiku 4.5 synthesis speed for complex queries (still 7-14s)",
+          "title": "Reduce Haiku 4.5 synthesis time within async Lambda (currently 17-19s)",
           "status": "pending",
           "complexity": "medium",
-          "description": "Three-tier adaptive routing (PR #83, Mar 2026) fixed simple queries to 2-4s via a Haiku fast path. But complex clinical queries still take 7-14s in the standard/deep tiers. The Sonnet reasoning step is fast; Haiku synthesis is the bottleneck for complex cases. Streaming already mitigates perceived latency; reducing prompt context size is the next lever.",
+          "description": "Parallel validation (PR #136, Mar 28) reduced the total perceived latency from ~55s to ~26s by running validation in the background. But Haiku synthesis itself within the Lambda still takes 17-19s for complex queries. The Sonnet reasoning step is fast; Haiku synthesis is the remaining bottleneck. Reducing context size sent to Haiku is the next lever.",
           "prerequisites": [
             "Evidence Engine repo cloned",
             "AWS Bedrock access configured"
@@ -18,13 +18,14 @@
             "src/lib/bedrock-converse.ts",
             "src/lib/evidence-tools.ts"
           ],
-          "quickPrompt": "In the Evidence Engine repo, complex queries now run via async Lambda delegation (PR #133) but Haiku synthesis still takes 7-14s within the Lambda. Focus on reducing context sent to Haiku — trim KB results to top-N, shorten synthesis prompt, or evaluate streaming optimizations. Target: under 8s synthesis time.",
-          "fullPrompt": "## Task: Optimize Evidence Engine Synthesis Speed for Complex Queries\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/lib/bedrock-converse.ts, src/lib/evidence-tools.ts\n\n## Context\nAsync Lambda delegation (PRs #133-134) solved the Amplify 30s SSR timeout — all heavy workloads now run in dedicated Lambdas with 120s timeout. But Haiku synthesis itself still takes 7-14s for complex queries within the Lambda. Adaptive routing (PR #83) handles simple queries in 2-4s via a fast path.\n\n## Investigation areas\n1. Measure prompt token count for standard/deep tier within the Lambda — are we sending too much context?\n2. Trim KB results before synthesis (cap at top-N most relevant)\n3. Evaluate streaming optimizations to reduce perceived latency\n4. Reduce synthesis prompt verbosity\n\n## Acceptance criteria\n- Complex queries synthesize in under 8 seconds within the Lambda\n- No quality regression in synthesis output\n- Run qa/run_smoke.sh to verify",
+          "quickPrompt": "In the Evidence Engine repo (sevaro-evidence-engine), Haiku 4.5 synthesis within the async Lambda still takes 17-19s for complex queries after parallel validation (PR #136). Focus on reducing context sent to Haiku: trim KB results to top-N most relevant, shorten synthesis prompt, or evaluate prompt restructuring. Target: under 12s synthesis within the Lambda. Key file: src/lib/bedrock-converse.ts (Lambda handler).",
+          "fullPrompt": "## Task: Optimize Evidence Engine Haiku Synthesis Speed\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/lib/bedrock-converse.ts, src/lib/evidence-tools.ts\n\n## Current State (Mar 28, 2026)\nParallel validation (PR #136) reduced total perceived latency from ~55s to ~26s — synthesis result is written to DynamoDB immediately, validation runs in background. But Haiku synthesis itself within the Lambda still takes 17-19s for complex queries. Prompt caching already added; performanceConfig is NOT supported for Haiku 4.5 in us-east-2.\n\n## Investigation areas\n1. Measure KB result token count sent to Haiku — are we over-stuffing context?\n2. Trim KB results to top-5 most relevant before synthesis\n3. Shorten synthesis prompt instructions\n4. Test if outline style (4000 token limit) is slower than balanced (2500)\n\n## Acceptance criteria\n- Complex queries synthesize in under 12 seconds within the Lambda\n- No quality regression in synthesis output (run qa/STEELMAN.md)\n- CloudWatch logs confirm reduced duration",
           "manualSteps": [
             "Open src/lib/bedrock-converse.ts and find the synthesis function",
-            "Log prompt token count for complex queries",
-            "Reduce context if over 2000 tokens",
-            "Test with qa/run_smoke.sh"
+            "Add CloudWatch logging for prompt token count on complex queries",
+            "Cap KB results to top-5 before sending to synthesis",
+            "Shorten system prompt instructions",
+            "Run qa/STEELMAN.md benchmark and compare scores"
           ]
         },
         {
@@ -567,13 +568,13 @@
         },
         {
           "id": "specialty-hub-clinical-tools",
-          "title": "Specialty hub with 67 clinical tools across neurology, pulmonology, critical care",
+          "title": "Specialty hub with 67+ clinical tools across neurology, pulmonology, critical care, spine, PM&R",
           "status": "done",
           "complexity": "high",
-          "description": "Built specialty hub at plans.neuroplans.app with 67 clinical tools spanning scales, calculators, protocols, and references. Added Pulm/Crit Care specialty (PR #7), EEG Report Builder, feedback widget, and promoted scales/calculators to top-level navigation (PR #12). OAuth SSO via Cognito Hosted UI (PR #8).",
+          "description": "Built specialty hub at plans.neuroplans.app with 67+ clinical tools spanning scales, calculators, protocols, and references. Added Pulm/Crit Care (PR #7), Spine Surgery, PM&R card (PR #15, Mar 28). Mobile-friendly navigation (PR #13, Mar 28). Promoted scales/calculators/protocols/references to top-level nav (PR #12, Mar 28). ICP threshold corrected 20→22 mmHg per BTF 4th Edition (PR #14). Feedback widget (PR #11). OAuth SSO via Cognito Hosted UI (PR #8).",
           "prerequisites": [],
           "keyFiles": [],
-          "quickPrompt": "Specialty hub shipped with 67 clinical tools.",
+          "quickPrompt": "Specialty hub shipped with 67+ clinical tools across neurology, pulmonology, critical care, spine surgery, and PM&R. Mobile-friendly navigation live.",
           "fullPrompt": "",
           "manualSteps": []
         }
@@ -669,6 +670,18 @@
       "id": "repgenius",
       "name": "RepGenius",
       "milestones": [
+        {
+          "id": "app-store-rejection-fix",
+          "title": "Fix App Store rejection: AI consent modal, EULA, metadata resubmission",
+          "status": "done",
+          "complexity": "low",
+          "description": "App Store rejected v1.0 for missing AI consent disclosure and absent EULA/privacy URLs. Fixed with: AI consent modal on first launch (PR #4), correct GitHub Pages URLs for EULA/privacy (PR #5), updated App Store metadata for resubmission (PR #6). Resubmitted Mar 28, 2026.",
+          "prerequisites": [],
+          "keyFiles": [],
+          "quickPrompt": "App Store rejection fix shipped in PRs #4-6 (Mar 28). AI consent modal added, EULA/privacy URLs corrected, metadata updated for resubmission.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
         {
           "id": "decide-byok",
           "title": "Decide BYOK keep/remove after App Store approval",
@@ -844,6 +857,18 @@
       "id": "sdne",
       "name": "SDNE",
       "milestones": [
+        {
+          "id": "xr-screenshot-capture",
+          "title": "In-app VR screenshot capture via XRScreenCapture",
+          "status": "done",
+          "complexity": "low",
+          "description": "Added XRScreenCapture component auto-attached by ExamSceneBootstrapper in Awake(). Enables true in-app VR screenshots from within Unity, bypassing the Android 2D framebuffer black frame limitation that affects standard Android screencap during VR rendering. Shipped Mar 28, 2026.",
+          "prerequisites": [],
+          "keyFiles": [],
+          "quickPrompt": "XRScreenCapture in-app VR screenshot capture shipped (Mar 28). Auto-attached by ExamSceneBootstrapper.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
         {
           "id": "speech-pipeline-validation",
           "title": "End-to-end speech pipeline validation on headset",
