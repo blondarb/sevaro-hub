@@ -193,6 +193,24 @@ export default function HomePage() {
                 <MilestoneLinks projectId="cardio-plans-v2" milestones={getMilestones('cardio-plans-v2')} onOpen={openDrawer} />
               </div>
             </a>
+            <a className="card" href="https://neurocrit.neuroplans.app" target="_blank" rel="noopener">
+              <div className="card-title">NeuroCrit Care Plans v2 <span className="badge badge-live">Live</span></div>
+              <div className="card-desc">Neurocritical care clinical plans for ICU physicians and neurointensivists. Next.js 15 with Cognito auth and RDS backend.
+                <MilestoneLinks projectId="neurocrit-care-v2" milestones={getMilestones('neurocrit-care-v2')} onOpen={openDrawer} />
+              </div>
+            </a>
+            <a className="card" href="https://pmr.neuroplans.app" target="_blank" rel="noopener">
+              <div className="card-title">PM&amp;R Rehab Plans v2 <span className="badge badge-live">Live</span></div>
+              <div className="card-desc">Physical medicine &amp; rehabilitation clinical plans for physiatrists and rehab teams. Next.js 15 with Cognito auth and RDS backend.
+                <MilestoneLinks projectId="pmr-rehab-v2" milestones={getMilestones('pmr-rehab-v2')} onOpen={openDrawer} />
+              </div>
+            </a>
+            <a className="card" href="https://eeg.neuroplans.app" target="_blank" rel="noopener">
+              <div className="card-title">EEG Reporter <span className="badge badge-live">Live</span></div>
+              <div className="card-desc">ACNS-standard EEG report builder with deterministic CPT coding engine, 150+ sentence library, and Ceribell continuous EEG support.
+                <MilestoneLinks projectId="sevaro-eeg-reporter" milestones={getMilestones('sevaro-eeg-reporter')} onOpen={openDrawer} />
+              </div>
+            </a>
             <div className="card card-nolink">
               <div className="card-title">Pulm &amp; Crit Care Plans v2 <span className="badge badge-dev">Dev</span></div>
               <div className="card-desc">Pulmonary &amp; critical care clinical plans website — vent calculators, ABG, severity scores. Next.js 16 with Cognito auth and RDS backend.
