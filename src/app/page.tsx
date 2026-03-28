@@ -183,16 +183,16 @@ export default function HomePage() {
             </div>
             <div className="card">
               <div className="card-title"><a href="https://plans.neuroplans.app" target="_blank" rel="noopener">Neuro Plans v2</a> <span className="badge badge-live">Live</span></div>
-              <div className="card-desc">Next-generation clinical plan builder for neurology. Next.js with Cognito auth and RDS backend.
+              <div className="card-desc">Multi-specialty clinical plans hub: Neurology, PM&amp;R, Pulm/Critical Care, Spine Surgery. 67 tools — scales, calculators, protocols, EEG Report Builder. Next.js 16 with Cognito auth and RDS backend.
                 <MilestoneLinks projectId="neuro-plans-v2" milestones={getMilestones('neuro-plans-v2')} onOpen={openDrawer} />
               </div>
             </div>
-            <div className="card card-nolink">
-              <div className="card-title">Cardio Plans v2 <span className="badge badge-new">New</span> <span className="badge badge-dev">Dev</span></div>
-              <div className="card-desc">Next-generation cardiology plans app. Next.js with Cognito auth and RDS backend.
+            <a className="card" href="https://cardio.neuroplans.app" target="_blank" rel="noopener">
+              <div className="card-title">Cardio Plans v2 <span className="badge badge-live">Live</span></div>
+              <div className="card-desc">Cardiology clinical plans website with 31 tools — scales, calculators, protocols, and references. Next.js 16 with Cognito auth and RDS backend.
                 <MilestoneLinks projectId="cardio-plans-v2" milestones={getMilestones('cardio-plans-v2')} onOpen={openDrawer} />
               </div>
-            </div>
+            </a>
           </div>
         </div>
 
