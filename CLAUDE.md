@@ -40,6 +40,7 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 **Status**: Active
 
 ### Recent
+- **Added live cards for Cardio, NeuroCrit, PM&R, EEG Reporter; dev cards for Pulm/Spine (Mar 29)** — Hub now shows 9 live clinical apps, 2 dev-in-progress apps with milestone links
 - **Cognito pool ID and Bedrock model ID fixes across Lambda functions (PR #12, Mar 28)** — Corrected Cognito pool IDs in Lambdas and Bedrock model ID
 - **Feedback dashboard redesign (PR #11, Mar 27)** — Per-app tab navigation with unreviewed badges, inline category stats, scoped AI analysis (per-app + cross-app Bedrock prompts), shared app registry, sessions proxy route
 - **Admin auth + token refresh fix (PR #10, Mar 27)** — Added missing auth token to What's New API calls, Cognito token refresh on 401, env var for Cognito domain
