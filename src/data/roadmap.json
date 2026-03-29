@@ -207,6 +207,71 @@
           "quickPrompt": "Extension hardening shipped.",
           "fullPrompt": "",
           "manualSteps": []
+        },
+        {
+          "id": "plans-live-database",
+          "title": "Live RDS database queries for clinical plans (replaced static JSON)",
+          "status": "done",
+          "complexity": "medium",
+          "description": "Replaced static data/plans.json with live queries to the neuro_plans RDS database. src/lib/plans-db.ts provides a pg Pool with Secrets Manager credentials. Dual-schema support for old 166 plans and new 216 pipeline plans. /api/plans and /api/plans/[id] routes query the database directly. Chrome extension backward-compatible via plan-index.ts deprecation bridge. Shipped in PR #142, Mar 28, 2026.",
+          "prerequisites": [],
+          "keyFiles": [
+            "src/lib/plans-db.ts",
+            "src/app/api/plans/route.ts",
+            "src/app/api/neuroscribe/plans/"
+          ],
+          "quickPrompt": "Clinical plans now query live neuro_plans RDS database (PR #142). src/lib/plans-db.ts has the pg connection. Dual-schema: old 166 plans + new 216 pipeline plans. plan-index.ts is a deprecated bridge for Chrome extension compat.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "whats-new-page",
+          "title": "What's New page with recent sources API",
+          "status": "done",
+          "complexity": "small",
+          "description": "New /whats-new page showing recently fetched evidence sources from the knowledge base. /api/sources/recent endpoint queries DynamoDB source registry with time range, subspecialty, and source type filters. Time period tabs (7/30/90 days), subspecialty filter pills, color-coded badges, external and DOI links. Added to main navigation. Shipped in PR #137, Mar 28, 2026.",
+          "prerequisites": [],
+          "keyFiles": [
+            "src/app/whats-new/page.tsx",
+            "src/app/api/sources/recent/route.ts"
+          ],
+          "quickPrompt": "What's New page is live at /whats-new (PR #137). Shows recently fetched sources from DynamoDB source registry with subspecialty/time filters.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "unpaywall-fulltext",
+          "title": "Unpaywall API fallback for open-access full text",
+          "status": "done",
+          "complexity": "small",
+          "description": "Added Unpaywall API as a fallback for fetching full-text content for open-access articles. When the primary full-text source fails, the system tries Unpaywall to retrieve the open-access PDF or HTML. Shipped in PR #138, Mar 28, 2026.",
+          "prerequisites": [],
+          "keyFiles": [
+            "src/lib/full-text-fetcher.ts"
+          ],
+          "quickPrompt": "Unpaywall API fallback is shipped (PR #138). Used as secondary full-text retrieval when primary source fails.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "patient-registry",
+          "title": "Patient registry + return patient workflow",
+          "status": "in-progress",
+          "complexity": "high",
+          "description": "Patient registry system with DynamoDB patients table + patientId GSI on encounters. Patient list/detail pages at /patients with Patients nav link. Return patient banner and prior visit panel in encounter workspace sidebar. Chart prep cards show return badge and prior visit note for known patients. Patient matching uses Jaro-Winkler normalization + Haiku disambiguation API. Staged for sign-off on feature/patient-registry branch as of Mar 29, 2026.",
+          "prerequisites": [
+            "sevaro-evidence-engine repo",
+            "DynamoDB patients table provisioned (infra: add DynamoDB patients table + patientId GSI on encounters)"
+          ],
+          "keyFiles": [
+            "src/app/patients/",
+            "src/app/api/patients/",
+            "src/app/api/encounters/[id]/route.ts",
+            "src/components/encounter/"
+          ],
+          "quickPrompt": "Patient registry is on feature/patient-registry branch, staged for sign-off (Mar 29). DynamoDB patients table + patientId GSI wired. /patients list+detail pages. Return badge on chart prep cards, return banner + prior visit panel in encounter workspace. Resume: QA pass on staging, then merge to main and deploy.",
+          "fullPrompt": "",
+          "manualSteps": []
         }
       ]
     },
@@ -2140,13 +2205,31 @@
       "milestones": [
         {
           "id": "eeg-builder-v1",
-          "title": "EEG Report Builder v1 \u2014 Phases 1-4, mobile, clinical efficiency improvements",
+          "title": "EEG Report Builder v1 \u2014 Phases 1-2, mobile, clinical efficiency, Zeto device support",
           "status": "done",
           "complexity": "high",
-          "description": "Built full EEG Report Builder at eeg.neuroplans.app. Phases 1-2: initial build. Mobile-responsive layout (PR #2). Fixed 7 usability issues (PR #3). Clinical efficiency improvements for normal EEG reporting (PR #4). Replaced activation dropdowns with toggle buttons (PR #5). OAuth Hosted UI auth matching neuro/plans sites.",
+          "description": "Built full EEG Report Builder at eeg.neuroplans.app. Phases 1-2: initial build with CPT coding engine, 150+ sentence library (PR #1). Mobile-responsive layout (PR #2). Fixed 7 usability issues (PR #3). Clinical efficiency improvements \u2014 Quick Normal Report one-click, smart defaults, auto-advance (PR #4). Replaced activation dropdowns with toggle button strips (PR #5). Added Zeto EEG device support with recording device selector and Zeto-specific workflow (PR #6). OAuth Hosted UI auth. All shipped Mar 28, 2026.",
           "prerequisites": [],
           "keyFiles": [],
           "quickPrompt": "",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "eeg-phase3-longterm",
+          "title": "Phase 3: Long-Term EEG (multi-day stacking, seizure/periodic/sleep sentence builders)",
+          "status": "in-progress",
+          "complexity": "medium",
+          "description": "Phase 3 of the EEG Report Builder: multi-day stacking UI for long-term inpatient EEG (>2 hours), DOS (duration of study) calculator, sentence builders for seizures, periodic discharges, and sleep staging. CPT rules for long-term EEG are already coded in cpt-coding.ts \u2014 the UI needs to be built. Phase 4 (Ceribell templates, export polish) and Phase 5 (per-neurologist templates) follow.",
+          "prerequisites": [
+            "EEG Report Builder v1 deployed"
+          ],
+          "keyFiles": [
+            "src/lib/engine/cpt-coding.ts",
+            "src/stores/eeg-store.ts",
+            "src/data/sentence-library.ts"
+          ],
+          "quickPrompt": "In the EEG Reporter repo (sevaro-eeg-reporter), Phase 3 is next: implement multi-day stacking UI for long-term EEG (>2 hours), DOS calculator, and sentence builders for seizures, periodic discharges, and sleep staging. CPT rules already coded in src/lib/engine/cpt-coding.ts. Build the UI to drive them.",
           "fullPrompt": "",
           "manualSteps": []
         },
@@ -2155,12 +2238,12 @@
           "title": "Customizable EEG report templates per neurologist",
           "status": "pending",
           "complexity": "medium",
-          "description": "Phases 1-2 shipped with 150+ sentence library, device selector, quick-normal report, toggle buttons, and Ceribell support (PRs #1-6, Mar 28). Phase 3 (long-term EEG) and Phase 4 (templates, export) remain. Per-neurologist customizable templates are a Phase 5 feature.",
+          "description": "Phase 5 feature: per-neurologist customizable report templates with saved preferences, including preferred sentence choices, normal result shortcuts, and report structure customization.",
           "prerequisites": [
-            "EEG Report Builder v1 deployed"
+            "EEG Report Builder Phase 3 complete"
           ],
           "keyFiles": [],
-          "quickPrompt": "In the EEG Reporter repo (sevaro-eeg-reporter), Phases 1-2 are shipped (PRs #1-6). Phase 3 is next: implement the multi-day stacking UI for long-term inpatient EEG (>2 hours), the DOS (duration of study) calculator, and sentence builders for seizures, periodic discharges, and sleep staging. Key files: src/lib/engine/cpt-coding.ts (CPT rules), src/stores/eeg-store.ts (state), src/data/sentence-library.ts (sentences). The CPT rules for long-term EEG are already coded \u2014 the UI to drive them needs to be built.",
+          "quickPrompt": "In the EEG Reporter repo, implement per-neurologist customizable report templates (Phase 5). Requires Phase 3 long-term EEG to be complete first.",
           "fullPrompt": "",
           "manualSteps": []
         }
