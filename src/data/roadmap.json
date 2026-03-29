@@ -383,15 +383,16 @@
           "title": "Add v2 clinical plan sites to showcase",
           "status": "pending",
           "complexity": "low",
-          "description": "Neuro Plans v2 and Cardio Plans v2 web apps should be added to the showcase portfolio once they are deployed with custom domains.",
+          "description": "Neuro Plans v2 (plans.neuroplans.app) and Cardio Plans v2 (cardio.neuroplans.app, deployed Mar 28) web apps should be added to the showcase portfolio. Both sites are now live with custom domains.",
           "prerequisites": [
-            "v2 sites deployed with custom domains"
+            "GitHub Showcase repo cloned",
+            "RDS database access"
           ],
           "keyFiles": [
             "src/data/projects.ts"
           ],
-          "quickPrompt": "In the GitHub Showcase repo, add Neuro Plans v2 (plans.neuroplans.app) and Cardio Plans v2 to the portfolio when they have custom domains live.",
-          "fullPrompt": "## Task: Add v2 Clinical Sites to Showcase\n\n**Repo:** github-showcase\n\n## Steps\n1. Add Neuro Plans v2 to repo_metadata (plans.neuroplans.app)\n2. Add Cardio Plans v2 when deployed\n3. Update tech stacks and highlights\n\n## Depends on\n- Cardio Plans v2 deployment to Amplify with custom domain",
+          "quickPrompt": "In the GitHub Showcase repo, add Neuro Plans v2 (plans.neuroplans.app) and Cardio Plans v2 (cardio.neuroplans.app — deployed Mar 28, 2026) to the portfolio. Both sites are now live. Insert entries into the repo_metadata RDS table with tech stack (Next.js 15/16, Cognito OAuth, RDS PostgreSQL), live URLs, and highlights.",
+          "fullPrompt": "## Task: Add v2 Clinical Sites to Showcase\n\n**Repo:** github-showcase\n\n## Steps\n1. Add Neuro Plans v2 to repo_metadata (plans.neuroplans.app)\n2. Add Cardio Plans v2 (cardio.neuroplans.app — deployed Mar 28, now live)\n3. Update tech stacks and highlights\n\n## Both sites now live\n- Neuro Plans v2: plans.neuroplans.app — 378 clinical plans, 53 scales, 14 subspecialties\n- Cardio Plans v2: cardio.neuroplans.app — 31 clinical tools, deployed Mar 28",
           "manualSteps": [
             "Connect to RDS github_showcase database",
             "Insert v2 sites into repo_metadata",
@@ -571,13 +572,13 @@
         },
         {
           "id": "specialty-hub-clinical-tools",
-          "title": "Specialty hub with 67+ clinical tools across neurology, pulmonology, critical care, spine, PM&R",
+          "title": "Specialty hub with 67+ clinical tools + subspecialty navigation across neurology, pulmonology, critical care, spine, PM&R",
           "status": "done",
           "complexity": "high",
-          "description": "Built specialty hub at plans.neuroplans.app with 67+ clinical tools spanning scales, calculators, protocols, and references. Added Pulm/Crit Care (PR #7), Spine Surgery, PM&R card (PR #15, Mar 28). Mobile-friendly navigation (PR #13, Mar 28). Promoted scales/calculators/protocols/references to top-level nav (PR #12, Mar 28). ICP threshold corrected 20\u219222 mmHg per BTF 4th Edition (PR #14). Feedback widget (PR #11). OAuth SSO via Cognito Hosted UI (PR #8).",
+          "description": "Built specialty hub at plans.neuroplans.app with 67+ clinical tools spanning scales, calculators, protocols, and references. Added Pulm/Crit Care (PR #7), Spine Surgery, PM&R card (PR #15, Mar 28). Mobile-friendly navigation (PR #13, Mar 28). Promoted scales/calculators/protocols/references to top-level nav (PR #12, Mar 28). ICP threshold corrected 20\u219222 mmHg per BTF 4th Edition (PR #14). Feedback widget (PR #11). OAuth SSO via Cognito Hosted UI (PR #8). Subspecialty tab navigation with 14 filters (PR #16, Mar 29). Dual schema support: old subsection + new JSONB pipeline (PR #17). 25 new scoring scales for expanded subspecialties (PR #18). Flat plan view when subspecialty tab selected (PR #19). Hub card updated: 378 plans, 53 scales, 14 subspecialties.",
           "prerequisites": [],
           "keyFiles": [],
-          "quickPrompt": "Specialty hub shipped with 67+ clinical tools across neurology, pulmonology, critical care, spine surgery, and PM&R. Mobile-friendly navigation live.",
+          "quickPrompt": "Specialty hub shipped with 67+ clinical tools across neurology, pulmonology, critical care, spine surgery, and PM&R. Subspecialty tab navigation (14 filters), dual-schema DB support, 25 new scales, and flat subspecialty view all live as of Mar 29. Hub shows 378 plans, 53 scales, 14 subspecialties.",
           "fullPrompt": "",
           "manualSteps": []
         }
@@ -1013,7 +1014,7 @@
             "lambda/generate-note/",
             "src/services/NoteGenerationService.ts"
           ],
-          "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), continue polishing note generation quality. Recent improvements (Mar 26): draft-to-finalized section consistency (MEDICATIONS, PMH), Accept/Revert preview mode, verbosity reduction. Remaining: template adherence across encounter types, edge cases (short encounters, partial transcripts, multi-speaker), formatting consistency for EHR paste.",
+          "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), continue polishing note generation quality. Recent improvements (Mar 29, PR #36): recording flow UX polish, button consistency, timestamps panel on finalized notes. Earlier (Mar 26): draft-to-finalized section consistency (MEDICATIONS, PMH), Accept/Revert preview mode, verbosity reduction. Remaining: template adherence across encounter types, edge cases (short encounters, partial transcripts, multi-speaker), formatting consistency for EHR paste.",
           "fullPrompt": "## Task: Note Generation Quality Polish\n\n**Repo:** sevaro-evidence-engine (chrome-extension/ directory)\n\n## Context\nThe 30s Amplify timeout was solved via async Lambda delegation (PRs #133-134). Recent quality improvements (Mar 26): draft-to-finalized section structure consistency, Accept/Revert preview mode before committing, verbosity reduction. Focus now on remaining edge cases.\n\n## Polish areas\n1. Template adherence \u2014 ensure notes match configured exam profile note templates across encounter types\n2. Edge cases \u2014 handle partial transcriptions, multiple speakers, interrupted recordings\n3. Multi-encounter consistency \u2014 verify output quality is stable across short/long encounters\n4. EHR paste formatting \u2014 clean bullet points, consistent terminology, no raw JSON artifacts\n\n## Acceptance criteria\n- Notes follow consistent structure across encounter types\n- No fabricated clinical details\n- Clean formatting suitable for EHR paste\n- Edge cases handled gracefully",
           "manualSteps": [
             "Review sample generated notes for quality issues",
