@@ -45,6 +45,8 @@ export default function FeedbackDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -79,17 +81,16 @@ export default function FeedbackDashboard() {
   }, [sessions]);
 
   const filtered = useMemo(() => {
-    if (activeTab === 'all') return sessions;
-    return sessions.filter((s) => s.appId === activeTab);
-  }, [sessions, activeTab]);
-
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    for (const s of filtered) {
-      counts[s.category] = (counts[s.category] || 0) + 1;
-    }
-    return counts;
-  }, [filtered]);
+    return sessions.filter((s) => {
+      if (activeTab !== 'all' && s.appId !== activeTab) return false;
+      if (categoryFilter && s.category !== categoryFilter) return false;
+      if (statusFilter) {
+        const rs = s.reviewStatus || 'open';
+        if (rs !== statusFilter) return false;
+      }
+      return true;
+    });
+  }, [sessions, activeTab, categoryFilter, statusFilter]);
 
   const totalOpen = badgeCounts.all || 0;
   const totalCritical = sessions.reduce((acc, s) => {
@@ -125,6 +126,8 @@ export default function FeedbackDashboard() {
         .fb-tab-badge { background: #ef4444; color: white; font-size: 0.58rem; font-weight: 700; padding: 1px 5px; border-radius: 8px; margin-left: 4px; }
         .fb-chips { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
         .fb-chip { border-radius: 6px; padding: 4px 10px; font-size: 0.72rem; }
+        .fb-filter-chip { transition: background 0.15s, border-color 0.15s; }
+        .fb-filter-chip:hover { opacity: 0.85; }
         .fb-session { display: block; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 18px 20px; margin-bottom: 10px; text-decoration: none; color: inherit; transition: all 0.15s; }
         .fb-session:hover { background: rgba(255,255,255,0.06); border-color: rgba(120,160,220,0.25); transform: translateY(-1px); }
         .fb-session-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
@@ -175,7 +178,7 @@ export default function FeedbackDashboard() {
             <button
               key={tab.id}
               className={`fb-tab ${activeTab === tab.id ? 'fb-tab-active' : ''}`}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => { setActiveTab(tab.id); setCategoryFilter(null); setStatusFilter(null); }}
             >
               {tab.label}
               {(badgeCounts[tab.id] || 0) > 0 && (
@@ -185,22 +188,58 @@ export default function FeedbackDashboard() {
           ))}
         </div>
 
-        {!loading && filtered.length > 0 && (
-          <div className="fb-chips">
-            {Object.entries(CATEGORY_COLORS).map(([cat, colors]) => {
-              const count = categoryCounts[cat] || 0;
-              if (count === 0) return null;
-              return (
-                <div
-                  key={cat}
-                  className="fb-chip"
-                  style={{ background: colors.bg, border: `1px solid ${colors.text}30` }}
-                >
-                  <span style={{ color: colors.text, fontWeight: 600 }}>{count}</span>{' '}
-                  <span style={{ color: '#8890a4' }}>{cat}{count !== 1 ? 's' : ''}</span>
-                </div>
-              );
-            })}
+        {!loading && sessions.length > 0 && (
+          <div style={{ marginBottom: 14 }}>
+            <div className="fb-chips">
+              {Object.entries(CATEGORY_COLORS).map(([cat, colors]) => {
+                const count = sessions.filter(
+                  (s) => (activeTab === 'all' || s.appId === activeTab) && s.category === cat
+                ).length;
+                if (count === 0) return null;
+                const active = categoryFilter === cat;
+                return (
+                  <button
+                    key={cat}
+                    className="fb-chip fb-filter-chip"
+                    onClick={() => setCategoryFilter(active ? null : cat)}
+                    style={{
+                      background: active ? colors.bg : 'rgba(255,255,255,0.04)',
+                      border: `1px solid ${active ? colors.text + '60' : 'rgba(255,255,255,0.1)'}`,
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    <span style={{ color: active ? colors.text : '#8890a4', fontWeight: 600 }}>{count}</span>{' '}
+                    <span style={{ color: active ? colors.text : '#6a7080' }}>{cat}{count !== 1 ? 's' : ''}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="fb-chips" style={{ marginBottom: 0 }}>
+              {Object.entries(REVIEW_STATUS_STYLES).map(([key, rs]) => {
+                const count = sessions.filter(
+                  (s) => (activeTab === 'all' || s.appId === activeTab) && (s.reviewStatus || 'open') === key
+                ).length;
+                if (count === 0) return null;
+                const active = statusFilter === key;
+                return (
+                  <button
+                    key={key}
+                    className="fb-chip fb-filter-chip"
+                    onClick={() => setStatusFilter(active ? null : key)}
+                    style={{
+                      background: active ? rs.bg : 'rgba(255,255,255,0.04)',
+                      border: `1px solid ${active ? rs.text + '60' : 'rgba(255,255,255,0.1)'}`,
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    <span style={{ color: active ? rs.text : '#8890a4', fontWeight: 600 }}>{count}</span>{' '}
+                    <span style={{ color: active ? rs.text : '#6a7080' }}>{rs.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
 
@@ -208,8 +247,17 @@ export default function FeedbackDashboard() {
           <div className="fb-empty"><p>Loading...</p></div>
         ) : filtered.length === 0 ? (
           <div className="fb-empty">
-            <p>{activeTab === 'all' ? 'No feedback sessions yet' : `No feedback for ${getAppLabel(activeTab)}`}</p>
-            <span>Sessions will appear here when users submit feedback via the widget</span>
+            <p>{categoryFilter || statusFilter ? 'No sessions match the selected filters' : activeTab === 'all' ? 'No feedback sessions yet' : `No feedback for ${getAppLabel(activeTab)}`}</p>
+            {(categoryFilter || statusFilter) ? (
+              <button
+                onClick={() => { setCategoryFilter(null); setStatusFilter(null); }}
+                style={{ background: 'none', border: 'none', color: '#7aa2d4', cursor: 'pointer', fontSize: '0.85rem', fontFamily: 'inherit' }}
+              >
+                Clear filters
+              </button>
+            ) : (
+              <span>Sessions will appear here when users submit feedback via the widget</span>
+            )}
           </div>
         ) : (
           filtered.map((session) => {
