@@ -18,8 +18,8 @@
             "src/lib/bedrock-converse.ts",
             "src/lib/evidence-tools.ts"
           ],
-          "quickPrompt": "In the Evidence Engine repo (sevaro-evidence-engine), compact synthesis prompt (PR #140) reduced Lambda avg from 27.4s to 23.4s. The Sonnet tool-calling phase is now the bottleneck \u2014 Haiku synthesis follows. Investigate: (1) trim KB results to top-5 before synthesis, (2) shorten synthesis system prompt further. Key file: src/lib/bedrock-converse.ts. Run qa/STEELMAN.md to validate quality is maintained. Target: under 15s total Lambda.",
-          "fullPrompt": "## Task: Further Optimize Evidence Engine Haiku Synthesis Speed\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/lib/bedrock-converse.ts, src/lib/evidence-tools.ts\n\n## Current State (Mar 29, 2026)\nCompact synthesis prompt (PR #140) reduced avg Lambda from 27.4s to 23.4s (14.6% improvement). Prompt caching is active. performanceConfig is NOT supported for Haiku 4.5 in us-east-2. The Sonnet reasoning tool-calling phase is the primary bottleneck.\n\n## Investigation areas\n1. Trim KB results to top-5 most relevant before synthesis (currently sending more)\n2. Shorten synthesis system prompt instructions further\n3. Investigate whether Sonnet reasoning steps can be parallelized\n4. Profile token counts in CloudWatch to identify largest context sections\n\n## Acceptance criteria\n- Complex queries synthesize in under 15s total Lambda duration\n- No quality regression (run qa/STEELMAN.md \u2014 must maintain 100/100)\n- CloudWatch logs confirm reduced duration",
+          "quickPrompt": "In the Evidence Engine repo (sevaro-evidence-engine), parallel validation (PR #136) now returns synthesis to user before validation completes. Compact synthesis prompt (PR #140) achieved 27.4s \u2192 23.4s (-14.6%). KB result count (KB=5 tested) has no effect on complex query speed. Sonnet tool-calling loop is the primary bottleneck. Next approaches: (1) parallelize Sonnet reasoning steps, (2) reduce tool-calling round-trips, (3) investigate streaming to client during Lambda execution. Key file: src/lib/bedrock-converse.ts. Run qa/STEELMAN.md to validate quality. Target: under 15s total Lambda.",
+          "fullPrompt": "## Task: Further Optimize Evidence Engine Haiku Synthesis Speed\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/lib/bedrock-converse.ts, src/lib/evidence-tools.ts\n\n## Current State (Mar 30, 2026)\n- PR #140: Compact synthesis prompt reduced avg Lambda from 27.4s to 23.4s (-14.6%). SYNTHESIS_PROMPT_COMPACT=1 set permanently on Lambda.\n- PR #136: Parallel validation ships synthesis to user before validation completes \u2014 improves perceived latency.\n- Benchmark: KB=5 result count had no effect on complex queries (28.7s avg, +1.3s vs baseline).\n- Confirmed bottleneck: Sonnet tool-calling loop, not Haiku synthesis or KB retrieval.\n- performanceConfig NOT supported for Haiku 4.5 in us-east-2.\n\n## Investigation areas\n1. Parallelize Sonnet reasoning steps (currently sequential tool-call rounds)\n2. Reduce number of tool-calling round-trips for common queries\n3. Investigate streaming synthesis tokens to client during Lambda execution\n4. Profile CloudWatch logs for largest context sections in tool-calling phase\n\n## Acceptance criteria\n- Complex queries synthesize in under 15s total Lambda duration\n- No quality regression (run qa/STEELMAN.md \u2014 must maintain 100/100)\n- CloudWatch logs confirm reduced duration",
           "manualSteps": [
             "Open src/lib/bedrock-converse.ts and find the synthesis function",
             "Add CloudWatch logging for prompt token count on complex queries",
@@ -456,8 +456,8 @@
           "keyFiles": [
             "src/data/projects.ts"
           ],
-          "quickPrompt": "In the GitHub Showcase repo, add Neuro Plans v2 (plans.neuroplans.app) and Cardio Plans v2 (cardio.neuroplans.app — deployed Mar 28, 2026) to the portfolio. Both sites are now live. Insert entries into the repo_metadata RDS table with tech stack (Next.js 15/16, Cognito OAuth, RDS PostgreSQL), live URLs, and highlights.",
-          "fullPrompt": "## Task: Add v2 Clinical Sites to Showcase\n\n**Repo:** github-showcase\n\n## Steps\n1. Add Neuro Plans v2 to repo_metadata (plans.neuroplans.app)\n2. Add Cardio Plans v2 (cardio.neuroplans.app — deployed Mar 28, now live)\n3. Update tech stacks and highlights\n\n## Both sites now live\n- Neuro Plans v2: plans.neuroplans.app — 378 clinical plans, 53 scales, 14 subspecialties\n- Cardio Plans v2: cardio.neuroplans.app — 31 clinical tools, deployed Mar 28",
+          "quickPrompt": "In the GitHub Showcase repo, add all live v2 clinical plan sites to the portfolio: Neuro Plans v2 (plans.neuroplans.app), Cardio Plans v2 (cardio.neuroplans.app, deployed Mar 28), NeuroCrit Care Plans v2 (live), PM&R Rehab Plans v2 (live), and Sevaro EEG Reporter (live). Also note Pulm & Crit Care Plans v2 and Spine Surgery Plans v2 (in development). Insert entries into the repo_metadata RDS table with tech stack (Next.js 15/16, Cognito OAuth, RDS PostgreSQL), live URLs, and highlights.",
+          "fullPrompt": "## Task: Add v2 Clinical Sites to Showcase\n\n**Repo:** github-showcase\n\n## Live sites to add\n1. Neuro Plans v2 \u2014 plans.neuroplans.app (378 plans, 53 scales, 14 subspecialties)\n2. Cardio Plans v2 \u2014 cardio.neuroplans.app (deployed Mar 28, 2026)\n3. NeuroCrit Care Plans v2 \u2014 live (18 scoring scales, 20 clinical tools, critical care focus)\n4. PM&R Rehab Plans v2 \u2014 live (20 scales, 18 tools, rehab focus)\n5. Sevaro EEG Reporter \u2014 live (CPT coding engine, Phases 1-2+, Zeto EEG support)\n\n## In-development sites to note\n- Pulm & Crit Care Plans v2 \u2014 pulm.neuroplans.app (Amplify deploy pending)\n- Spine Surgery Plans v2 \u2014 spine.neuroplans.app (Amplify deploy pending)\n\n## Steps\n1. Add each live site to repo_metadata table in RDS\n2. Include: description, tech stack, live URL, highlights, status=live\n3. Mark in-dev sites with status=development\n4. Verify showcase renders all entries correctly",
           "manualSteps": [
             "Connect to RDS github_showcase database",
             "Insert v2 sites into repo_metadata",
@@ -531,8 +531,8 @@
           "keyFiles": [
             "qa/TEST_RUNBOOK.md"
           ],
-          "quickPrompt": "In the Workouts repo, run the full QA pass per qa/TEST_RUNBOOK.md. Fix any issues found, then deploy to production on main branch.",
-          "fullPrompt": "## Task: QA Pass and Production Deploy\n\n**Repo:** Workouts\n\n## Prerequisites\n- Privacy policy and scope docs updated\n- Voice handoff reliability improved\n\n## Steps\n1. Read qa/TEST_RUNBOOK.md\n2. Execute each test scenario\n3. Document results in qa/runs/\n4. Fix any failures\n5. Merge to main for production deploy (Amplify auto-builds)\n\n## Acceptance criteria\n- All smoke tests pass\n- No P0/P1 bugs open\n- workouts.neuroplans.app serves latest version",
+          "quickPrompt": "In the Workouts repo, run the full QA pass per qa/TEST_RUNBOOK.md. OAuth SSO migration is done (PR #11 \u2014 Cognito Hosted UI, PKCE). Fix any issues found, then deploy to production on main branch. Voice handoff reliability (#fix-voice-handoff) should be addressed first per prerequisite order.",
+          "fullPrompt": "## Task: QA Pass and Production Deploy\n\n**Repo:** Workouts\n\n## Prerequisites\n- OAuth SSO migration done (PR #11 \u2014 Cognito OAuth + PKCE) \u2705\n- Privacy policy and scope docs updated (check status)\n- Voice handoff reliability improved (fix-voice-handoff milestone \u2014 pending)\n\n## Steps\n1. Read qa/TEST_RUNBOOK.md for full QA checklist\n2. Test OAuth login flow end-to-end (Cognito Hosted UI redirect)\n3. Test voice handoff with current normalization logic\n4. Run all automated tests if available\n5. Fix any issues found\n6. Deploy to production on main branch\n7. Verify live deployment works",
           "manualSteps": [
             "Read qa/TEST_RUNBOOK.md",
             "Run each test scenario manually",
@@ -1988,8 +1988,8 @@
           "keyFiles": [
             "lambda/sevaro-whats-new-api/"
           ],
-          "quickPrompt": "Request AWS SES production access for the Sevaro sandbox account (us-east-2). Currently in sandbox mode. Then implement automated weekly feedback digest emails using the existing What's New Lambda infrastructure.",
-          "fullPrompt": "## Task: SES Production Access + Email Notifications\n\n**Account:** Sevaro Sandbox (us-east-2)\n\n## Steps\n1. Request SES production access via AWS console or CLI\n2. Set up verified sender domain (neuroplans.app)\n3. Implement weekly feedback digest email template\n4. Add scheduled Lambda to send digests every Monday\n\n## Acceptance criteria\n- SES in production mode\n- Verified sender domain\n- Test email sends successfully to non-verified recipient",
+          "quickPrompt": "Request AWS SES production access for the Sevaro sandbox account (us-east-2). Currently in sandbox mode. Interactive filter chips added to feedback dashboard (Mar 30). Then implement automated weekly feedback digest emails using the existing What's New Lambda infrastructure (DynamoDB cache, digest Lambda).",
+          "fullPrompt": "## Task: SES Production Access + Email Notifications\n\n**Account:** Sevaro Sandbox (us-east-2)\n\n## Steps\n1. Request SES production access via AWS console or CLI\n2. Set up verified sender domain (neuroplans.app)\n3. Implement automated weekly feedback digest email using existing Lambda infrastructure\n4. Leverage What's New digest Lambda (DynamoDB cache, TTL) already built in Evidence Engine\n5. Configure CloudWatch Events / EventBridge rule for weekly trigger\n\n## Context (Mar 30, 2026)\n- Feedback dashboard has interactive filter chips (shipped Mar 30)\n- What's New digest infrastructure (DynamoDB cache, /api/sources/digest) available in Evidence Engine\n- Sevaro Hub admin page at /admin/feedback shows categorized feedback",
           "manualSteps": [
             "Submit SES production access request via AWS console",
             "Wait for AWS approval (24-48h)",
@@ -2042,8 +2042,8 @@
             "sevaro-plan-pipeline access"
           ],
           "keyFiles": [],
-          "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the neurocrit_care RDS database with clinical plans for neurocritical care categories.",
-          "fullPrompt": "",
+          "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the neurocrit_care RDS database with clinical plans. neurocrit_care is now in the allowed databases list (added Mar 28). The pipeline now supports Gemini-powered clinical verification (PR #4) and auto specialty-specific tool generation (default). The site is live with 18 scoring scales and 20 clinical tools already in the frontend. Run pipeline for neurocritical care categories to populate clinical plans.",
+          "fullPrompt": "## Task: Populate NeuroCrit Care Plans via Pipeline\n\n**Repo:** sevaro-plan-pipeline\n**Target database:** neurocrit_care\n\n## Current State (Mar 30, 2026)\n- Site live with 18 scoring scales and 20 clinical tools (frontend data)\n- neurocrit_care added to allowed databases (Mar 28)\n- Pipeline enhancements available: Gemini verification Lambda (PR #4), clinical consistency validator (PR #3), auto specialty-specific tool generation (default)\n- RDS database empty \u2014 clinical plans not yet populated\n\n## Steps\n1. Confirm neurocrit_care DATABASE_NAME env var in pipeline config\n2. Run pipeline for neurocritical care categories (ICP management, status epilepticus, TBI, stroke, etc.)\n3. Verify plan import via VerifyImport Lambda\n4. Check RDS for populated plans\n5. Test frontend plan display at live site\n\n## Note\nTools auto-generation is now default (use --no-tools to skip). Gemini verification adds clinical accuracy layer.",
           "manualSteps": []
         }
       ]
@@ -2092,8 +2092,8 @@
             "sevaro-plan-pipeline access"
           ],
           "keyFiles": [],
-          "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the pmr_rehab RDS database with clinical plans for PM&R categories.",
-          "fullPrompt": "",
+          "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the pmr_rehab RDS database with clinical plans. JSONB schema mapping was fixed Mar 28 (Study, Treatment, Recommendation, Parameter headers). The site is live with 20 clinical scales and 18 tools in the frontend. Pipeline has Gemini verification (PR #4) and auto tools-generation. Run pipeline for PM&R categories.",
+          "fullPrompt": "## Task: Populate PM&R Rehab Plans via Pipeline\n\n**Repo:** sevaro-plan-pipeline\n**Target database:** pmr_rehab\n\n## Current State (Mar 30, 2026)\n- Site live with 20 clinical scales and 18 tools (frontend data)\n- JSONB text key mapping fixed Mar 28 (Study, Treatment, Recommendation, Parameter headers)\n- JSONB data key mapping for pipeline markdown table headers fixed Mar 28\n- Pipeline supports Gemini verification (PR #4) and auto specialty tool generation\n\n## Steps\n1. Confirm pmr_rehab DATABASE_NAME env var in pipeline config\n2. Run pipeline for PM&R categories (spinal cord injury, TBI rehab, stroke rehab, amputee, etc.)\n3. Verify JSONB key mapping resolves correctly (check recent fix in db import)\n4. Verify plan import via VerifyImport Lambda\n5. Test frontend plan display at live site",
           "manualSteps": []
         }
       ]
@@ -2127,8 +2127,8 @@
           "keyFiles": [
             "amplify.yml"
           ],
-          "quickPrompt": "Deploy spine-surgery-v2 to AWS Amplify and set up custom domain spine.neuroplans.app. Uses Cognito pool us-east-2_9y6XyJnXC, client 52l4jf338uogt9g3i43pguu75f.",
-          "fullPrompt": "",
+          "quickPrompt": "Deploy spine-surgery-v2 to AWS Amplify and set up custom domain spine.neuroplans.app. Site is feature-complete: OAuth SSO (PR #1), feedback widget (PR #3), spine-specific tools (PR #4), top-level nav (PR #5), mobile nav (PR #6). Cognito pool: us-east-2_9y6XyJnXC, client: 52l4jf338uogt9g3i43pguu75f. Create Amplify app, connect to GitHub repo, set env vars, configure custom domain.",
+          "fullPrompt": "## Task: Deploy Spine Surgery Plans v2 to Amplify\n\n**Repo:** spine-surgery-v2\n**Target URL:** spine.neuroplans.app\n\n## Site Status (Mar 30, 2026)\nFeature-complete \u2014 all 6 PRs shipped:\n- PR #1: OAuth SSO (Cognito pool us-east-2_9y6XyJnXC, client 52l4jf338uogt9g3i43pguu75f)\n- PR #2: Dosing display fix\n- PR #3: Feedback widget (@sevaro/feedback, appId: spine-plans)\n- PR #4: Spine-specific tools (12 scales, decision support)\n- PR #5: Top-level nav (Scales/Calculators/Protocols/References)\n- PR #6: Mobile hamburger nav\n\n## Deployment Steps\n1. Create Amplify app in AWS console \u2192 connect blondarb/spine-surgery-v2\n2. Set build settings (use amplify.yml if present, else Next.js defaults)\n3. Set env vars: NEXT_PUBLIC_APP_URL, COGNITO_CLIENT_ID, COGNITO_POOL_ID, etc.\n4. Deploy main branch\n5. Add custom domain spine.neuroplans.app in Amplify console\n6. Verify OAuth callback URLs match Amplify domain in Cognito app client",
           "manualSteps": []
         },
         {
@@ -2142,7 +2142,7 @@
             "sevaro-plan-pipeline access"
           ],
           "keyFiles": [],
-          "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the spine_surgery RDS database with clinical plans.",
+          "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the spine_surgery RDS database with clinical plans. Pipeline has Gemini verification (PR #4), clinical consistency validator (PR #3), and auto specialty tool generation. Requires Amplify deployment first (domain needed for NEXT_PUBLIC_APP_URL). Run pipeline for spine surgery categories (cervical/lumbar/thoracic procedures, post-op protocols).",
           "fullPrompt": "",
           "manualSteps": []
         }
@@ -2178,8 +2178,8 @@
           "keyFiles": [
             "amplify.yml"
           ],
-          "quickPrompt": "Deploy pulm-crit-care-v2 to AWS Amplify and set up custom domain pulm.neuroplans.app. First configure the Cognito client ID (currently TBD in CLAUDE.md) \u2014 create a new app client in pool us-east-2_9y6XyJnXC.",
-          "fullPrompt": "",
+          "quickPrompt": "Deploy pulm-crit-care-v2 to AWS Amplify and set up custom domain pulm.neuroplans.app. Site is feature-complete: OAuth auth (PR #5, pool us-east-2_9y6XyJnXC), pulm tools (PR #3), top-level nav (PR #4), feedback widget (PR #2), mobile nav (PR #6). CLAUDE.md shows Cognito client ID as TBD \u2014 check if client was created or create new app client in pool us-east-2_9y6XyJnXC first.",
+          "fullPrompt": "## Task: Deploy Pulm & Crit Care Plans v2 to Amplify\n\n**Repo:** pulm-crit-care-v2\n**Target URL:** pulm.neuroplans.app\n\n## Site Status (Mar 30, 2026)\nFeature-complete \u2014 all 6 PRs shipped:\n- PR #1: Dosing display fix\n- PR #2: Feedback widget (@sevaro/feedback, appId: pulm-plans)\n- PR #3: Pulm/crit care tools (calculators, protocols, references)\n- PR #4: Top-level nav promotion\n- PR #5: OAuth SSO migration (pool us-east-2_9y6XyJnXC)\n- PR #6: Mobile hamburger nav\n\n## Deployment Steps\n1. Check CLAUDE.md for Cognito client ID \u2014 if TBD, create new app client in pool us-east-2_9y6XyJnXC\n2. Add callback URL: https://pulm.neuroplans.app/api/auth/callback to app client\n3. Create Amplify app \u2192 connect blondarb/pulm-crit-care-v2\n4. Set env vars: NEXT_PUBLIC_APP_URL=https://pulm.neuroplans.app, COGNITO_CLIENT_ID, COGNITO_POOL_ID=us-east-2_9y6XyJnXC\n5. Deploy main branch, configure custom domain pulm.neuroplans.app",
           "manualSteps": []
         },
         {
@@ -2193,7 +2193,7 @@
             "sevaro-plan-pipeline access"
           ],
           "keyFiles": [],
-          "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the pulm_crit_care RDS database with clinical plans.",
+          "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the pulm_crit_care RDS database with clinical plans. Pipeline supports Gemini verification (PR #4), clinical consistency validator (PR #3), auto tools-generation. Requires Amplify deployment first. Run pipeline for pulm/critical care categories (ARDS, sepsis, COPD exacerbation, ventilator management, etc.).",
           "fullPrompt": "",
           "manualSteps": []
         }
@@ -2243,7 +2243,7 @@
             "EEG Report Builder Phase 3 complete"
           ],
           "keyFiles": [],
-          "quickPrompt": "In the EEG Reporter repo, implement per-neurologist customizable report templates (Phase 5). Requires Phase 3 long-term EEG to be complete first.",
+          "quickPrompt": "In the EEG Reporter repo, implement per-neurologist customizable report templates (Phase 5). Current status: Phase 3 (Long-Term EEG \u2014 multi-day stacking, DOS calculator) is in progress. Phase 4 (Ceribell advanced features) is planned. Phases 1-2 + PRs #3-6 shipped (CPT coding, Zeto device, activation toggles, Quick Normal, usability fixes, mobile). Implement Phase 5 after Phase 3 long-term EEG is complete.",
           "fullPrompt": "",
           "manualSteps": []
         }
@@ -2276,8 +2276,8 @@
             "Pipeline Lambda deployed in AWS"
           ],
           "keyFiles": [],
-          "quickPrompt": "Run the sevaro-plan-pipeline for each v2 clinical site database: neurocrit_care, pmr_rehab, spine_surgery, pulm_crit_care. Each run generates clinical plans with 7-layer verification, dosing enrichment, and specialty-specific tools. Use --no-tools flag only if tool generation should be skipped.",
-          "fullPrompt": "",
+          "quickPrompt": "Run the sevaro-plan-pipeline for all v2 clinical site databases: neurocrit_care, pmr_rehab, spine_surgery, pulm_crit_care. Pipeline now has: Gemini-powered clinical verification Lambda (PR #4), clinical consistency validator (PR #3), auto specialty tool generation (default, use --no-tools to skip), 7-layer verification (clinical, citations, drugs, ICD-10, import, dosing, consistency). All 4 databases in allowed list. Run after deploying Spine and Pulm sites to Amplify.",
+          "fullPrompt": "## Task: Run Pipeline for All v2 Clinical Sites\n\n**Repo:** sevaro-plan-pipeline\n\n## Pipeline Capabilities (Mar 30, 2026)\n- 7-layer verification: GeneratePlan \u2192 VerifyParallel (4 branches) \u2192 MergeResults \u2192 ImportPlan \u2192 EnrichDosing \u2192 VerifyImport \u2192 Notify\n- Gemini-powered clinical verification Lambda (PR #4) \u2014 additional accuracy layer\n- Clinical consistency validator (PR #3) \u2014 GenerateTools JSON repair\n- Auto specialty-specific tool generation \u2014 default enabled (use --no-tools to skip)\n- All 4 v2 databases in allowed list: neurocrit_care, pmr_rehab, spine_surgery, pulm_crit_care\n\n## Execution Order (recommended)\n1. neurocrit_care \u2014 site is live, database empty\n2. pmr_rehab \u2014 site is live, database empty, JSONB fixes applied Mar 28\n3. spine_surgery \u2014 deploy to Amplify first, then populate\n4. pulm_crit_care \u2014 deploy to Amplify first, then populate\n\n## Per-database run\n1. Set DATABASE_NAME env var to target database\n2. Trigger Step Functions state machine for each plan category\n3. Monitor CloudWatch for Lambda errors\n4. Run VerifyImport to confirm plan data integrity\n5. Verify frontend displays plans correctly at live site",
           "manualSteps": []
         }
       ]
