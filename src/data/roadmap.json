@@ -256,7 +256,7 @@
         {
           "id": "patient-registry",
           "title": "Patient registry + return patient workflow",
-          "status": "in-progress",
+          "status": "done",
           "complexity": "high",
           "description": "Patient registry system with DynamoDB patients table + patientId GSI on encounters. Patient list/detail pages at /patients with Patients nav link. Return patient banner and prior visit panel in encounter workspace sidebar. Chart prep cards show return badge and prior visit note for known patients. Patient matching uses Jaro-Winkler normalization + Haiku disambiguation API. Staged for sign-off on feature/patient-registry branch as of Mar 29, 2026.",
           "prerequisites": [
@@ -269,7 +269,7 @@
             "src/app/api/encounters/[id]/route.ts",
             "src/components/encounter/"
           ],
-          "quickPrompt": "Patient registry is on feature/patient-registry branch, staged for sign-off (Mar 29). DynamoDB patients table + patientId GSI wired. /patients list+detail pages. Return badge on chart prep cards, return banner + prior visit panel in encounter workspace. Resume: QA pass on staging, then merge to main and deploy.",
+          "quickPrompt": "Patient registry shipped (PRs #139/#147, Mar 29). DynamoDB patients table + patientId GSI wired. /patients list+detail pages live. Return badge on chart prep cards, return banner + Prior Visit Panel in encounter workspace. Jaro-Winkler + Haiku patient matching. Multi-visit sidebar (up to 5 priors). Laterality safety rule in all handoff prompts. Fully merged to main and deployed.",
           "fullPrompt": "",
           "manualSteps": []
         }
@@ -317,7 +317,7 @@
             "src/data/diagnosis-plans/",
             "scripts/load-plans.ts"
           ],
-          "quickPrompt": "In the OPSAmple repo, identify and create the remaining 18 diagnosis treatment plans (148/166 currently covered). Draft clinical content and load into RDS.",
+          "quickPrompt": "In the OPSAmple repo, identify and create the remaining 18 diagnosis treatment plans (148/166 currently covered). Query the RDS neuro_plans table to find which of the 166 diagnoses in lib/diagnosisData.ts are missing plans. Draft plan content using Evidence Engine guidance and insert into the database.",
           "fullPrompt": "## Task: Complete Diagnosis Plan Coverage\n\n**Repo:** OPSAmplehtml\n\n## Context\n148 of 166 target diagnoses have treatment plans. Need to identify and create the remaining 18.\n\n## Steps\n1. Query RDS to find which 18 diagnoses are missing\n2. Draft clinical content for each (treatment options, monitoring, decision points)\n3. Follow the same format as existing plans\n4. Load into database\n\n## Acceptance criteria\n- All 166 diagnoses have treatment plans\n- Content follows existing plan format\n- Plans are accessible in the app",
           "manualSteps": [
             "Query database for missing diagnoses",
@@ -531,7 +531,7 @@
           "keyFiles": [
             "qa/TEST_RUNBOOK.md"
           ],
-          "quickPrompt": "In the Workouts repo, run the full QA pass per qa/TEST_RUNBOOK.md. OAuth SSO migration is done (PR #11 \u2014 Cognito Hosted UI, PKCE). Fix any issues found, then deploy to production on main branch. Voice handoff reliability (#fix-voice-handoff) should be addressed first per prerequisite order.",
+          "quickPrompt": "In the Workouts repo, run the full QA pass per qa/TEST_RUNBOOK.md. OAuth SSO migration is done (PR #11 \u2014 Cognito Hosted UI). Privacy policy update is in progress. After QA pass completes with no blockers, deploy to production. Ensure all known issues are documented before shipping.",
           "fullPrompt": "## Task: QA Pass and Production Deploy\n\n**Repo:** Workouts\n\n## Prerequisites\n- OAuth SSO migration done (PR #11 \u2014 Cognito OAuth + PKCE) \u2705\n- Privacy policy and scope docs updated (check status)\n- Voice handoff reliability improved (fix-voice-handoff milestone \u2014 pending)\n\n## Steps\n1. Read qa/TEST_RUNBOOK.md for full QA checklist\n2. Test OAuth login flow end-to-end (Cognito Hosted UI redirect)\n3. Test voice handoff with current normalization logic\n4. Run all automated tests if available\n5. Fix any issues found\n6. Deploy to production on main branch\n7. Verify live deployment works",
           "manualSteps": [
             "Read qa/TEST_RUNBOOK.md",
@@ -2236,14 +2236,14 @@
         {
           "id": "eeg-report-templates",
           "title": "Customizable EEG report templates per neurologist",
-          "status": "pending",
+          "status": "done",
           "complexity": "medium",
           "description": "Phase 5 feature: per-neurologist customizable report templates with saved preferences, including preferred sentence choices, normal result shortcuts, and report structure customization.",
           "prerequisites": [
             "EEG Report Builder Phase 3 complete"
           ],
           "keyFiles": [],
-          "quickPrompt": "In the EEG Reporter repo, implement per-neurologist customizable report templates (Phase 5). Current status: Phase 3 (Long-Term EEG \u2014 multi-day stacking, DOS calculator) is in progress. Phase 4 (Ceribell advanced features) is planned. Phases 1-2 + PRs #3-6 shipped (CPT coding, Zeto device, activation toggles, Quick Normal, usability fixes, mobile). Implement Phase 5 after Phase 3 long-term EEG is complete.",
+          "quickPrompt": "Per-neurologist customizable report templates shipped as part of Phase 6C (PR #12, Mar 30). Per-neurologist preferences (physician name, default device, default study type) persisted to localStorage. 6 selectable impression modifiers. Correlation section optional per preference. 'Combine Impression & Correlation' option. All 17 report templates updated. Phase 6 complete.",
           "fullPrompt": "",
           "manualSteps": []
         }
