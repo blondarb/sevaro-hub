@@ -2217,10 +2217,10 @@
         },
         {
           "id": "eeg-phase3-longterm",
-          "title": "Phase 3: Long-Term EEG (multi-day stacking, seizure/periodic/sleep sentence builders)",
-          "status": "in-progress",
+          "title": "Phases 3-6: Long-Term EEG, Ceribell advanced, testing, chair feedback overhaul",
+          "status": "done",
           "complexity": "medium",
-          "description": "Phase 3 of the EEG Report Builder: multi-day stacking UI for long-term inpatient EEG (>2 hours), DOS (duration of study) calculator, sentence builders for seizures, periodic discharges, and sleep staging. CPT rules for long-term EEG are already coded in cpt-coding.ts \u2014 the UI needs to be built. Phase 4 (Ceribell templates, export polish) and Phase 5 (per-neurologist templates) follow.",
+          "description": "Phases 3-6 all shipped. Phase 3 (PR #7): DOS calculator, multi-day timeline, 22 LTM templates. Phase 4 (PR #8): Ceribell advanced features, 6 new templates, keyboard shortcuts. Phase 5 (PR #9): 85-test suite, ARIA accessibility, per-neurologist preferences. Phase 6A-6C (PRs #10-12): Safety-critical fixes, Technical tab + Findings restructure, Impression/Correlation rework + reader preferences. Phase 6 complete per chair of EEG feedback.",
           "prerequisites": [
             "EEG Report Builder v1 deployed"
           ],
@@ -2279,6 +2279,52 @@
           "quickPrompt": "Run the sevaro-plan-pipeline for all v2 clinical site databases: neurocrit_care, pmr_rehab, spine_surgery, pulm_crit_care. DONE: All 6 databases populated and Gemini-verified: neuro (393), neurocrit (150), cardio (135), pulm (136), spine (148), pmr (166). Total: 1,128 plans (Mar 30, 2026).",
           "fullPrompt": "## Task: Run Pipeline for All v2 Clinical Sites\n\n**Repo:** sevaro-plan-pipeline\n\n## Pipeline Capabilities (Mar 30, 2026)\n- 7-layer verification: GeneratePlan \u2192 VerifyParallel (4 branches) \u2192 MergeResults \u2192 ImportPlan \u2192 EnrichDosing \u2192 VerifyImport \u2192 Notify\n- Gemini-powered clinical verification Lambda (PR #4) \u2014 additional accuracy layer\n- Clinical consistency validator (PR #3) \u2014 GenerateTools JSON repair\n- Auto specialty-specific tool generation \u2014 default enabled (use --no-tools to skip)\n- All 4 v2 databases in allowed list: neurocrit_care, pmr_rehab, spine_surgery, pulm_crit_care\n\n## Execution Order (recommended)\n1. neurocrit_care \u2014 site is live, database empty\n2. pmr_rehab \u2014 site is live, database empty, JSONB fixes applied Mar 28\n3. spine_surgery \u2014 deploy to Amplify first, then populate\n4. pulm_crit_care \u2014 deploy to Amplify first, then populate\n\n## Per-database run\n1. Set DATABASE_NAME env var to target database\n2. Trigger Step Functions state machine for each plan category\n3. Monitor CloudWatch for Lambda errors\n4. Run VerifyImport to confirm plan data integrity\n5. Verify frontend displays plans correctly at live site",
           "manualSteps": []
+        }
+      ]
+    },
+    {
+      "id": "synapse-teleencounter",
+      "name": "Synapse Teleencounter",
+      "milestones": [
+        {
+          "id": "synapse-prototype-shipped",
+          "title": "High-fidelity prototype shipped \u2014 3 screens with Sevaro design tokens",
+          "status": "done",
+          "complexity": "medium",
+          "description": "Full interactive prototype of Synapse 2.0 telemedicine platform. Screens: /queue (patient queue + chart prep), /encounter/[patientId] (live encounter with scribe + PACS viewer), /review/[patientId] (note review + billing). All data is mock. Built Mar 31, 2026.",
+          "keyFiles": [
+            "app/queue/page.tsx",
+            "app/encounter/[patientId]/page.tsx",
+            "app/review/[patientId]/page.tsx",
+            "lib/mock-data.ts"
+          ]
+        },
+        {
+          "id": "synapse-live-api",
+          "title": "Wire live API calls \u2014 replace mock data with real endpoints",
+          "status": "pending",
+          "complexity": "high",
+          "description": "Replace all mock data in lib/mock-data.ts with live API calls to the OPSAmple backend and Evidence Engine. Requires Cognito auth, patient queue API, encounter API, and SEE review API integration.",
+          "prerequisites": [
+            "synapse-prototype-shipped"
+          ],
+          "quickPrompt": "In the synapse-teleencounter repo, wire live API calls to replace mock data in lib/mock-data.ts. Connect to OPSAmple patient queue, encounter, and Evidence Engine SEE review endpoints. Add Cognito OAuth auth middleware. Design is complete \u2014 only the data layer needs wiring.",
+          "fullPrompt": "## Task: Wire Live API Calls to Synapse Teleencounter\n\nRepo: ~/dev/repos/synapse-teleencounter\n\nCurrent state: All 3 screens built and styled with mock data in lib/mock-data.ts. No auth.\n\n1. Add Cognito OAuth auth (same pool pattern as other v2 sites)\n2. Replace patient queue mock with live OPSAmple /api/patients\n3. Replace encounter mock with live encounter data\n4. Wire SEE review to live Evidence Engine review endpoint\n5. Deploy to Amplify\n\nKey files: lib/mock-data.ts, app/queue/page.tsx, app/encounter/[patientId]/page.tsx, app/review/[patientId]/page.tsx",
+          "manualSteps": [
+            "Review OPSAmple API contracts",
+            "Add Cognito OAuth middleware (proxy.ts pattern from other v2 sites)",
+            "Replace mock patient list with /api/patients call",
+            "Replace mock encounter data with live encounter API",
+            "Wire SEE review to live Evidence Engine endpoint",
+            "Test end-to-end on staging",
+            "Deploy to Amplify"
+          ],
+          "keyFiles": [
+            "lib/mock-data.ts",
+            "app/queue/page.tsx",
+            "app/encounter/[patientId]/page.tsx",
+            "app/review/[patientId]/page.tsx"
+          ]
         }
       ]
     }
