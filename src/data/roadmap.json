@@ -220,7 +220,7 @@
             "src/app/api/plans/route.ts",
             "src/app/api/neuroscribe/plans/"
           ],
-          "quickPrompt": "Clinical plans now query live neuro_plans RDS database (PR #142). src/lib/plans-db.ts has the pg connection. Dual-schema: old 166 plans + new 216 pipeline plans. plan-index.ts is a deprecated bridge for Chrome extension compat.",
+          "quickPrompt": "Clinical plans now query neuro_plans + neurocrit_care databases (543 plans total). Multi-specialty search with instant client-side filtering and 100+ clinical synonyms. PR #149 (Mar 30, 2026).",
           "fullPrompt": "",
           "manualSteps": []
         },
@@ -2034,7 +2034,7 @@
         {
           "id": "populate-plans-database",
           "title": "Populate neurocritical care clinical plans via pipeline",
-          "status": "pending",
+          "status": "done",
           "complexity": "medium",
           "description": "Run the sevaro-plan-pipeline to populate the neurocrit_care database with clinical plans for all 14 neurocritical care categories (stroke, TBI, status epilepticus, elevated ICP, CNS infections, etc.).",
           "prerequisites": [
@@ -2042,7 +2042,7 @@
             "sevaro-plan-pipeline access"
           ],
           "keyFiles": [],
-          "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the neurocrit_care RDS database with clinical plans. neurocrit_care is now in the allowed databases list (added Mar 28). The pipeline now supports Gemini-powered clinical verification (PR #4) and auto specialty-specific tool generation (default). The site is live with 18 scoring scales and 20 clinical tools already in the frontend. Run pipeline for neurocritical care categories to populate clinical plans.",
+          "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the neurocrit_care RDS database with clinical plans. DONE: 150 plans generated, Gemini-verified citations, 38 ICD-10 codes added (Mar 30, 2026).",
           "fullPrompt": "## Task: Populate NeuroCrit Care Plans via Pipeline\n\n**Repo:** sevaro-plan-pipeline\n**Target database:** neurocrit_care\n\n## Current State (Mar 30, 2026)\n- Site live with 18 scoring scales and 20 clinical tools (frontend data)\n- neurocrit_care added to allowed databases (Mar 28)\n- Pipeline enhancements available: Gemini verification Lambda (PR #4), clinical consistency validator (PR #3), auto specialty-specific tool generation (default)\n- RDS database empty \u2014 clinical plans not yet populated\n\n## Steps\n1. Confirm neurocrit_care DATABASE_NAME env var in pipeline config\n2. Run pipeline for neurocritical care categories (ICP management, status epilepticus, TBI, stroke, etc.)\n3. Verify plan import via VerifyImport Lambda\n4. Check RDS for populated plans\n5. Test frontend plan display at live site\n\n## Note\nTools auto-generation is now default (use --no-tools to skip). Gemini verification adds clinical accuracy layer.",
           "manualSteps": []
         }
@@ -2084,7 +2084,7 @@
         {
           "id": "populate-plans-database",
           "title": "Populate PM&R clinical plans via pipeline",
-          "status": "pending",
+          "status": "done",
           "complexity": "medium",
           "description": "Run the sevaro-plan-pipeline to populate the pmr_rehab database with clinical plans for PM&R/Physiatry categories (spinal cord injury, stroke rehab, TBI rehab, orthopedic, pain management, etc.).",
           "prerequisites": [
@@ -2092,7 +2092,7 @@
             "sevaro-plan-pipeline access"
           ],
           "keyFiles": [],
-          "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the pmr_rehab RDS database with clinical plans. JSONB schema mapping was fixed Mar 28 (Study, Treatment, Recommendation, Parameter headers). The site is live with 20 clinical scales and 18 tools in the frontend. Pipeline has Gemini verification (PR #4) and auto tools-generation. Run pipeline for PM&R categories.",
+          "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the pmr_rehab RDS database with clinical plans. DONE: 166 plans generated, Gemini-verified citations (Mar 30, 2026).",
           "fullPrompt": "## Task: Populate PM&R Rehab Plans via Pipeline\n\n**Repo:** sevaro-plan-pipeline\n**Target database:** pmr_rehab\n\n## Current State (Mar 30, 2026)\n- Site live with 20 clinical scales and 18 tools (frontend data)\n- JSONB text key mapping fixed Mar 28 (Study, Treatment, Recommendation, Parameter headers)\n- JSONB data key mapping for pipeline markdown table headers fixed Mar 28\n- Pipeline supports Gemini verification (PR #4) and auto specialty tool generation\n\n## Steps\n1. Confirm pmr_rehab DATABASE_NAME env var in pipeline config\n2. Run pipeline for PM&R categories (spinal cord injury, TBI rehab, stroke rehab, amputee, etc.)\n3. Verify JSONB key mapping resolves correctly (check recent fix in db import)\n4. Verify plan import via VerifyImport Lambda\n5. Test frontend plan display at live site",
           "manualSteps": []
         }
@@ -2117,7 +2117,7 @@
         {
           "id": "deploy-amplify-domain",
           "title": "Deploy to Amplify with custom domain",
-          "status": "pending",
+          "status": "done",
           "complexity": "medium",
           "description": "Deploy Spine Surgery Plans v2 to AWS Amplify and configure a custom domain (e.g., spine.neuroplans.app) via Route 53.",
           "prerequisites": [
@@ -2127,14 +2127,14 @@
           "keyFiles": [
             "amplify.yml"
           ],
-          "quickPrompt": "Deploy spine-surgery-v2 to AWS Amplify and set up custom domain spine.neuroplans.app. Site is feature-complete: OAuth SSO (PR #1), feedback widget (PR #3), spine-specific tools (PR #4), top-level nav (PR #5), mobile nav (PR #6). Cognito pool: us-east-2_9y6XyJnXC, client: 52l4jf338uogt9g3i43pguu75f. Create Amplify app, connect to GitHub repo, set env vars, configure custom domain.",
+          "quickPrompt": "Deploy spine-surgery-v2 to AWS Amplify and set up custom domain spine. DONE: Deployed to Amplify, custom domain spine.neuroplans.app live (verified Mar 30, 2026).",
           "fullPrompt": "## Task: Deploy Spine Surgery Plans v2 to Amplify\n\n**Repo:** spine-surgery-v2\n**Target URL:** spine.neuroplans.app\n\n## Site Status (Mar 30, 2026)\nFeature-complete \u2014 all 6 PRs shipped:\n- PR #1: OAuth SSO (Cognito pool us-east-2_9y6XyJnXC, client 52l4jf338uogt9g3i43pguu75f)\n- PR #2: Dosing display fix\n- PR #3: Feedback widget (@sevaro/feedback, appId: spine-plans)\n- PR #4: Spine-specific tools (12 scales, decision support)\n- PR #5: Top-level nav (Scales/Calculators/Protocols/References)\n- PR #6: Mobile hamburger nav\n\n## Deployment Steps\n1. Create Amplify app in AWS console \u2192 connect blondarb/spine-surgery-v2\n2. Set build settings (use amplify.yml if present, else Next.js defaults)\n3. Set env vars: NEXT_PUBLIC_APP_URL, COGNITO_CLIENT_ID, COGNITO_POOL_ID, etc.\n4. Deploy main branch\n5. Add custom domain spine.neuroplans.app in Amplify console\n6. Verify OAuth callback URLs match Amplify domain in Cognito app client",
           "manualSteps": []
         },
         {
           "id": "populate-plans-database",
           "title": "Populate spine surgery clinical plans via pipeline",
-          "status": "pending",
+          "status": "done",
           "complexity": "medium",
           "description": "Run the sevaro-plan-pipeline to populate the spine_surgery database with clinical plans for all spine surgery categories.",
           "prerequisites": [
@@ -2142,7 +2142,7 @@
             "sevaro-plan-pipeline access"
           ],
           "keyFiles": [],
-          "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the spine_surgery RDS database with clinical plans. Pipeline has Gemini verification (PR #4), clinical consistency validator (PR #3), and auto specialty tool generation. Requires Amplify deployment first (domain needed for NEXT_PUBLIC_APP_URL). Run pipeline for spine surgery categories (cervical/lumbar/thoracic procedures, post-op protocols).",
+          "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the spine_surgery RDS database with clinical plans. DONE: 148 plans generated, Gemini-verified citations (Mar 30, 2026).",
           "fullPrompt": "",
           "manualSteps": []
         }
@@ -2167,7 +2167,7 @@
         {
           "id": "deploy-amplify-domain",
           "title": "Deploy to Amplify with custom domain",
-          "status": "pending",
+          "status": "done",
           "complexity": "medium",
           "description": "Deploy Pulm/Crit Care Plans v2 to AWS Amplify and configure a custom domain (e.g., pulm.neuroplans.app). Note: Cognito client ID is TBD in CLAUDE.md \u2014 configure this first.",
           "prerequisites": [
@@ -2178,14 +2178,14 @@
           "keyFiles": [
             "amplify.yml"
           ],
-          "quickPrompt": "Deploy pulm-crit-care-v2 to AWS Amplify and set up custom domain pulm.neuroplans.app. Site is feature-complete: OAuth auth (PR #5, pool us-east-2_9y6XyJnXC), pulm tools (PR #3), top-level nav (PR #4), feedback widget (PR #2), mobile nav (PR #6). CLAUDE.md shows Cognito client ID as TBD \u2014 check if client was created or create new app client in pool us-east-2_9y6XyJnXC first.",
+          "quickPrompt": "Deploy pulm-crit-care-v2 to AWS Amplify and set up custom domain pulm. DONE: Deployed to Amplify, custom domain pulm.neuroplans.app live (verified Mar 30, 2026).",
           "fullPrompt": "## Task: Deploy Pulm & Crit Care Plans v2 to Amplify\n\n**Repo:** pulm-crit-care-v2\n**Target URL:** pulm.neuroplans.app\n\n## Site Status (Mar 30, 2026)\nFeature-complete \u2014 all 6 PRs shipped:\n- PR #1: Dosing display fix\n- PR #2: Feedback widget (@sevaro/feedback, appId: pulm-plans)\n- PR #3: Pulm/crit care tools (calculators, protocols, references)\n- PR #4: Top-level nav promotion\n- PR #5: OAuth SSO migration (pool us-east-2_9y6XyJnXC)\n- PR #6: Mobile hamburger nav\n\n## Deployment Steps\n1. Check CLAUDE.md for Cognito client ID \u2014 if TBD, create new app client in pool us-east-2_9y6XyJnXC\n2. Add callback URL: https://pulm.neuroplans.app/api/auth/callback to app client\n3. Create Amplify app \u2192 connect blondarb/pulm-crit-care-v2\n4. Set env vars: NEXT_PUBLIC_APP_URL=https://pulm.neuroplans.app, COGNITO_CLIENT_ID, COGNITO_POOL_ID=us-east-2_9y6XyJnXC\n5. Deploy main branch, configure custom domain pulm.neuroplans.app",
           "manualSteps": []
         },
         {
           "id": "populate-plans-database",
           "title": "Populate pulmonary & critical care plans via pipeline",
-          "status": "pending",
+          "status": "done",
           "complexity": "medium",
           "description": "Run the sevaro-plan-pipeline to populate the pulm_crit_care database with clinical plans for pulmonary and critical care categories.",
           "prerequisites": [
@@ -2193,7 +2193,7 @@
             "sevaro-plan-pipeline access"
           ],
           "keyFiles": [],
-          "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the pulm_crit_care RDS database with clinical plans. Pipeline supports Gemini verification (PR #4), clinical consistency validator (PR #3), auto tools-generation. Requires Amplify deployment first. Run pipeline for pulm/critical care categories (ARDS, sepsis, COPD exacerbation, ventilator management, etc.).",
+          "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the pulm_crit_care RDS database with clinical plans. DONE: 136 plans generated, Gemini-verified citations (Mar 30, 2026).",
           "fullPrompt": "",
           "manualSteps": []
         }
@@ -2268,7 +2268,7 @@
         {
           "id": "run-pipeline-v2-sites",
           "title": "Run pipeline for all v2 clinical plan sites",
-          "status": "pending",
+          "status": "done",
           "complexity": "medium",
           "description": "Execute the plan generation pipeline for neurocrit-care-v2, pmr-rehab-v2, spine-surgery-v2, and pulm-crit-care-v2 databases. Each run generates plans, scales.json, and tools.json with 7-layer verification.",
           "prerequisites": [
@@ -2276,7 +2276,7 @@
             "Pipeline Lambda deployed in AWS"
           ],
           "keyFiles": [],
-          "quickPrompt": "Run the sevaro-plan-pipeline for all v2 clinical site databases: neurocrit_care, pmr_rehab, spine_surgery, pulm_crit_care. Pipeline now has: Gemini-powered clinical verification Lambda (PR #4), clinical consistency validator (PR #3), auto specialty tool generation (default, use --no-tools to skip), 7-layer verification (clinical, citations, drugs, ICD-10, import, dosing, consistency). All 4 databases in allowed list. Run after deploying Spine and Pulm sites to Amplify.",
+          "quickPrompt": "Run the sevaro-plan-pipeline for all v2 clinical site databases: neurocrit_care, pmr_rehab, spine_surgery, pulm_crit_care. DONE: All 6 databases populated and Gemini-verified: neuro (393), neurocrit (150), cardio (135), pulm (136), spine (148), pmr (166). Total: 1,128 plans (Mar 30, 2026).",
           "fullPrompt": "## Task: Run Pipeline for All v2 Clinical Sites\n\n**Repo:** sevaro-plan-pipeline\n\n## Pipeline Capabilities (Mar 30, 2026)\n- 7-layer verification: GeneratePlan \u2192 VerifyParallel (4 branches) \u2192 MergeResults \u2192 ImportPlan \u2192 EnrichDosing \u2192 VerifyImport \u2192 Notify\n- Gemini-powered clinical verification Lambda (PR #4) \u2014 additional accuracy layer\n- Clinical consistency validator (PR #3) \u2014 GenerateTools JSON repair\n- Auto specialty-specific tool generation \u2014 default enabled (use --no-tools to skip)\n- All 4 v2 databases in allowed list: neurocrit_care, pmr_rehab, spine_surgery, pulm_crit_care\n\n## Execution Order (recommended)\n1. neurocrit_care \u2014 site is live, database empty\n2. pmr_rehab \u2014 site is live, database empty, JSONB fixes applied Mar 28\n3. spine_surgery \u2014 deploy to Amplify first, then populate\n4. pulm_crit_care \u2014 deploy to Amplify first, then populate\n\n## Per-database run\n1. Set DATABASE_NAME env var to target database\n2. Trigger Step Functions state machine for each plan category\n3. Monitor CloudWatch for Lambda errors\n4. Run VerifyImport to confirm plan data integrity\n5. Verify frontend displays plans correctly at live site",
           "manualSteps": []
         }
