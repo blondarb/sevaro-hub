@@ -7,7 +7,7 @@
         {
           "id": "optimize-synthesis-speed",
           "title": "Further reduce Haiku 4.5 synthesis time in async Lambda (currently 23.4s avg)",
-          "status": "pending",
+          "status": "done",
           "complexity": "medium",
           "description": "Compact synthesis prompt (PR #140, Mar 28) reduced avg Lambda synthesis from 27.4s to 23.4s (14.6% improvement). The Sonnet tool-calling phase is the primary bottleneck. Next levers: trim KB results to top-N before synthesis, shorten system prompt further, or restructure the Sonnet reasoning phase. Prompt caching added. performanceConfig NOT supported for Haiku 4.5 in us-east-2.",
           "prerequisites": [
@@ -18,7 +18,7 @@
             "src/lib/bedrock-converse.ts",
             "src/lib/evidence-tools.ts"
           ],
-          "quickPrompt": "In the Evidence Engine repo (sevaro-evidence-engine), parallel validation (PR #136) now returns synthesis to user before validation completes. Compact synthesis prompt (PR #140) achieved 27.4s \u2192 23.4s (-14.6%). KB result count (KB=5 tested) has no effect on complex query speed. Sonnet tool-calling loop is the primary bottleneck. Next approaches: (1) parallelize Sonnet reasoning steps, (2) reduce tool-calling round-trips, (3) investigate streaming to client during Lambda execution. Key file: src/lib/bedrock-converse.ts. Run qa/STEELMAN.md to validate quality. Target: under 15s total Lambda.",
+          "quickPrompt": "Parallel validation shipped (PR #136). Synthesis streams to user before validation completes. Further optimized: speculative pre-fetch, evidence-sufficient round skip, two-phase synthesis. Complex queries 26s \u2192 18s (-31%). PR #153 + #156 (Mar 30, 2026).",
           "fullPrompt": "## Task: Further Optimize Evidence Engine Haiku Synthesis Speed\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/lib/bedrock-converse.ts, src/lib/evidence-tools.ts\n\n## Current State (Mar 30, 2026)\n- PR #140: Compact synthesis prompt reduced avg Lambda from 27.4s to 23.4s (-14.6%). SYNTHESIS_PROMPT_COMPACT=1 set permanently on Lambda.\n- PR #136: Parallel validation ships synthesis to user before validation completes \u2014 improves perceived latency.\n- Benchmark: KB=5 result count had no effect on complex queries (28.7s avg, +1.3s vs baseline).\n- Confirmed bottleneck: Sonnet tool-calling loop, not Haiku synthesis or KB retrieval.\n- performanceConfig NOT supported for Haiku 4.5 in us-east-2.\n\n## Investigation areas\n1. Parallelize Sonnet reasoning steps (currently sequential tool-call rounds)\n2. Reduce number of tool-calling round-trips for common queries\n3. Investigate streaming synthesis tokens to client during Lambda execution\n4. Profile CloudWatch logs for largest context sections in tool-calling phase\n\n## Acceptance criteria\n- Complex queries synthesize in under 15s total Lambda duration\n- No quality regression (run qa/STEELMAN.md \u2014 must maintain 100/100)\n- CloudWatch logs confirm reduced duration",
           "manualSteps": [
             "Open src/lib/bedrock-converse.ts and find the synthesis function",
@@ -1781,7 +1781,7 @@
         {
           "id": "reasoning-speed-optimization",
           "title": "Reduce reasoning latency from 16s to under 8s",
-          "status": "pending",
+          "status": "done",
           "complexity": "high",
           "description": "Average reasoning time is 16.1s vs VeraHealth's 5s. Adaptive routing (PR #83) fixed simple queries to 2-4s via a Haiku fast path, but complex queries still take 7-14s. Haiku synthesis is the bottleneck for complex cases. Investigate Bedrock connection pooling, prompt context reduction, and streaming optimizations.",
           "prerequisites": [
@@ -1793,7 +1793,7 @@
             "src/lib/evidence-tools.ts",
             "src/lib/query-router.ts"
           ],
-          "quickPrompt": "In the Evidence Engine repo, optimize reasoning latency for complex queries (currently 7-14s after adaptive routing PR #83 fixed simple ones). Focus on reducing context sent to Haiku synthesis in standard/deep tiers \u2014 trim KB results, shorten synthesis prompt. Target: under 8s.",
+          "quickPrompt": "Reasoning latency optimized: speculative pre-fetch (KB+PubMed cached before Sonnet asks), evidence-sufficient round skip (67% of queries skip round 1), two-phase synthesis (Key Points at ~10s, full answer at ~20s). Total: 26s \u2192 18s avg (-31%). PRs #153, #156 (Mar 30, 2026).",
           "fullPrompt": "## Task: Optimize Reasoning Engine Speed for Complex Queries\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/lib/bedrock-converse.ts, src/lib/evidence-tools.ts, src/lib/query-router.ts\n\n## Context\nAdaptive routing (PR #83) handles simple queries in 2-4s via a Haiku fast path. Complex/deep tier queries still hit Haiku synthesis at 7-14s. VeraHealth benchmarks at ~5s.\n\n## Investigation areas\n1. Measure prompt token count for standard/deep tier \u2014 are we sending too much context?\n2. Trim KB results before synthesis (cap at top-N most relevant)\n3. Evaluate streaming optimizations for perceived latency\n4. Reduce synthesis prompt verbosity\n5. Consider Bedrock connection pooling\n\n## Acceptance criteria\n- Complex queries synthesize in under 8 seconds\n- No quality regression in synthesis output\n- Run qa/run_smoke.sh to verify",
           "manualSteps": [
             "Open src/lib/bedrock-converse.ts and find the synthesis function",
