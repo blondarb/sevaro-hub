@@ -9,7 +9,7 @@
           "title": "Further reduce Haiku 4.5 synthesis time in async Lambda (currently 23.4s avg)",
           "status": "done",
           "complexity": "medium",
-          "description": "Compact synthesis prompt (PR #140, Mar 28) reduced avg Lambda synthesis from 27.4s to 23.4s (14.6% improvement). The Sonnet tool-calling phase is the primary bottleneck. Next levers: trim KB results to top-N before synthesis, shorten system prompt further, or restructure the Sonnet reasoning phase. Prompt caching added. performanceConfig NOT supported for Haiku 4.5 in us-east-2.",
+          "description": "Two-phase synthesis shipped (PR #156, Mar 31). Phase 1 streams Key Points to DynamoDB as partial result (~8s). Client polls for Key Points while Phase 2 generates full answer (~18s). Down from 23.4s full wait. Further optimization: compact prompt active (SYNTHESIS_PROMPT_COMPACT=1). Lambda handler + polling API updated.",
           "prerequisites": [
             "Evidence Engine repo cloned",
             "AWS Bedrock access configured"
@@ -18,7 +18,7 @@
             "src/lib/bedrock-converse.ts",
             "src/lib/evidence-tools.ts"
           ],
-          "quickPrompt": "Parallel validation shipped (PR #136). Synthesis streams to user before validation completes. Further optimized: speculative pre-fetch, evidence-sufficient round skip, two-phase synthesis. Complex queries 26s \u2192 18s (-31%). PR #153 + #156 (Mar 30, 2026).",
+          "quickPrompt": "Two-phase synthesis (PR #156) ships Key Points in ~8s, full answer ~18s. Compact prompt active. Lambda + polling API updated.",
           "fullPrompt": "## Task: Further Optimize Evidence Engine Haiku Synthesis Speed\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/lib/bedrock-converse.ts, src/lib/evidence-tools.ts\n\n## Current State (Mar 30, 2026)\n- PR #140: Compact synthesis prompt reduced avg Lambda from 27.4s to 23.4s (-14.6%). SYNTHESIS_PROMPT_COMPACT=1 set permanently on Lambda.\n- PR #136: Parallel validation ships synthesis to user before validation completes \u2014 improves perceived latency.\n- Benchmark: KB=5 result count had no effect on complex queries (28.7s avg, +1.3s vs baseline).\n- Confirmed bottleneck: Sonnet tool-calling loop, not Haiku synthesis or KB retrieval.\n- performanceConfig NOT supported for Haiku 4.5 in us-east-2.\n\n## Investigation areas\n1. Parallelize Sonnet reasoning steps (currently sequential tool-call rounds)\n2. Reduce number of tool-calling round-trips for common queries\n3. Investigate streaming synthesis tokens to client during Lambda execution\n4. Profile CloudWatch logs for largest context sections in tool-calling phase\n\n## Acceptance criteria\n- Complex queries synthesize in under 15s total Lambda duration\n- No quality regression (run qa/STEELMAN.md \u2014 must maintain 100/100)\n- CloudWatch logs confirm reduced duration",
           "manualSteps": [
             "Open src/lib/bedrock-converse.ts and find the synthesis function",
@@ -939,6 +939,20 @@
           "manualSteps": []
         },
         {
+          "id": "cross-modal-sensor-fusion",
+          "title": "Cross-modal sensor fusion Phase 1",
+          "status": "done",
+          "complexity": "high",
+          "description": "Cross-modal sensor fusion Phase 1 shipped (Mar 31, 2026). Concurrent gaze logging in T12 (gaze-hand lead time, eye-hand coordination) and T11 (saccadic intrusion detection during tapping). FlagAggregator now runs 4 cross-domain pattern detectors: eye-hand coordination deficit, gaze instability during motor, tremor-voice correlation, widespread motor slowing. Sensor fixes: T05 pursuit gain world-space gaze retransformation bug fixed, T09/T10 dominant-axis frequency estimation, speech pipeline transcribe\u2192score-speech link added.",
+          "prerequisites": [
+            "xr-screenshot-capture"
+          ],
+          "keyFiles": [],
+          "quickPrompt": "Cross-modal sensor fusion Phase 1 shipped (Mar 31). FlagAggregator running 4 cross-domain detectors. Speech pipeline wired.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
           "id": "speech-pipeline-validation",
           "title": "End-to-end speech pipeline validation on headset",
           "status": "in-progress",
@@ -1469,6 +1483,22 @@
           "manualSteps": []
         },
         {
+          "id": "phase1-architecture-refactor",
+          "title": "Phase 1 architecture refactor \u2014 5 sub-tasks, adaptive difficulty, FrustrationDetector",
+          "status": "done",
+          "complexity": "medium",
+          "description": "Architecture refactor shipped (Apr 1, 2026). Phase 1 split into 5 independent sub-task classes (OrientationCheck, AttentionTask, MemoryRegistration, NamingStand, NeglectScreen). DevSessionStarter rewired to production flow. AdaptiveDifficultyEngine connected \u2014 DifficultyProfile is single source of truth for item counts and shelf filtering. VoiceInput \u2192 FrustrationDetector wired.",
+          "prerequisites": [
+            "grab-physics-sorting"
+          ],
+          "keyFiles": [
+            "MarketDayVR/Assets/Scripts/"
+          ],
+          "quickPrompt": "Phase 1 architecture refactor shipped (Apr 1). 5 sub-task classes, AdaptiveDifficultyEngine connected, FrustrationDetector wired.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
           "id": "sprint3-additional-exercises",
           "title": "Sprint 3: additional exercise types and difficulty levels",
           "status": "pending",
@@ -1545,12 +1575,12 @@
           "title": "Sprints 1-5 + post-sprint polish: Full companion app shipped",
           "status": "done",
           "complexity": "high",
-          "description": "macOS SwiftUI companion for Galaxy XR testing. Sprint 1-2: ADB/logcat, Deepgram voice, screenshots. Sprint 3: metrics, video, export, settings. Sprint 4: Bedrock AI analysis (Converse API, SigV4). Sprint 5: keyboard shortcuts, session history, timed capture, mic indicator. Post-sprint (PRs #5-6, Mar 2026): async ADB deadlock fix, ServiceHealth indicators, Bedrock credential pre-flight, Claude Prompt handoff, custom app icon. PRs #7-9: pipe deadlock fix, black screenshot fix, Unity in-app VR capture.",
+          "description": "macOS SwiftUI companion for Galaxy XR testing. Sprint 1-2: ADB/logcat, Deepgram voice, screenshots. Sprint 3: metrics, video, export, settings. Sprint 4: Bedrock AI analysis (Converse API, SigV4). Sprint 5: keyboard shortcuts, session history, timed capture, mic indicator. Post-sprint (PRs #5-6): async ADB deadlock fix, ServiceHealth indicators, Bedrock credential pre-flight, Claude Prompt handoff, custom app icon. PRs #7-9: pipe deadlock fix, black screenshot fix, Unity in-app VR capture. PR #10 (Mar 31): analysis prompt improvements, screenshot service enhancements, session export upgrades. PR #11 (Apr 1): Bedrock prompt caching for reduced analysis latency.",
           "prerequisites": [],
           "keyFiles": [
             "Sources/"
           ],
-          "quickPrompt": "Sprints 1-5 + post-sprint polish complete (PRs #5-9). Includes pipe deadlock fix, black screenshot fix, Unity in-app VR capture. Next: session comparison.",
+          "quickPrompt": "Sprints 1-5 + post-sprint polish complete through PR #11 (Bedrock prompt caching, Apr 1). Full companion app for Galaxy XR testing. Next: session comparison.",
           "fullPrompt": "",
           "manualSteps": []
         },
@@ -2246,6 +2276,71 @@
           "quickPrompt": "Per-neurologist customizable report templates shipped as part of Phase 6C (PR #12, Mar 30). Per-neurologist preferences (physician name, default device, default study type) persisted to localStorage. 6 selectable impression modifiers. Correlation section optional per preference. 'Combine Impression & Correlation' option. All 17 report templates updated. Phase 6 complete.",
           "fullPrompt": "",
           "manualSteps": []
+        },
+        {
+          "id": "eeg-phase7-tab-consolidation",
+          "title": "Phase 7: EEG chair Phase II feedback \u2014 3-tab consolidation",
+          "status": "done",
+          "complexity": "medium",
+          "description": "Phase 7 shipped (PR #13, Apr 1, 2026). Consolidated 6 tabs to 3 (Study, Findings, Report) per EEG chair Phase II feedback. Section ordering, label refinements, template wording all addressed. 3-tab layout now default.",
+          "prerequisites": [
+            "eeg-phase3-longterm"
+          ],
+          "keyFiles": [],
+          "quickPrompt": "Phase 7 complete (PR #13, Apr 1). 3-tab consolidation per chair Phase II feedback.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "eeg-voice-dictation",
+          "title": "Real-time medical voice dictation via AWS Transcribe Medical",
+          "status": "done",
+          "complexity": "medium",
+          "description": "Voice dictation shipped (PR #14, Apr 1, 2026). Real-time medical voice dictation in sentence builder fields using AWS Transcribe Medical for HIPAA compliance and medical vocabulary accuracy.",
+          "prerequisites": [
+            "eeg-phase7-tab-consolidation"
+          ],
+          "keyFiles": [],
+          "quickPrompt": "Voice dictation via AWS Transcribe Medical shipped (PR #14, Apr 1).",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "eeg-billing-ux",
+          "title": "Billing UX \u2014 hard stop checklist, tab error dots, My Templates",
+          "status": "done",
+          "complexity": "medium",
+          "description": "Billing UX and fixes shipped (PRs #16-17, Apr 1, 2026). Hard stop errors render as actionable checklist with per-item status. Tab headers show error dot badges. My Templates drawer with per-neurologist saved templates. SW-1 false positive fixed. Duration range picker added.",
+          "prerequisites": [
+            "eeg-phase7-tab-consolidation"
+          ],
+          "keyFiles": [],
+          "quickPrompt": "Billing UX improvements (PRs #16-17, Apr 1). Hard stop checklist, tab error dots, My Templates, SW-1 fix.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "eeg-template-sharing",
+          "title": "Advanced report template sharing across neurologist team",
+          "status": "pending",
+          "complexity": "medium",
+          "description": "Share custom EEG report templates across the neurologist team. Currently templates are per-neurologist in localStorage. Requires cloud storage and team management UI.",
+          "prerequisites": [
+            "eeg-billing-ux"
+          ],
+          "keyFiles": [
+            "src/lib/preferences.ts",
+            "src/stores/eeg-store.ts"
+          ],
+          "quickPrompt": "In the sevaro-eeg-reporter repo, implement team-level report template sharing. Templates are currently per-neurologist in localStorage (src/lib/preferences.ts). Move to cloud storage (DynamoDB) with team read access.",
+          "fullPrompt": "## Task: Team Template Sharing\n\n**Repo:** sevaro-eeg-reporter\n\n## Current State\nTemplates stored in localStorage via src/lib/preferences.ts. Per-neurologist only.\n\n## Goal\nAllow neurologists to share custom report templates with the team.\n\n## Steps\n1. Add DynamoDB table for team templates\n2. Add API routes: GET/POST/DELETE /api/templates\n3. Update preferences.ts to sync to cloud on save\n4. Add team template browser in My Templates drawer\n5. Auth: only the owner can delete their templates\n\n## Acceptance criteria\n- Templates saved to cloud persist across devices\n- Team can browse and apply shared templates\n- Only owner can delete their own templates",
+          "manualSteps": [
+            "Create DynamoDB table for team templates",
+            "Add API routes for template CRUD",
+            "Update preferences.ts cloud sync",
+            "Add team browser UI in My Templates drawer",
+            "Test across multiple neurologist logins"
+          ]
         }
       ]
     },
