@@ -377,6 +377,35 @@ export default function HomePage() {
           </div>
         </div>
 
+        {/* Developer CLI */}
+        <div className="section">
+          <div className="section-title">Developer CLI</div>
+          <div className="grid">
+            <div className="card card-nolink">
+              <div className="card-title">Claude Code — Max Plan</div>
+              <div className="card-desc">
+                Primary. Flat-rate, best value for heavy use. Requires personal Claude Max subscription.
+                <CliCommand command="claude-max" />
+              </div>
+            </div>
+            <div className="card card-nolink">
+              <div className="card-title">Claude Code — AWS Bedrock</div>
+              <div className="card-desc">
+                Fallback when Max plan is rate-limited. Bills to AWS (sevaro-sandbox). Same Opus/Sonnet models via cross-region inference.
+                <CliCommand command="claude-aws" />
+              </div>
+            </div>
+            <div className="card card-nolink">
+              <div className="card-title">Setup (one-time)</div>
+              <div className="card-desc">
+                Add to <code style={{color:'#7aa2d4',fontSize:'0.82rem'}}>~/.zshrc</code>:
+                <CliCommand command={`alias claude-max='claude'\nalias claude-aws='CLAUDE_CODE_USE_BEDROCK=1 AWS_PROFILE=sevaro-sandbox AWS_REGION=us-east-2 ANTHROPIC_DEFAULT_SONNET_MODEL=us.anthropic.claude-sonnet-4-6 ANTHROPIC_DEFAULT_OPUS_MODEL=us.anthropic.claude-opus-4-6-v1 claude'`} />
+                <span style={{fontSize:'0.78rem',color:'#5a6580'}}>Bedrock requires: <code style={{color:'#7aa2d4',fontSize:'0.78rem'}}>aws sso login --profile sevaro-sandbox</code></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <footer>Sevaro Health &middot; All projects hosted on AWS</footer>
       </div>
 
@@ -523,6 +552,28 @@ export default function HomePage() {
         </>
       )}
     </>
+  );
+}
+
+function CliCommand({ command }: { command: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(command);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <div style={{
+      background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)',
+      borderRadius: '6px', padding: '8px 36px 8px 10px', marginTop: '10px',
+      position: 'relative', cursor: 'pointer'
+    }} onClick={handleCopy} title="Click to copy">
+      <code style={{ fontSize: '0.78rem', color: '#7aa2d4', whiteSpace: 'pre-wrap', wordBreak: 'break-all', display: 'block' }}>{command}</code>
+      <span style={{
+        position: 'absolute', top: '6px', right: '8px',
+        fontSize: '0.65rem', color: copied ? '#4ade80' : '#5a6580', fontWeight: 600
+      }}>{copied ? 'Copied!' : 'Copy'}</span>
+    </div>
   );
 }
 
