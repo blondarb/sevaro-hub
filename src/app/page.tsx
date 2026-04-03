@@ -379,28 +379,39 @@ export default function HomePage() {
 
         {/* Developer CLI */}
         <div className="section">
-          <div className="section-title">Developer CLI</div>
+          <div className="section-title">Developer CLI — Claude Code</div>
           <div className="grid">
             <div className="card card-nolink">
-              <div className="card-title">Claude Code — Max Plan</div>
-              <div className="card-desc">
-                Primary. Flat-rate, best value for heavy use. Requires personal Claude Max subscription.
-                <CliCommand command="claude-max" />
+              <div className="card-title">🟠 Claude AWS <span className="badge badge-live">Dock App</span></div>
+              <div className="card-desc" style={{lineHeight:'1.7'}}>
+                <strong style={{color:'#d0d8e8'}}>One-click fallback</strong> when your Max plan is rate-limited. Runs Claude on AWS Bedrock (sevaro-sandbox). Same Opus &amp; Sonnet models, billed to AWS.<br/><br/>
+                <strong style={{color:'#d0d8e8'}}>To launch:</strong> Click the <strong style={{color:'#FF9900'}}>Claude AWS</strong> icon in your Dock.<br/><br/>
+                <strong style={{color:'#d0d8e8'}}>Lost the Dock icon?</strong>
+                <ol style={{margin:'6px 0 0 0',paddingLeft:'18px',fontSize:'0.85rem',color:'#9ba3b8'}}>
+                  <li>Press <code style={{color:'#7aa2d4'}}>Cmd + Space</code>, type <code style={{color:'#7aa2d4'}}>Claude AWS</code>, press Enter</li>
+                  <li>Right-click the Dock icon → <strong>Options → Keep in Dock</strong></li>
+                </ol>
+                <br/>
+                <strong style={{color:'#d0d8e8'}}>App deleted?</strong> Reinstall from terminal:
+                <CliCommand command={`cd /tmp && osacompile -o "Claude AWS.app" -e 'on run\ntell application "Terminal"\nactivate\ndo script "aws sso login --profile sevaro-sandbox && CLAUDE_CODE_USE_BEDROCK=1 AWS_PROFILE=sevaro-sandbox AWS_REGION=us-east-2 ANTHROPIC_DEFAULT_SONNET_MODEL=us.anthropic.claude-sonnet-4-6 ANTHROPIC_DEFAULT_OPUS_MODEL=us.anthropic.claude-opus-4-6-v1 claude"\nend tell\nend run' && cp -r "Claude AWS.app" /Applications/`} />
               </div>
             </div>
             <div className="card card-nolink">
-              <div className="card-title">Claude Code — AWS Bedrock</div>
-              <div className="card-desc">
-                Fallback when Max plan is rate-limited. Bills to AWS (sevaro-sandbox). Same Opus/Sonnet models via cross-region inference.
-                <CliCommand command="claude-aws" />
+              <div className="card-title">⚪ Claude Max <span className="badge badge-live">Primary</span></div>
+              <div className="card-desc" style={{lineHeight:'1.7'}}>
+                <strong style={{color:'#d0d8e8'}}>Use this first.</strong> Flat-rate plan, best value, no per-token cost. Requires your personal Claude Max subscription.<br/><br/>
+                <strong style={{color:'#d0d8e8'}}>To launch:</strong> Open any terminal and type:
+                <CliCommand command="claude" />
+                <br/>
+                <strong style={{color:'#d0d8e8'}}>Rate limited?</strong> Switch to the Claude AWS Dock app above.
               </div>
             </div>
             <div className="card card-nolink">
-              <div className="card-title">Setup (one-time)</div>
-              <div className="card-desc">
-                Add to <code style={{color:'#7aa2d4',fontSize:'0.82rem'}}>~/.zshrc</code>:
+              <div className="card-title">⚙️ Terminal Aliases</div>
+              <div className="card-desc" style={{lineHeight:'1.7'}}>
+                Already added to <code style={{color:'#7aa2d4',fontSize:'0.82rem'}}>~/.zshrc</code>. If ever lost, re-add:
                 <CliCommand command={`alias claude-max='claude'\nalias claude-aws='CLAUDE_CODE_USE_BEDROCK=1 AWS_PROFILE=sevaro-sandbox AWS_REGION=us-east-2 ANTHROPIC_DEFAULT_SONNET_MODEL=us.anthropic.claude-sonnet-4-6 ANTHROPIC_DEFAULT_OPUS_MODEL=us.anthropic.claude-opus-4-6-v1 claude'`} />
-                <span style={{fontSize:'0.78rem',color:'#5a6580'}}>Bedrock requires: <code style={{color:'#7aa2d4',fontSize:'0.78rem'}}>aws sso login --profile sevaro-sandbox</code></span>
+                Then run: <CliCommand command="source ~/.zshrc" />
               </div>
             </div>
           </div>
