@@ -40,6 +40,7 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 **Status**: Active
 
 ### Recent
+- **Developer CLI section (Apr 3)** — Added Developer CLI section to hub with full recovery instructions for common infrastructure issues.
 - **Daily sync: roadmap milestones and Body of Work (Apr 1)** — admin-api and sevaro-aws-lambda BoW updated for Bedrock prompt caching PRs; roadmap pending milestone prompts refreshed for github-showcase and neuroscribe
 - **Roadmap milestone sync (Mar 31)** — patient-registry (evidence-engine) and eeg-report-templates (eeg-reporter) marked done. Body of Work trimmed to 5-7 items across OPSAmple, EEG Reporter, Evidence Engine.
 - **Feedback dashboard filter chips (Mar 29)** — Category (bug/suggestion/etc.) and review status (Open/In Progress/Resolved/Dismissed) chips are now interactive filters; stack with app tab; clear on tab switch; "Clear filters" empty state
