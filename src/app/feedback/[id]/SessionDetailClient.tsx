@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { FeedbackSession, FeedbackEvent, ActionItem, ReviewStatus, ChatMessage, ScreenshotAnnotation, ChatSummary } from '@/lib/feedback-api';
 import { formatDuration, formatTimestamp } from '@/lib/feedback-api';
-// Auth tokens are passed automatically via httpOnly cookies
+import { getIdToken } from '@/lib/auth';
 
 const SEVERITY_COLORS: Record<string, string> = {
   critical: '#ef4444',
@@ -72,12 +72,20 @@ export function SessionDetailClient({ session, events, actionItems, chatMessages
     setTimeout(() => setNotification(null), 4000);
   }, []);
 
+  const getAuthHeaders = async (): Promise<Record<string, string>> => {
+    const token = await getIdToken();
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    return headers;
+  };
+
   const handleStatusUpdate = async () => {
     setSaving(true);
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch(`/api/feedback/${session.sessionId}?appId=${session.appId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ reviewStatus, resolutionNote }),
       });
       if (!res.ok) throw new Error('Failed to update status');
@@ -86,7 +94,7 @@ export function SessionDetailClient({ session, events, actionItems, chatMessages
         try {
           await fetch(`/api/feedback/${session.sessionId}/notify`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers,
             body: JSON.stringify({
               to: session.userLabel,
               appName: session.appId,
@@ -111,8 +119,10 @@ export function SessionDetailClient({ session, events, actionItems, chatMessages
   const handleDelete = async () => {
     setDeleting(true);
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch(`/api/feedback/${session.sessionId}?appId=${session.appId}`, {
         method: 'DELETE',
+        headers,
       });
       if (!res.ok) throw new Error('Failed to delete');
       router.push('/feedback');
