@@ -147,6 +147,7 @@ export function generateClaudeCodePrompt(
 ): string {
   const appPaths: Record<string, string> = {
     'evidence-engine': '/Users/stevearbogast/dev/repos/sevaro-evidence-engine/',
+    'evidence-engine-extension': '/Users/stevearbogast/dev/repos/sevaro-evidence-engine/chrome-extension/',
     'opsample': '/Users/stevearbogast/dev/repos/OPSAmplehtml/',
     'workouts': '/Users/stevearbogast/dev/repos/Workouts/',
     'showcase': '/Users/stevearbogast/dev/repos/github-showcase/',
