@@ -276,32 +276,23 @@
         {
           "id": "competitive-eval-impl",
           "title": "Competitive evaluation framework \u2014 Python benchmarking pipeline (SEE vs competitors)",
-          "status": "in-progress",
+          "status": "done",
           "complexity": "medium",
-          "description": "Python-based evaluation pipeline to benchmark SEE quality vs competitors. Design spec in docs/specs/2026-04-03-competitive-eval-design.md. Implementation on feat/competitive-eval-impl branch: DynamoDB eval tables provisioned, benchmark bank (10 clinical questions), scorer module (build_scoring_prompt, parse_score_response, score_trio), aggregation pipeline, DynamoDB writer, HTML report generator.",
+          "description": "Competitive evaluation pipeline shipped (PRs #185-194, Apr 3-4). qa/eval_competitive.py runs end-to-end via run-eval.sh. Benchmark bank expanded to 30 questions across weak subspecialties (qa/eval-questions.json). Playwright scrapers for Open Evidence, Vera Health, UpToDate with cookie-based auth. Bedrock cross-region inference profile for scoring. /eval admin page at src/app/eval/page.tsx. DynamoDB eval tables provisioned.",
           "prerequisites": [
             "Evidence Engine repo cloned",
             "AWS credentials (sevaro-sandbox profile)",
             "Python 3.12+"
           ],
           "keyFiles": [
-            "eval/requirements.txt",
-            "eval/benchmark_bank.py",
-            "eval/scorer.py",
-            "eval/aggregator.py",
-            "docs/specs/2026-04-03-competitive-eval-design.md"
+            "qa/eval_competitive.py",
+            "qa/eval-questions.json",
+            "run-eval.sh",
+            "src/app/eval/page.tsx"
           ],
-          "quickPrompt": "In sevaro-evidence-engine on branch feat/competitive-eval-impl, complete the competitive eval pipeline. DynamoDB tables provisioned, benchmark bank (10 questions) and scorer module are done. Next: wire aggregator to run full benchmark suite, output results to DynamoDB, generate HTML report. Run: cd eval && python run_eval.py",
-          "fullPrompt": "## Task: Complete Competitive Eval Pipeline\n\n**Repo:** sevaro-evidence-engine\n**Branch:** feat/competitive-eval-impl\n**Design spec:** docs/specs/2026-04-03-competitive-eval-design.md\n\n## Current State\n- DynamoDB eval tables provisioned (infra commit a194e5e)\n- benchmark_bank.py: 10 initial clinical questions\n- scorer.py: build_scoring_prompt, parse_score_response, score_trio (calls Bedrock)\n- aggregator.py: aggregation + DynamoDB writer + HTML report generator\n- dev environment: eval/requirements.txt, eval/results/ directory\n\n## What Remains\n1. Wire run_eval.py main script to call scorer for each question\n2. Store results to DynamoDB eval tables\n3. Generate HTML comparison report\n4. Add at least 20 more benchmark questions (target: 30 total)\n5. Run first benchmark pass\n\n## Acceptance criteria\n- Can run `python eval/run_eval.py` end-to-end\n- Results written to DynamoDB\n- HTML report generated at eval/results/report.html\n- At least 30 benchmark questions covering major neurological subspecialties",
-          "manualSteps": [
-            "git checkout feat/competitive-eval-impl",
-            "cd eval && pip install -r requirements.txt",
-            "Review benchmark_bank.py \u2014 add 20+ more questions",
-            "Test scorer.py with a single question",
-            "Run full pipeline: python run_eval.py",
-            "Verify results in DynamoDB eval tables",
-            "Open eval/results/report.html"
-          ]
+          "quickPrompt": "Competitive eval pipeline is complete (PRs #185-194). 30-question benchmark in qa/eval-questions.json, runner in qa/eval_competitive.py. Run via: ./run-eval.sh --questions all",
+          "fullPrompt": "",
+          "manualSteps": []
         }
       ]
     },
@@ -1184,7 +1175,7 @@
           "title": "Amazon Transcribe Medical for HIPAA compliance",
           "status": "pending",
           "complexity": "high",
-          "description": "Replace or supplement Deepgram with Amazon Transcribe Medical for HIPAA-compliant transcription. The Lambda endpoint already exists (sevaro-transcribe-staging) but needs to be integrated into the extension.",
+          "description": "AWS Transcribe Medical is live in EEG Reporter (PRs #14-20, Apr 1). Chrome extension (neuroscribe) still uses Deepgram Nova-3 Medical (no BAA) for dev/trial. Migrate chrome extension dictation to Lambda-based Transcribe Medical for HIPAA compliance.",
           "prerequisites": [
             "Deepgram streaming wired up (to compare quality)",
             "sevaro-transcribe-staging Lambda deployed"
@@ -1193,7 +1184,7 @@
             "src/services/TranscriptionService.ts",
             "lambda/sevaro-transcribe-staging/"
           ],
-          "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), integrate Amazon Transcribe Medical for HIPAA-compliant transcription. The Lambda endpoint exists at sevaro-transcribe-staging.",
+          "quickPrompt": "In the sevaro-evidence-engine chrome extension, migrate voice dictation from Deepgram Nova-3 Medical to AWS Transcribe Medical via Lambda. The EEG Reporter implemented this pattern in PRs #14-18 (feature-voice-dictation, feature-transcribe-fix, feature-transcribe-debug, feature-audio-worklet). Reference those PRs as the implementation model.",
           "fullPrompt": "## Task: Amazon Transcribe Medical Integration\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Context\nDeepgram is not HIPAA-covered without an Enterprise BAA. AWS Transcribe Medical is covered under the existing AWS BAA.\n\n## Build\n1. Create TranscriptionService that uses sevaro-transcribe-staging Lambda\n2. Support both streaming (WebSocket) and batch modes\n3. Compare quality with Deepgram Nova-3 Medical\n4. Make transcription provider configurable\n\n## Acceptance criteria\n- HIPAA-compliant transcription available\n- Quality comparable to Deepgram\n- Provider switchable via config\n- No PHI sent to non-HIPAA services",
           "manualSteps": [
             "Review sevaro-transcribe-staging Lambda",
@@ -1779,7 +1770,7 @@
             "Admin API deployed"
           ],
           "keyFiles": [],
-          "quickPrompt": "In the admin-api repo, build a web UI for Cognito user management operations.",
+          "quickPrompt": "In the admin-api repo, build a user management UI for Cognito operations. The admin-api MCP server already wraps Cognito list/enable/disable/delete operations (see admin-api/src/). Add a React/Next.js admin page at hub.neuroplans.app/admin/users that calls the admin-api endpoints. Auth: reuse the existing Cognito JWT auth pattern from sevaro-hub/src/middleware.ts.",
           "fullPrompt": "",
           "manualSteps": []
         }
@@ -2362,14 +2353,15 @@
             "src/lib/preferences.ts",
             "src/stores/eeg-store.ts"
           ],
-          "quickPrompt": "In the sevaro-eeg-reporter repo, implement team-level report template sharing. Templates are currently per-neurologist in localStorage (src/lib/preferences.ts). Move to cloud storage (DynamoDB) with team read access.",
-          "fullPrompt": "## Task: Team Template Sharing\n\n**Repo:** sevaro-eeg-reporter\n\n## Current State\nTemplates stored in localStorage via src/lib/preferences.ts. Per-neurologist only.\n\n## Goal\nAllow neurologists to share custom report templates with the team.\n\n## Steps\n1. Add DynamoDB table for team templates\n2. Add API routes: GET/POST/DELETE /api/templates\n3. Update preferences.ts to sync to cloud on save\n4. Add team template browser in My Templates drawer\n5. Auth: only the owner can delete their templates\n\n## Acceptance criteria\n- Templates saved to cloud persist across devices\n- Team can browse and apply shared templates\n- Only owner can delete their own templates",
+          "quickPrompt": "In the sevaro-eeg-reporter repo, implement template sharing across the neurologist team. Currently templates are stored per-neurologist in localStorage (src/lib/preferences.ts). Design: migrate templates to DynamoDB with a team-scoped key, add import/export UI in the My Templates drawer (added in PR #16). Auth: use the existing Cognito pool (us-east-2_Owfb1zpgM).",
+          "fullPrompt": "## Task: Team Template Sharing for EEG Reporter\n\n**Repo:** sevaro-eeg-reporter\n\n## Current State\n- Per-neurologist templates stored in localStorage via src/lib/preferences.ts\n- My Templates drawer added in PR #16 (feature-billing-ux)\n- Auth: Cognito pool us-east-2_Owfb1zpgM, client 5fjif7efkple2e6djorj1hfrcs\n\n## Implementation\n1. Create DynamoDB table sevaro-eeg-templates (PK: hospitalId, SK: templateId)\n2. Add API routes: GET/POST /api/templates (Cognito JWT auth)\n3. Update My Templates drawer to show team templates alongside personal ones\n4. Add share/import buttons to template items\n\n## Acceptance criteria\n- Neurologist can share a template team-wide\n- Team templates appear in My Templates drawer for all users\n- Personal templates remain local; shared ones sync from DynamoDB",
           "manualSteps": [
-            "Create DynamoDB table for team templates",
-            "Add API routes for template CRUD",
-            "Update preferences.ts cloud sync",
-            "Add team browser UI in My Templates drawer",
-            "Test across multiple neurologist logins"
+            "Create DynamoDB table sevaro-eeg-templates in us-east-2",
+            "Add IAM permissions to Amplify SSR role",
+            "Create src/app/api/templates/route.ts with Cognito auth",
+            "Update src/components/ReportTemplateDrawer.tsx to fetch team templates",
+            "Add share/unshare button to template items",
+            "Test with two neurologist accounts"
           ]
         }
       ]

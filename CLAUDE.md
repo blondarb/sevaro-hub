@@ -40,14 +40,13 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 **Status**: Active
 
 ### Recent
+- **Roadmap sync: competitive-eval-impl marked done (Apr 4)** — Evidence Engine competitive eval pipeline fully shipped (PRs #185-194); milestone updated to done with current keyFiles.
 - **Developer CLI section (Apr 3)** — Added Developer CLI section to hub with full recovery instructions for common infrastructure issues.
 - **Daily sync: roadmap milestones and Body of Work (Apr 1)** — admin-api and sevaro-aws-lambda BoW updated for Bedrock prompt caching PRs; roadmap pending milestone prompts refreshed for github-showcase and neuroscribe
 - **Roadmap milestone sync (Mar 31)** — patient-registry (evidence-engine) and eeg-report-templates (eeg-reporter) marked done. Body of Work trimmed to 5-7 items across OPSAmple, EEG Reporter, Evidence Engine.
 - **Feedback dashboard filter chips (Mar 29)** — Category (bug/suggestion/etc.) and review status (Open/In Progress/Resolved/Dismissed) chips are now interactive filters; stack with app tab; clear on tab switch; "Clear filters" empty state
 - **Added live cards for Cardio, NeuroCrit, PM&R, EEG Reporter; dev cards for Pulm/Spine (Mar 29)** — Hub now shows 9 live clinical apps, 2 dev-in-progress apps with milestone links
-- **Cognito pool ID and Bedrock model ID fixes across Lambda functions (PR #12, Mar 28)** — Corrected Cognito pool IDs in Lambdas and Bedrock model ID
 - **Feedback dashboard redesign (PR #11, Mar 27)** — Per-app tab navigation with unreviewed badges, inline category stats, scoped AI analysis (per-app + cross-app Bedrock prompts), shared app registry, sessions proxy route
-- **Admin auth + token refresh fix (PR #10, Mar 27)** — Added missing auth token to What's New API calls, Cognito token refresh on 401, env var for Cognito domain
 
 ### In Progress
 - None
