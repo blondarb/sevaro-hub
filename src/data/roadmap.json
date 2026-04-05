@@ -1676,9 +1676,9 @@
             "Feedback widget v1 complete"
           ],
           "keyFiles": [
-            "src/hooks/useChatApi.ts"
+            "src/useChatApi.ts"
           ],
-          "quickPrompt": "In the sevaro-feedback repo, wire up voice-in-chat transcription. Audio is recorded but not yet transcribed. Use AWS Transcribe Medical for HIPAA compliance \u2014 reference the EEG Reporter pattern in PRs #14-20 (feature-voice-dictation, feature-transcribe-fix, feature-transcribe-debug, feature-audio-worklet in sevaro-eeg-reporter). The buffer-on-stop pattern (PR #18) is the recommended approach for Lambda compatibility.",
+          "quickPrompt": "In the sevaro-feedback repo, wire up voice-in-chat transcription. Audio is recorded (src/useChatApi.ts) but not yet transcribed. Use AWS Transcribe Medical for HIPAA compliance \u2014 reference the EEG Reporter pattern in PRs #14-20 (feature-voice-dictation, feature-transcribe-fix, feature-transcribe-debug, feature-audio-worklet in sevaro-eeg-reporter). The buffer-on-stop pattern (PR #18) is the recommended approach for Lambda compatibility.",
           "fullPrompt": "",
           "manualSteps": []
         },

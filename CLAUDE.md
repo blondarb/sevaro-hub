@@ -40,13 +40,13 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 **Status**: Active
 
 ### Recent
+- **Weekly sync: roadmap keyFile fix (Apr 5)** — Corrected sevaro-feedback voice-transcription keyFile path (`src/hooks/useChatApi.ts` → `src/useChatApi.ts`).
 - **Feedback appId + 401 auth fixes (PRs #14-15, Apr 5)** — Fixed evidence-engine-extension appId mapping to correct repo path; resolved 401 errors on feedback status update and delete endpoints.
 - **Daily sync: Body of Work updates across all repos (Apr 4)** — Feedback widget security hardening reflected in 7 CLAUDE.md files (OPSAmple, all plan-sites); spine/pulm/neurocrit/pmr plans-populated status updated; evidence engine Recent trimmed to 6 items; roadmap prompts refreshed.
 - **Roadmap sync: competitive-eval-impl marked done (Apr 4)** — Evidence Engine competitive eval pipeline fully shipped (PRs #185-194); milestone updated to done with current keyFiles.
 - **Developer CLI section (Apr 3)** — Added Developer CLI section to hub with full recovery instructions for common infrastructure issues.
 - **Daily sync: roadmap milestones and Body of Work (Apr 1)** — admin-api and sevaro-aws-lambda BoW updated for Bedrock prompt caching PRs; roadmap pending milestone prompts refreshed for github-showcase and neuroscribe
 - **Roadmap milestone sync (Mar 31)** — patient-registry (evidence-engine) and eeg-report-templates (eeg-reporter) marked done. Body of Work trimmed to 5-7 items across OPSAmple, EEG Reporter, Evidence Engine.
-- **Feedback dashboard filter chips (Mar 29)** — Category (bug/suggestion/etc.) and review status (Open/In Progress/Resolved/Dismissed) chips are now interactive filters; stack with app tab; clear on tab switch; "Clear filters" empty state
 
 ### In Progress
 - None
