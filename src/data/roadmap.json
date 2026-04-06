@@ -1105,7 +1105,7 @@
           "title": "Note generation quality polish",
           "status": "in-progress",
           "complexity": "medium",
-          "description": "Note generation runs via async Lambda (202+poll). As of Apr 1: 6 clinical workflows live (APP attestation, addendum, off-service handoff), style profiles wired, two-phase synthesis (Key Points ~8s, full ~18s), multi-visit continuity, Bedrock enhancements (prompt caching, automated reasoning guardrail, 5 Prompt Management versions). Beta rollout tour/help/extension shipped (PR #164). Remaining: note quality edge cases and EHR paste formatting.",
+          "description": "Note generation runs via async Lambda (202+poll). As of Apr 6: Unified Encounter Workspace shipped (PRs #226-231, Apr 5) — Prep/Record/Note tabs with anti-hallucination guardrails, chart prep cards persist through note generation, all 46 Playwright E2E tests passing. On Call Guide tab in Chrome extension (PRs #241-244, Apr 5) with hospital dropdown, AI-synthesized answers via Operations KB RetrieveAndGenerate. Extension UX hardened (PR #245, Apr 6): tools drawer state fixed, mic permission streamlined, Record More wired, transcript merge on multi-segment recordings. Stat level 1/2 definitions + code stroke criteria added to On Call KB (PR #247, Apr 6). Operations KB live (ZHG5JIHX1U, 550 docs, 45 hospitals). Remaining: template adherence across encounter types, EHR paste formatting consistency.",
           "prerequisites": [
             "sevaro-evidence-engine repo (chrome-extension/ directory) cloned",
             "Lambda access"
@@ -1114,7 +1114,7 @@
             "lambda/generate-note/",
             "src/services/NoteGenerationService.ts"
           ],
-          "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), continue polishing note generation quality. Current state (Apr 5): 6 clinical workflows live. Chart prep preview redesigned (PR #230, #233) with state persistence across layout remount. Selectable evidence review recommendations with add-to-note (PR #229). View & Finalize Note button in chart prep preview (PR #228). Article screener KB indexing + bulk upload fixed (PR #232). KB gaps admin page live (Apr 4). Remaining: template adherence across encounter types, edge cases (short encounters, partial transcripts), EHR paste formatting consistency.",
+          "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), continue polishing note generation quality. Current state (Apr 6): Unified Encounter Workspace shipped (PRs #226-231, Apr 5) — Prep/Record/Note tabs, anti-hallucination guardrails active, chart prep state persists across layout remounts, all 46 Playwright E2E tests passing. On Call Guide in extension (PRs #241-244, Apr 5): hospital dropdown, AI answers via Operations KB RetrieveAndGenerate, stat level 1/2 definitions + code stroke criteria added (PR #247). Extension UX: tools drawer fixed, mic permission streamlined, Record More wired, multi-segment transcript merge (PR #245, Apr 6). Operations KB (ZHG5JIHX1U): 550 docs, 45 hospitals. Remaining: template adherence across all 6 encounter types, EHR paste formatting consistency.",
           "fullPrompt": "## Task: Note Generation Quality Polish\n\n**Repo:** sevaro-evidence-engine (chrome-extension/ directory)\n\n## Context (as of Apr 1, 2026)\nAsynchronous Lambda delegation pattern handles all heavy workloads. All 6 clinical workflows are live: SOAP visit note, addendum, APP attestation (PR #151), off-service handoff, chart prep, and batch chart prep. Two-phase synthesis ships Key Points (~8s) then full answer (~18s). Style profiles wired into note generation. Multi-visit continuity sidebar with prior handoff injection. Bedrock enhancements: prompt caching across Lambda invocations, automated reasoning guardrail v5 (36 clinical verification rules), 5 versioned prompts in Bedrock Prompt Management. Beta rollout shipped (tour, help docs, Chrome extension \u2014 PR #164, Apr 1).\n\n## Polish areas\n1. Template adherence \u2014 ensure notes match configured exam profile note templates across all 6 encounter types\n2. Edge cases \u2014 handle partial transcriptions, multiple speakers, interrupted recordings, very short encounters\n3. Multi-encounter consistency \u2014 stable note quality across short/long/follow-up encounters\n4. EHR paste formatting \u2014 clean bullet points, consistent terminology, no raw JSON artifacts\n\n## Acceptance criteria\n- Notes follow consistent structure across all encounter types\n- No fabricated clinical details (guardrail enforced)\n- Clean formatting suitable for EHR paste\n- Edge cases handled gracefully",
           "manualSteps": [
             "Review sample generated notes for quality issues",
@@ -1126,9 +1126,9 @@
         {
           "id": "chart-prep-transition",
           "title": "Chart prep to visit transition workflow",
-          "status": "pending",
+          "status": "done",
           "complexity": "medium",
-          "description": "Chart prep preview UX redesigned (PR #230, Apr 4): View & Finalize Note button added (PR #228), state persistence fixed across layout remount (PR #233, Apr 5). Remaining: smooth Start Visit transition carrying chart prep notes forward into encounter recording mode.",
+          "description": "Shipped as part of the Unified Encounter Workspace (PRs #226-231, Apr 5). The workspace provides Prep/Record/Note tabs — clinicians complete chart prep in the Prep tab, then move to Record tab which carries chart prep context forward into encounter recording mode. View & Finalize Note button (PR #228), state persistence across layout remounts (PR #233), chart prep cards preserved through note generation. All 46 Playwright E2E tests passing.",
           "prerequisites": [
             "Note generation pipeline polished"
           ],
@@ -1136,7 +1136,7 @@
             "src/components/ChartPrepView.tsx",
             "src/components/EncounterView.tsx"
           ],
-          "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), build the chart prep to visit transition workflow. Carry forward chart prep notes into the encounter and switch to recording mode.",
+          "quickPrompt": "Chart prep to visit transition shipped as part of the Unified Encounter Workspace (PRs #226-231, Apr 5). Prep/Record/Note tabbed layout carries chart prep context into recording mode. Done.",
           "fullPrompt": "## Task: Chart Prep to Visit Transition\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Workflow\n1. Clinician completes chart prep (reviews prior notes, labs, imaging)\n2. Patient arrives \u2014 clinician clicks 'Start Visit'\n3. Extension carries forward chart prep context\n4. Switches to encounter recording mode\n5. Chart prep data available as reference during encounter\n\n## Build\n1. 'Start Visit' button in chart prep view\n2. Context transfer from chart prep to encounter\n3. Split-view or reference panel during encounter\n4. Ensure recording captures only the encounter, not chart prep\n\n## Acceptance criteria\n- Smooth transition from chart prep to visit\n- Chart prep notes accessible during encounter\n- Recording starts fresh for the encounter",
           "manualSteps": [
             "Add Start Visit button to ChartPrepView",
@@ -1184,7 +1184,7 @@
             "src/services/TranscriptionService.ts",
             "lambda/sevaro-transcribe-staging/"
           ],
-          "quickPrompt": "In the sevaro-evidence-engine chrome extension, migrate voice dictation from Deepgram Nova-3 Medical to AWS Transcribe Medical via Lambda. The EEG Reporter implemented this pattern in PRs #14-18 (feature-voice-dictation, feature-transcribe-fix, feature-transcribe-debug, feature-audio-worklet). Reference those PRs as the implementation model.",
+          "quickPrompt": "In the sevaro-evidence-engine chrome extension, migrate voice dictation from Deepgram Nova-3 Medical to AWS Transcribe Medical via Lambda. The EEG Reporter fully implemented this pattern in PRs #14-20 (feature-voice-dictation PR #14, buffer-on-stop Lambda compatibility PR #18, Transcribe error logging + chunked audio PR #19, AudioWorklet migration replacing ScriptProcessorNode PR #20, Apr 1). Use the buffer-on-stop pattern (PR #18) for Lambda compatibility and AudioWorklet (PR #20) for audio processing reliability. Reference those PRs in sevaro-eeg-reporter as the implementation model.",
           "fullPrompt": "## Task: Amazon Transcribe Medical Integration\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Context\nDeepgram is not HIPAA-covered without an Enterprise BAA. AWS Transcribe Medical is covered under the existing AWS BAA.\n\n## Build\n1. Create TranscriptionService that uses sevaro-transcribe-staging Lambda\n2. Support both streaming (WebSocket) and batch modes\n3. Compare quality with Deepgram Nova-3 Medical\n4. Make transcription provider configurable\n\n## Acceptance criteria\n- HIPAA-compliant transcription available\n- Quality comparable to Deepgram\n- Provider switchable via config\n- No PHI sent to non-HIPAA services",
           "manualSteps": [
             "Review sevaro-transcribe-staging Lambda",
