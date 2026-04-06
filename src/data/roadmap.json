@@ -2400,6 +2400,71 @@
       ]
     },
     {
+      "id": "sevaro-em-coding",
+      "name": "Sevaro E/M Coding Engine",
+      "milestones": [
+        {
+          "id": "em-coding-v1",
+          "title": "E/M Coding Engine v1 — LLM extraction + deterministic rules + 65-test regression suite",
+          "status": "done",
+          "complexity": "high",
+          "description": "Built E/M Coding Engine v1 (Apr 5, 2026). Bedrock Claude extracts structured fields; deterministic TypeScript rule engine applies the Sevaro Inpatient Neurology EM Coding Playbook v1.10.1 billing decision trees. Supports Medicare + Commercial payer paths, critical care, telehealth G-codes, 99418/G0316 time stacking, complete audit trail. 65-test regression suite covers all 64 test case library scenarios. PR #1: 5 Codex review fixes — deployment blockers + billing logic corrections.",
+          "prerequisites": [],
+          "keyFiles": [
+            "src/rules/",
+            "src/extraction/",
+            "test/"
+          ],
+          "quickPrompt": "E/M Coding Engine v1 shipped (Apr 5). 65-test suite in test/. CDK infra in infra/. Next: deploy Lambda via CDK (ask Steve first) and wire sevaro-em-coding-ui to the API Gateway endpoint.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "em-coding-ui-scaffold",
+          "title": "E/M Coding UI scaffold — Next.js 15 + Cognito OAuth + Sevaro Design System",
+          "status": "done",
+          "complexity": "medium",
+          "description": "Scaffolded E/M Coding UI (Apr 5, 2026): Next.js 15 App Router, Cognito OAuth PKCE via shared SSO pool (us-east-2_9y6XyJnXC), Sevaro Design System tokens and typography wired. API Gateway: https://aordqzigs4.execute-api.us-east-2.amazonaws.com/dev/. Target domain: coding.neuroplans.app.",
+          "prerequisites": [
+            "em-coding-v1"
+          ],
+          "keyFiles": [
+            "src/app/",
+            "src/components/"
+          ],
+          "quickPrompt": "E/M Coding UI scaffolded (Apr 5) at coding.neuroplans.app. Next: build encounter note input form, wire to coding engine API, and deploy to Amplify.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "em-coding-deploy",
+          "title": "Deploy E/M Coding Engine Lambda + connect UI + Amplify deploy",
+          "status": "pending",
+          "complexity": "medium",
+          "description": "Deploy CDK infrastructure for the E/M Coding Engine Lambda (infra/ directory in sevaro-em-coding-engine), wire the sevaro-em-coding-ui to the live API, and deploy to coding.neuroplans.app via Amplify.",
+          "prerequisites": [
+            "em-coding-v1",
+            "em-coding-ui-scaffold"
+          ],
+          "keyFiles": [
+            "infra/",
+            "src/app/api/"
+          ],
+          "quickPrompt": "In the sevaro-em-coding-engine repo, deploy the Lambda via CDK: cd infra && npx cdk synth --profile sevaro-sandbox (then ask Steve before deploying). In sevaro-em-coding-ui, build the encounter note input form that calls the API Gateway endpoint (https://aordqzigs4.execute-api.us-east-2.amazonaws.com/dev/) and renders CPT codes + audit trail. Push to main for Amplify auto-deploy at coding.neuroplans.app.",
+          "fullPrompt": "## Task: Deploy E/M Coding Engine + Wire UI\n\n**Repos:** sevaro-em-coding-engine (Lambda), sevaro-em-coding-ui (frontend)\n\n## Step 1: Deploy Lambda via CDK\n1. cd infra/\n2. npx cdk synth --profile sevaro-sandbox\n3. Review plan with Steve, then: npx cdk deploy --profile sevaro-sandbox\n4. Confirm Lambda ARN and API Gateway URL\n\n## Step 2: Wire UI to API\n1. Build encounter note textarea + payer type selector (Medicare/Commercial)\n2. POST to /code endpoint with encounter note text\n3. Render coding result: CPT/HCPCS codes with code_type, description, audit trail\n4. Handle error states (hard stops, missing fields)\n\n## Step 3: Deploy to Amplify\n1. Connect blondarb/sevaro-em-coding-ui to Amplify\n2. Set env vars: CODING_API_URL, NEXT_PUBLIC_COGNITO_* (pool us-east-2_9y6XyJnXC)\n3. Push to main — auto-deploys to coding.neuroplans.app\n4. Add callback URL to Cognito app client\n\n## Acceptance criteria\n- coding.neuroplans.app loads with Cognito OAuth login\n- Enter encounter note → receive CPT/HCPCS codes with audit trail\n- Medicare and Commercial payer paths both work\n- Hard stop errors surfaced clearly in UI",
+          "manualSteps": [
+            "cd infra/ && npx cdk synth --profile sevaro-sandbox",
+            "Review CDK plan, then deploy with Steve's approval",
+            "Build encounter note input form in sevaro-em-coding-ui",
+            "Wire to API Gateway endpoint",
+            "Connect Amplify to GitHub repo",
+            "Set env vars in Amplify console",
+            "Verify on coding.neuroplans.app"
+          ]
+        }
+      ]
+    },
+    {
       "id": "synapse-teleencounter",
       "name": "Synapse Teleencounter",
       "milestones": [

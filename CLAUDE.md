@@ -40,13 +40,13 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 **Status**: Active
 
 ### Recent
+- **Daily sync: E/M Coding Engine added to roadmap (Apr 6)** — Added sevaro-em-coding project with 3 milestones (v1 done, UI scaffold done, deploy pending). Evidence Engine BoW updated with PRs #245-247. Body of Work added to sevaro-em-coding-engine and sevaro-em-coding-ui CLAUDE.md files.
 - **Weekly sync: roadmap keyFile fix (Apr 5)** — Corrected sevaro-feedback voice-transcription keyFile path (`src/hooks/useChatApi.ts` → `src/useChatApi.ts`).
 - **Feedback appId + 401 auth fixes (PRs #14-15, Apr 5)** — Fixed evidence-engine-extension appId mapping to correct repo path; resolved 401 errors on feedback status update and delete endpoints.
-- **Daily sync: Body of Work updates across all repos (Apr 4)** — Feedback widget security hardening reflected in 7 CLAUDE.md files (OPSAmple, all plan-sites); spine/pulm/neurocrit/pmr plans-populated status updated; evidence engine Recent trimmed to 6 items; roadmap prompts refreshed.
-- **Roadmap sync: competitive-eval-impl marked done (Apr 4)** — Evidence Engine competitive eval pipeline fully shipped (PRs #185-194); milestone updated to done with current keyFiles.
+- **Daily sync: Body of Work updates across all repos (Apr 4)** — Feedback widget security hardening reflected in 7 CLAUDE.md files; spine/pulm/neurocrit/pmr plans-populated status updated; roadmap prompts refreshed.
+- **Roadmap sync: competitive-eval-impl marked done (Apr 4)** — Evidence Engine competitive eval pipeline fully shipped (PRs #185-194).
 - **Developer CLI section (Apr 3)** — Added Developer CLI section to hub with full recovery instructions for common infrastructure issues.
-- **Daily sync: roadmap milestones and Body of Work (Apr 1)** — admin-api and sevaro-aws-lambda BoW updated for Bedrock prompt caching PRs; roadmap pending milestone prompts refreshed for github-showcase and neuroscribe
-- **Roadmap milestone sync (Mar 31)** — patient-registry (evidence-engine) and eeg-report-templates (eeg-reporter) marked done. Body of Work trimmed to 5-7 items across OPSAmple, EEG Reporter, Evidence Engine.
+- **Roadmap milestone sync (Mar 31)** — patient-registry (evidence-engine) and eeg-report-templates (eeg-reporter) marked done.
 
 ### In Progress
 - None
