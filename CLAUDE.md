@@ -40,13 +40,13 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 **Status**: Active
 
 ### Recent
+- **Daily sync: roadmap prompts refreshed for pending milestones (Apr 7)** — Updated note-generation-polish quickPrompt/description to include On-Call Facility Guides (PR #250, Apr 6) and multi-record fixes (PR #248). Refreshed live-voice-streaming quickPrompt with Evidence Engine progressive streaming pattern (Apr 5) as reference. Trimmed sevaro-evidence-engine Recent to 6 items.
 - **Daily sync: roadmap milestones and prompts (Apr 6)** — Marked chart-prep-transition done (Unified Encounter Workspace PR #226-231 ships the full Prep→Record→Note flow). Updated note-generation-polish quickPrompt with On Call Guide extension tab, extension UX hardening (PR #245), stat level KB additions (PR #247). Updated transcribe-medical-hipaa quickPrompt with AudioWorklet reference (EEG Reporter PR #20).
 - **Daily sync: E/M Coding Engine added to roadmap (Apr 6)** — Added sevaro-em-coding project with 3 milestones (v1 done, UI scaffold done, deploy pending). Evidence Engine BoW updated with PRs #245-247.
 - **Weekly sync: roadmap keyFile fix (Apr 5)** — Corrected sevaro-feedback voice-transcription keyFile path (`src/hooks/useChatApi.ts` → `src/useChatApi.ts`).
 - **Feedback appId + 401 auth fixes (PRs #14-15, Apr 5)** — Fixed evidence-engine-extension appId mapping to correct repo path; resolved 401 errors on feedback status update and delete endpoints.
 - **Daily sync: Body of Work updates across all repos (Apr 4)** — Feedback widget security hardening reflected in 7 CLAUDE.md files; spine/pulm/neurocrit/pmr plans-populated status updated; roadmap prompts refreshed.
 - **Roadmap sync: competitive-eval-impl marked done (Apr 4)** — Evidence Engine competitive eval pipeline fully shipped (PRs #185-194).
-- **Developer CLI section (Apr 3)** — Added Developer CLI section to hub with full recovery instructions for common infrastructure issues.
 
 ### In Progress
 - None
