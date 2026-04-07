@@ -128,7 +128,7 @@
             "lambda/kb-sync/",
             "src/lib/evidence-tools.ts"
           ],
-          "quickPrompt": "In the Evidence Engine repo, automate KB updates with a kb-sync Lambda that triggers Bedrock KB re-ingestion when new docs land in S3. Context (Apr 4): User article ingestion pipeline now exists (PR #183) — web upload + email path + screener extract title/subspecialty/date. 19 EventBridge-scheduled fetcher Lambdas run daily. The missing piece is automated KB re-ingestion after S3 uploads. Build kb-sync Lambda triggered by S3 events to call Bedrock StartIngestionJob.",
+          "quickPrompt": "In the Evidence Engine repo, automate KB updates with a kb-sync Lambda that triggers Bedrock KB re-ingestion when new docs land in S3. Context (Apr 4): User article ingestion pipeline now exists (PR #183) \u2014 web upload + email path + screener extract title/subspecialty/date. 19 EventBridge-scheduled fetcher Lambdas run daily. The missing piece is automated KB re-ingestion after S3 uploads. Build kb-sync Lambda triggered by S3 events to call Bedrock StartIngestionJob.",
           "fullPrompt": "## Task: Automated KB Update Pipeline\n\n**Repo:** sevaro-evidence-engine\n**New files:** lambda/document-processor/, lambda/kb-sync/\n\n## Context\nThe Bedrock KB (T4W8S8RNMN) has ~26,524 docs in S3 sources/external/active/. Currently updated manually via fetcher Lambdas.\n\n## Build\n1. document-processor Lambda: Scheduled daily, fetches new content from PubMed, FDA, ClinicalTrials APIs, formats as text files, uploads to S3\n2. kb-sync Lambda: Triggered by S3 events, calls Bedrock StartIngestionJob to re-index\n3. SAM template for deployment\n4. EventBridge rule for daily schedule\n\n## Acceptance criteria\n- New docs appear in S3 after Lambda runs\n- KB re-ingests automatically\n- No duplicate documents\n- CloudWatch logs for monitoring",
           "manualSteps": [
             "Create lambda/document-processor/ directory with index.js",
@@ -2405,10 +2405,10 @@
       "milestones": [
         {
           "id": "em-coding-v1",
-          "title": "E/M Coding Engine v1 — LLM extraction + deterministic rules + 65-test regression suite",
+          "title": "E/M Coding Engine v1 \u2014 LLM extraction + deterministic rules + 65-test regression suite",
           "status": "done",
           "complexity": "high",
-          "description": "Built E/M Coding Engine v1 (Apr 5, 2026). Bedrock Claude extracts structured fields; deterministic TypeScript rule engine applies the Sevaro Inpatient Neurology EM Coding Playbook v1.10.1 billing decision trees. Supports Medicare + Commercial payer paths, critical care, telehealth G-codes, 99418/G0316 time stacking, complete audit trail. 65-test regression suite covers all 64 test case library scenarios. PR #1: 5 Codex review fixes — deployment blockers + billing logic corrections.",
+          "description": "Built E/M Coding Engine v1 (Apr 5, 2026). Bedrock Claude extracts structured fields; deterministic TypeScript rule engine applies the Sevaro Inpatient Neurology EM Coding Playbook v1.10.1 billing decision trees. Supports Medicare + Commercial payer paths, critical care, telehealth G-codes, 99418/G0316 time stacking, complete audit trail. 65-test regression suite covers all 64 test case library scenarios. PR #1: 5 Codex review fixes \u2014 deployment blockers + billing logic corrections.",
           "prerequisites": [],
           "keyFiles": [
             "src/rules/",
@@ -2421,7 +2421,7 @@
         },
         {
           "id": "em-coding-ui-scaffold",
-          "title": "E/M Coding UI scaffold — Next.js 15 + Cognito OAuth + Sevaro Design System",
+          "title": "E/M Coding UI scaffold \u2014 Next.js 15 + Cognito OAuth + Sevaro Design System",
           "status": "done",
           "complexity": "medium",
           "description": "Scaffolded E/M Coding UI (Apr 5, 2026): Next.js 15 App Router, Cognito OAuth PKCE via shared SSO pool (us-east-2_9y6XyJnXC), Sevaro Design System tokens and typography wired. API Gateway: https://aordqzigs4.execute-api.us-east-2.amazonaws.com/dev/. Target domain: coding.neuroplans.app.",
@@ -2439,9 +2439,9 @@
         {
           "id": "em-coding-deploy",
           "title": "Deploy E/M Coding Engine Lambda + connect UI + Amplify deploy",
-          "status": "pending",
+          "status": "done",
           "complexity": "medium",
-          "description": "Deploy CDK infrastructure for the E/M Coding Engine Lambda (infra/ directory in sevaro-em-coding-engine), wire the sevaro-em-coding-ui to the live API, and deploy to coding.neuroplans.app via Amplify.",
+          "description": "E/M Coding Engine deployed and live at coding.neuroplans.app (Apr 7, 2026). Lambda via CDK at aordqzigs4.execute-api.us-east-2.amazonaws.com/dev/. Full pipeline: Cognito login \u2192 batch/single note submission \u2192 Bedrock extraction \u2192 rule engine \u2192 adjudication \u2192 CSV export. Vendor comparison dashboard with CSV upload, Compare tab, accept/override workflow all shipped (PRs #6-8 in sevaro-em-coding-ui, PRs #9-18 in sevaro-em-coding-engine).",
           "prerequisites": [
             "em-coding-v1",
             "em-coding-ui-scaffold"
@@ -2451,7 +2451,7 @@
             "src/app/api/"
           ],
           "quickPrompt": "In the sevaro-em-coding-engine repo, deploy the Lambda via CDK: cd infra && npx cdk synth --profile sevaro-sandbox (then ask Steve before deploying). In sevaro-em-coding-ui, build the encounter note input form that calls the API Gateway endpoint (https://aordqzigs4.execute-api.us-east-2.amazonaws.com/dev/) and renders CPT codes + audit trail. Push to main for Amplify auto-deploy at coding.neuroplans.app.",
-          "fullPrompt": "## Task: Deploy E/M Coding Engine + Wire UI\n\n**Repos:** sevaro-em-coding-engine (Lambda), sevaro-em-coding-ui (frontend)\n\n## Step 1: Deploy Lambda via CDK\n1. cd infra/\n2. npx cdk synth --profile sevaro-sandbox\n3. Review plan with Steve, then: npx cdk deploy --profile sevaro-sandbox\n4. Confirm Lambda ARN and API Gateway URL\n\n## Step 2: Wire UI to API\n1. Build encounter note textarea + payer type selector (Medicare/Commercial)\n2. POST to /code endpoint with encounter note text\n3. Render coding result: CPT/HCPCS codes with code_type, description, audit trail\n4. Handle error states (hard stops, missing fields)\n\n## Step 3: Deploy to Amplify\n1. Connect blondarb/sevaro-em-coding-ui to Amplify\n2. Set env vars: CODING_API_URL, NEXT_PUBLIC_COGNITO_* (pool us-east-2_9y6XyJnXC)\n3. Push to main — auto-deploys to coding.neuroplans.app\n4. Add callback URL to Cognito app client\n\n## Acceptance criteria\n- coding.neuroplans.app loads with Cognito OAuth login\n- Enter encounter note → receive CPT/HCPCS codes with audit trail\n- Medicare and Commercial payer paths both work\n- Hard stop errors surfaced clearly in UI",
+          "fullPrompt": "## Task: Deploy E/M Coding Engine + Wire UI\n\n**Repos:** sevaro-em-coding-engine (Lambda), sevaro-em-coding-ui (frontend)\n\n## Step 1: Deploy Lambda via CDK\n1. cd infra/\n2. npx cdk synth --profile sevaro-sandbox\n3. Review plan with Steve, then: npx cdk deploy --profile sevaro-sandbox\n4. Confirm Lambda ARN and API Gateway URL\n\n## Step 2: Wire UI to API\n1. Build encounter note textarea + payer type selector (Medicare/Commercial)\n2. POST to /code endpoint with encounter note text\n3. Render coding result: CPT/HCPCS codes with code_type, description, audit trail\n4. Handle error states (hard stops, missing fields)\n\n## Step 3: Deploy to Amplify\n1. Connect blondarb/sevaro-em-coding-ui to Amplify\n2. Set env vars: CODING_API_URL, NEXT_PUBLIC_COGNITO_* (pool us-east-2_9y6XyJnXC)\n3. Push to main \u2014 auto-deploys to coding.neuroplans.app\n4. Add callback URL to Cognito app client\n\n## Acceptance criteria\n- coding.neuroplans.app loads with Cognito OAuth login\n- Enter encounter note \u2192 receive CPT/HCPCS codes with audit trail\n- Medicare and Commercial payer paths both work\n- Hard stop errors surfaced clearly in UI",
           "manualSteps": [
             "cd infra/ && npx cdk synth --profile sevaro-sandbox",
             "Review CDK plan, then deploy with Steve's approval",
