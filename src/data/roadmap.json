@@ -293,6 +293,60 @@
           "quickPrompt": "Competitive eval pipeline is complete (PRs #185-194). 30-question benchmark in qa/eval-questions.json, runner in qa/eval_competitive.py. Run via: ./run-eval.sh --questions all",
           "fullPrompt": "",
           "manualSteps": []
+        },
+        {
+          "id": "evidence-oncall-guides",
+          "title": "On-Call Facility Guides \u2014 hybrid DynamoDB + RAG (Operations KB)",
+          "status": "done",
+          "complexity": "high",
+          "description": "Shipped On-Call Facility Guides (Apr 5-6, 2026): New Operations Bedrock KB (ZHG5JIHX1U) for hospital-specific protocols. 550 docs across 45 hospitals uploaded to S3 with metadata sidecars. Hospital-scoped filtering via hospital_id metadata. AI-synthesized answers with domain glossary (query expansion for shorthand terms). Web app: facility selector + detail card with collapsible sections. Chrome extension: 4th On Call tab with hospital dropdown, search, answer card. Textract OCR script for 388 scanned PDFs. Stat level 1/2 definitions. PRs #236-251.",
+          "prerequisites": [],
+          "keyFiles": [
+            "src/app/on-call-guide/",
+            "src/app/api/facilities/",
+            "chrome-extension/src/tabs/"
+          ],
+          "quickPrompt": "On-Call Facility Guides shipped (PRs #236-251): Operations KB, hospital-scoped RAG, Chrome extension On Call tab. Live at evidence.neuroplans.app.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "evidence-encounter-workspace",
+          "title": "Encounter workspace refactor \u2014 Prep/Record/Note tabs + streaming transcription",
+          "status": "done",
+          "complexity": "high",
+          "description": "Shipped EncounterWorkspace refactor (Apr 5, 2026): 3-tab layout (Prep/Record/Note), chart prep state persistence across remount, progressive streaming transcription (parallel Transcribe Medical during recording, transcript ready on stop). Multi-record flow fixes: Record More pre-captures tab stream, encounter ID tracing, stuck status fix. Anti-hallucination guardrails for note generation. 46 Playwright E2E tests passing. PRs #232-248.",
+          "prerequisites": [],
+          "keyFiles": [
+            "src/components/EncounterWorkspace.tsx",
+            "src/app/api/transcribe/"
+          ],
+          "quickPrompt": "Encounter workspace refactor shipped (PRs #232-248). 46 E2E tests passing. Live at evidence.neuroplans.app.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "evidence-sso-passkeys",
+          "title": "SSO Phase 4 \u2014 Passkeys/WebAuthn as TOTP alternative",
+          "status": "pending",
+          "complexity": "medium",
+          "description": "Add WebAuthn/Passkeys as an alternative to TOTP MFA. User-requested, deferred until SSO is fully stable. Current MFA: required TOTP via Cognito. Target: allow passkey registration + use in Cognito User Pool.",
+          "prerequisites": [],
+          "keyFiles": [
+            "src/app/auth/",
+            "src/lib/cognito.ts"
+          ],
+          "quickPrompt": "In the sevaro-evidence-engine repo, add Passkeys/WebAuthn as a TOTP alternative. Cognito User Pool: us-east-2_9y6XyJnXC. Check passkey support: aws cognito-idp describe-user-pool --user-pool-id us-east-2_9y6XyJnXC --profile sevaro-sandbox. Implement passkey registration in src/app/settings/ and passkey sign-in in src/lib/cognito.ts. Keep existing TOTP path \u2014 passkeys are additive.",
+          "fullPrompt": "## Task: SSO Phase 4 - Passkeys/WebAuthn\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/app/auth/, src/lib/cognito.ts\n\n## Context\nCurrent auth: Cognito + required TOTP MFA. Users find TOTP friction high. Request: add passkey as alternative.\n\n## Approach\n1. Check Cognito passkey support on current pool settings\n2. Enable WebAuthn in the Cognito User Pool if supported\n3. Add passkey registration flow to the auth UI (after initial TOTP setup)\n4. Add passkey sign-in as an alternative on the login page\n5. Keep TOTP as fallback\n\n## Acceptance Criteria\n- User can register a passkey after first login\n- User can authenticate with passkey on subsequent visits\n- TOTP still works as fallback\n- No regression on existing auth flow\n\n## Constraints\n- Never bypass TOTP requirement on first login\n- All Cognito changes via CDK or AWS CLI with --profile sevaro-sandbox\n- Test with ephemeral test user before production changes",
+          "manualSteps": [
+            "Check Cognito passkey support: aws cognito-idp describe-user-pool --user-pool-id us-east-2_9y6XyJnXC --profile sevaro-sandbox",
+            "Enable WebAuthn MFA option in Cognito User Pool settings",
+            "Build passkey registration component in src/app/settings/",
+            "Add passkey auth flow to src/lib/cognito.ts",
+            "Add Sign in with passkey button to login page",
+            "Test with ephemeral test user (sevaro-ops scripts)",
+            "Verify TOTP fallback still works"
+          ]
         }
       ]
     },
@@ -314,7 +368,7 @@
             "src/lib/transcribe-streaming.ts",
             "src/app/api/ai/transcribe/"
           ],
-          "quickPrompt": "In the OPSAmple repo, add real-time voice streaming during encounters. Currently post-recording only. Reference pattern: Evidence Engine shipped progressive Transcribe Medical streaming (Apr 5) — parallel streaming during recording, transcript ready on stop, note generation begins immediately with batch fallback. See sevaro-evidence-engine chrome-extension/src/services/ for the implementation. Use AWS Transcribe Medical (HIPAA-eligible) for compliance. Target: words appear within 500ms of being spoken.",
+          "quickPrompt": "In the OPSAmple repo, add real-time voice streaming during encounters. Currently post-recording only. Reference pattern: Evidence Engine shipped progressive Transcribe Medical streaming (Apr 5) \u2014 parallel streaming during recording, transcript ready on stop, note generation begins immediately with batch fallback. See sevaro-evidence-engine chrome-extension/src/services/ for the implementation. Use AWS Transcribe Medical (HIPAA-eligible) for compliance. Target: words appear within 500ms of being spoken.",
           "fullPrompt": "## Task: Real-Time Voice Streaming\n\n**Repo:** OPSAmplehtml\n**Key area:** Transcription components\n\n## Context\nOPSAmple has post-recording transcription but no live streaming. Clinicians want to see words appear in real-time during encounters.\n\n## Approach\n1. Add WebSocket connection to streaming transcription service\n2. Display interim results in real-time, replace with finals\n3. Handle microphone permissions and audio capture in browser\n4. Consider AWS Transcribe Medical for HIPAA compliance\n\n## Acceptance criteria\n- Words appear within 500ms of being spoken\n- Final transcription matches post-recording quality\n- Works on Chrome and Safari\n- Graceful fallback if streaming unavailable",
           "manualSteps": [
             "Set up streaming transcription service",
@@ -1093,6 +1147,21 @@
             "Configure RDS connection",
             "Deploy and test with team"
           ]
+        },
+        {
+          "id": "sdne-headset-test-apr6",
+          "title": "April 6 headset test session \u2014 8-issue fix sprint",
+          "status": "done",
+          "complexity": "medium",
+          "description": "Fixed 8 priority issues from April 6 on-device testing (Apr 6-7, 2026): T18 WaterPouring IL2CPP physics stripping fix + shader fallback + cylinder cup + larger particles; T24 Dysarthria event wiring + timeout 60 to 90s; T14 Naming: distance 1.2m to 0.7m + hammer/key rotations + 7s display; T12 FingerToTarget: pulsing glass sphere + size regression fix; T13 Semantic Fluency: 3s prep phase; T06 Fixation: horizontal plane projection; T25 SpiralDrawing: moved to 0.7m + thicker guide lines; T11 pinch threshold 0.35 to 0.20. TTS duplication fix, eye panel occlusion fix, audio recording retry 100ms. Gait boundary suppression. Protected XRScreenCapture from accidental removal.",
+          "prerequisites": [],
+          "keyFiles": [
+            "Scripts/Tasks/",
+            "Scripts/Core/XRScreenCapture.cs"
+          ],
+          "quickPrompt": "April 6 headset test fixes shipped (Apr 6-7). All 8 priority issues resolved. XRScreenCapture protected. Next: validate speech pipeline end-to-end and T15/T16 gait tasks.",
+          "fullPrompt": "",
+          "manualSteps": []
         }
       ]
     },
@@ -1105,7 +1174,7 @@
           "title": "Note generation quality polish",
           "status": "in-progress",
           "complexity": "medium",
-          "description": "Note generation runs via async Lambda (202+poll). As of Apr 7: Unified Encounter Workspace shipped (PRs #226-231, Apr 5) — Prep/Record/Note tabs with anti-hallucination guardrails, chart prep cards persist through note generation, all 46 Playwright E2E tests passing. On Call Guide tab in Chrome extension (PRs #241-244, Apr 5) with hospital dropdown, AI-synthesized answers via Operations KB RetrieveAndGenerate. Extension UX hardened (PR #245, Apr 6): tools drawer state fixed, mic permission streamlined, Record More wired, transcript merge on multi-segment recordings. Stat level 1/2 definitions + code stroke criteria added to On Call KB (PR #247, Apr 6). On-Call Facility Guides shipped (PR #250, Apr 6): 160 facility records in DynamoDB (sevaro-oncall-facilities), 151 KB markdown docs for RAG, facility selector in web app, facility dropdown quick-info card in Chrome extension. Multi-record fixes shipped (PR #248, Apr 6): pre-capture tab stream for Record More, encounter ID tracing throughout multi-record flow, stuck-processing fix, transcript merge verified. Operations KB live (ZHG5JIHX1U, 550 docs, 45 hospitals). Remaining: template adherence across encounter types, EHR paste formatting consistency.",
+          "description": "Note generation runs via async Lambda (202+poll). As of Apr 7: Unified Encounter Workspace shipped (PRs #226-231, Apr 5) \u2014 Prep/Record/Note tabs with anti-hallucination guardrails, chart prep cards persist through note generation, all 46 Playwright E2E tests passing. On Call Guide tab in Chrome extension (PRs #241-244, Apr 5) with hospital dropdown, AI-synthesized answers via Operations KB RetrieveAndGenerate. Extension UX hardened (PR #245, Apr 6): tools drawer state fixed, mic permission streamlined, Record More wired, transcript merge on multi-segment recordings. Stat level 1/2 definitions + code stroke criteria added to On Call KB (PR #247, Apr 6). On-Call Facility Guides shipped (PR #250, Apr 6): 160 facility records in DynamoDB (sevaro-oncall-facilities), 151 KB markdown docs for RAG, facility selector in web app, facility dropdown quick-info card in Chrome extension. Multi-record fixes shipped (PR #248, Apr 6): pre-capture tab stream for Record More, encounter ID tracing throughout multi-record flow, stuck-processing fix, transcript merge verified. Operations KB live (ZHG5JIHX1U, 550 docs, 45 hospitals). Remaining: template adherence across encounter types, EHR paste formatting consistency.",
           "prerequisites": [
             "sevaro-evidence-engine repo (chrome-extension/ directory) cloned",
             "Lambda access"
@@ -1114,7 +1183,7 @@
             "lambda/generate-note/",
             "src/services/NoteGenerationService.ts"
           ],
-          "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), continue polishing note generation quality. Current state (Apr 7): Unified Encounter Workspace shipped (PRs #226-231, Apr 5) — Prep/Record/Note tabs, anti-hallucination guardrails active, chart prep state persists across layout remounts, all 46 Playwright E2E tests passing. On Call Guide in extension (PRs #241-244, Apr 5): hospital dropdown, AI answers via Operations KB RetrieveAndGenerate, stat level 1/2 definitions + code stroke criteria added (PR #247). Extension UX: tools drawer fixed, mic permission streamlined, Record More wired, multi-segment transcript merge (PR #245, Apr 6). On-Call Facility Guides (PR #250, Apr 6): 160 facility records in sevaro-oncall-facilities DynamoDB, 151 KB markdown docs, web app facility selector, Chrome extension facility dropdown quick-info card. Multi-record fixes (PR #248, Apr 6): pre-capture tab stream for Record More, encounter ID tracing, stuck-processing fix, transcript merge verified. Operations KB (ZHG5JIHX1U): 550 docs, 45 hospitals. Remaining: template adherence across all 6 encounter types, EHR paste formatting consistency.",
+          "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), continue polishing note generation quality. Current state (Apr 7): Unified Encounter Workspace shipped (PRs #226-231, Apr 5) \u2014 Prep/Record/Note tabs, anti-hallucination guardrails active, chart prep state persists across layout remounts, all 46 Playwright E2E tests passing. On Call Guide in extension (PRs #241-244, Apr 5): hospital dropdown, AI answers via Operations KB RetrieveAndGenerate, stat level 1/2 definitions + code stroke criteria added (PR #247). Extension UX: tools drawer fixed, mic permission streamlined, Record More wired, multi-segment transcript merge (PR #245, Apr 6). On-Call Facility Guides (PR #250, Apr 6): 160 facility records in sevaro-oncall-facilities DynamoDB, 151 KB markdown docs, web app facility selector, Chrome extension facility dropdown quick-info card. Multi-record fixes (PR #248, Apr 6): pre-capture tab stream for Record More, encounter ID tracing, stuck-processing fix, transcript merge verified. Operations KB (ZHG5JIHX1U): 550 docs, 45 hospitals. Remaining: template adherence across all 6 encounter types, EHR paste formatting consistency.",
           "fullPrompt": "## Task: Note Generation Quality Polish\n\n**Repo:** sevaro-evidence-engine (chrome-extension/ directory)\n\n## Context (as of Apr 1, 2026)\nAsynchronous Lambda delegation pattern handles all heavy workloads. All 6 clinical workflows are live: SOAP visit note, addendum, APP attestation (PR #151), off-service handoff, chart prep, and batch chart prep. Two-phase synthesis ships Key Points (~8s) then full answer (~18s). Style profiles wired into note generation. Multi-visit continuity sidebar with prior handoff injection. Bedrock enhancements: prompt caching across Lambda invocations, automated reasoning guardrail v5 (36 clinical verification rules), 5 versioned prompts in Bedrock Prompt Management. Beta rollout shipped (tour, help docs, Chrome extension \u2014 PR #164, Apr 1).\n\n## Polish areas\n1. Template adherence \u2014 ensure notes match configured exam profile note templates across all 6 encounter types\n2. Edge cases \u2014 handle partial transcriptions, multiple speakers, interrupted recordings, very short encounters\n3. Multi-encounter consistency \u2014 stable note quality across short/long/follow-up encounters\n4. EHR paste formatting \u2014 clean bullet points, consistent terminology, no raw JSON artifacts\n\n## Acceptance criteria\n- Notes follow consistent structure across all encounter types\n- No fabricated clinical details (guardrail enforced)\n- Clean formatting suitable for EHR paste\n- Edge cases handled gracefully",
           "manualSteps": [
             "Review sample generated notes for quality issues",
@@ -1128,7 +1197,7 @@
           "title": "Chart prep to visit transition workflow",
           "status": "done",
           "complexity": "medium",
-          "description": "Shipped as part of the Unified Encounter Workspace (PRs #226-231, Apr 5). The workspace provides Prep/Record/Note tabs — clinicians complete chart prep in the Prep tab, then move to Record tab which carries chart prep context forward into encounter recording mode. View & Finalize Note button (PR #228), state persistence across layout remounts (PR #233), chart prep cards preserved through note generation. All 46 Playwright E2E tests passing.",
+          "description": "Shipped as part of the Unified Encounter Workspace (PRs #226-231, Apr 5). The workspace provides Prep/Record/Note tabs \u2014 clinicians complete chart prep in the Prep tab, then move to Record tab which carries chart prep context forward into encounter recording mode. View & Finalize Note button (PR #228), state persistence across layout remounts (PR #233), chart prep cards preserved through note generation. All 46 Playwright E2E tests passing.",
           "prerequisites": [
             "Note generation pipeline polished"
           ],
@@ -1642,6 +1711,21 @@
           "prerequisites": [],
           "keyFiles": [],
           "quickPrompt": "",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "xr-companion-auto-record",
+          "title": "Auto-start video recording on session start",
+          "status": "done",
+          "complexity": "low",
+          "description": "XR Test Companion now auto-starts video recording when a test session begins (Apr 7, PR #12). Eliminates manual start recording voice command needed at session start.",
+          "prerequisites": [],
+          "keyFiles": [
+            "Sources/Services/VideoRecordingService.swift",
+            "Sources/Managers/SessionManager.swift"
+          ],
+          "quickPrompt": "Auto-start video recording shipped (PR #12, Apr 7).",
           "fullPrompt": "",
           "manualSteps": []
         }
@@ -2460,6 +2544,86 @@
             "Connect Amplify to GitHub repo",
             "Set env vars in Amplify console",
             "Verify on coding.neuroplans.app"
+          ]
+        },
+        {
+          "id": "em-coding-batch-vendor",
+          "title": "Batch upload + SQS fan-out + vendor comparison dashboard",
+          "status": "done",
+          "complexity": "high",
+          "description": "Shipped full batch processing pipeline (Apr 6-7, 2026): SQS fan-out (ZIP/CSV -> S3 -> batch-ingest -> SQS -> coding engine), 5 new Lambdas, batch results dashboard with polling. CSV/XLSX vendor file upload, compare tab with fuzzy matching, incremental multi-CSV with dedup. Presigned URL fixes (CORS, signature, content-type). Teleneurology batch flag forces POS 02. Note text viewer on results detail page. E2E smoke test confirmed: 30/30 notes processed, 30/30 vendor matches. PRs #6-15 (UI) and #16-25 (engine).",
+          "prerequisites": [
+            "em-coding-deploy"
+          ],
+          "keyFiles": [
+            "src/lambdas/batch-ingest/",
+            "src/lambdas/batch-process/",
+            "infra/lib/batch-stack.ts",
+            "src/app/compare/"
+          ],
+          "quickPrompt": "Batch upload + vendor comparison is live at coding.neuroplans.app. 30/30 smoke test confirmed. Next: CloudWatch dashboard for ops visibility.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "em-coding-telehealth-codes",
+          "title": "Full telehealth code family: G0508/G0509, 99446-99449, 99451 + codex security fixes",
+          "status": "done",
+          "complexity": "high",
+          "description": "Shipped complete teleneurology billing code family (Apr 7, 2026): G0508/G0509 critical care consultation (neurologist as consultant, not primary manager); 99451 interprofessional digital evaluation (store-and-forward); 99446-99449 telephone consultation codes (time-based, payer-agnostic, no -95 modifier). New critical_care_consultation encounter type in router. ICD-10 partial matching at subcategory level. Codex security review Phase 1-4: IDOR auth, adjudication auth, G0508 payer gating, HIPAA PHI-safe logging, SQS validation, input guards. 453 tests pass. PRs #29-34.",
+          "prerequisites": [
+            "em-coding-deploy"
+          ],
+          "keyFiles": [
+            "src/rules/edge-cases/",
+            "src/rules/router.ts",
+            "src/extraction/bedrock-extractor.ts"
+          ],
+          "quickPrompt": "Full telehealth code family shipped (PRs #29-34): G0508/G0509, 99446-99449, 99451. 453 tests pass. Codex security fixes complete. Next: CloudWatch dashboard.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "em-coding-shadow-coder",
+          "title": "Shadow Coder (Llama 3.3 70B) + three-way comparison: Engine vs Vendor vs Shadow",
+          "status": "done",
+          "complexity": "medium",
+          "description": "Shipped Shadow Coder (Apr 8, 2026): Llama 3.3 70B on Bedrock runs independent billing code extraction and rule application in parallel with the primary engine. Three-way comparison UI shows Engine vs Vendor vs Shadow Coder side-by-side. Shadow Coder agreement flagging catches engine extraction errors (43% agree on first run, caught real extraction bug). Consultation extraction fix + EEG read filter (EEG interpretation is separate from consult coding). PRs #33-35.",
+          "prerequisites": [
+            "em-coding-deploy"
+          ],
+          "keyFiles": [
+            "src/lambdas/shadow-coder/",
+            "src/app/compare/"
+          ],
+          "quickPrompt": "Shadow Coder shipped (PR #33, Apr 8): Llama 3.3 70B validates primary engine codes. Three-way comparison at coding.neuroplans.app. 43% agree on first run.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "em-coding-cloudwatch-dashboard",
+          "title": "CloudWatch dashboard for ops visibility + CDK security hardening",
+          "status": "pending",
+          "complexity": "low",
+          "description": "CloudWatch dashboard to monitor Lambda invocations, error rates, p50/p95 latency, and SQS queue depth. CDK security hardening: CloudTrail, API Gateway access logging, Lambda reserved concurrency.",
+          "prerequisites": [
+            "em-coding-deploy"
+          ],
+          "keyFiles": [
+            "infra/lib/monitoring-stack.ts"
+          ],
+          "quickPrompt": "In the sevaro-em-coding-engine repo, add a CloudWatch dashboard. Create infra/lib/monitoring-stack.ts with widgets for: Lambda invocations + errors (submit-note, batch-ingest, shadow-coder), SQS queue depth, API Gateway 4xx/5xx rates. Also add CloudTrail trail and API Gateway access logging. Deploy with: cd infra && npx cdk deploy MonitoringStack --profile sevaro-sandbox.",
+          "fullPrompt": "## Task: CloudWatch Ops Dashboard + CDK Security Hardening\n\n**Repo:** sevaro-em-coding-engine\n**New file:** infra/lib/monitoring-stack.ts\n\n## Dashboard Widgets\n1. Lambda invocations + error count: submit-note, batch-ingest, batch-process, shadow-coder, get-results\n2. Lambda p50/p95 duration (submit-note is the critical path)\n3. SQS queue depth + DLQ depth (batch-queue)\n4. API Gateway 4xx/5xx rates by route\n5. Bedrock invocation count and throttle errors\n\n## Security Hardening\n1. CloudTrail trail for all API calls (write to S3)\n2. API Gateway access logging (structured JSON to CloudWatch)\n3. Lambda reserved concurrency: submit-note=10, batch-process=20\n\n## Acceptance Criteria\n- Dashboard visible in CloudWatch console\n- CloudTrail delivering logs to S3\n- Lambda concurrency limits set\n- npx cdk diff shows only expected changes before deploying",
+          "manualSteps": [
+            "Create infra/lib/monitoring-stack.ts with CloudWatch dashboard construct",
+            "Add Lambda metrics widgets for all 5 Lambda functions",
+            "Add SQS depth widget for batch-queue and DLQ",
+            "Add API Gateway 4xx/5xx rate widgets",
+            "Add CloudTrail trail with S3 destination",
+            "Add API Gateway access logging configuration",
+            "Wire MonitoringStack into infra/bin/app.ts",
+            "Run npx cdk synth to validate",
+            "Ask Steve for approval before deploying"
           ]
         }
       ]
