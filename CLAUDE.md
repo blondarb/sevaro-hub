@@ -40,12 +40,12 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 **Status**: Active
 
 ### Recent
+- **Daily sync: OPSAmple + xr-test-companion BoW + roadmap refresh (Apr 8)** — OPSAmple: Neuro Intake/Consult Pipeline hardening (Apr 5-7) captured. xr-test-companion: auto-start video recording (PR #12, Apr 7) added. Roadmap: em-coding-cloudwatch-dashboard refreshed (Shadow Coder + telehealth codes done, 453 tests, last pending E/M milestone).
 - **Daily sync (Apr 7)** — em-coding-deploy milestone marked done (live at coding.neuroplans.app). SDNE Apr 6 headset session fixes captured in Body of Work. sevaro-em-coding-ui Planned updated (Phase 1C complete). Roadmap.json updated.
 - **Daily sync: roadmap prompts refreshed for pending milestones (Apr 7)** — Updated note-generation-polish quickPrompt/description to include On-Call Facility Guides (PR #250, Apr 6) and multi-record fixes (PR #248). Refreshed live-voice-streaming quickPrompt with Evidence Engine progressive streaming pattern (Apr 5) as reference.
 - **Daily sync: roadmap milestones and prompts (Apr 6)** — Marked chart-prep-transition done (Unified Encounter Workspace PR #226-231). Updated note-generation-polish quickPrompt with On Call Guide extension tab and stat level KB additions.
 - **Daily sync: E/M Coding Engine added to roadmap (Apr 6)** — Added sevaro-em-coding project with 3 milestones (v1 done, UI scaffold done, deploy pending). Evidence Engine BoW updated with PRs #245-247.
 - **Feedback appId + 401 auth fixes (PRs #14-15, Apr 5)** — Fixed evidence-engine-extension appId mapping to correct repo path; resolved 401 errors on feedback status update and delete endpoints.
-- **Daily sync: Body of Work updates across all repos (Apr 4)** — Feedback widget security hardening reflected in 7 CLAUDE.md files; roadmap prompts refreshed.
 
 ### In Progress
 - None

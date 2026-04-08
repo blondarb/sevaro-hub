@@ -2605,14 +2605,14 @@
           "title": "CloudWatch dashboard for ops visibility + CDK security hardening",
           "status": "pending",
           "complexity": "low",
-          "description": "CloudWatch dashboard to monitor Lambda invocations, error rates, p50/p95 latency, and SQS queue depth. CDK security hardening: CloudTrail, API Gateway access logging, Lambda reserved concurrency.",
+          "description": "CloudWatch dashboard to monitor Lambda invocations, error rates, p50/p95 latency, and SQS queue depth. CDK security hardening: CloudTrail, API Gateway access logging, Lambda reserved concurrency. Current state (Apr 8): Shadow Coder (Llama 3.3 70B, PR #33-35) + full telehealth codes (G0508/G0509, 99446-99449, 99451, PRs #29-34) shipped; 453 tests pass. This is the last pending E/M Coding Engine milestone.",
           "prerequisites": [
             "em-coding-deploy"
           ],
           "keyFiles": [
             "infra/lib/monitoring-stack.ts"
           ],
-          "quickPrompt": "In the sevaro-em-coding-engine repo, add a CloudWatch dashboard. Create infra/lib/monitoring-stack.ts with widgets for: Lambda invocations + errors (submit-note, batch-ingest, shadow-coder), SQS queue depth, API Gateway 4xx/5xx rates. Also add CloudTrail trail and API Gateway access logging. Deploy with: cd infra && npx cdk deploy MonitoringStack --profile sevaro-sandbox.",
+          "quickPrompt": "In the sevaro-em-coding-engine repo, add a CloudWatch dashboard. Current state (Apr 8): Shadow Coder (Llama 3.3 70B, PR #33) + full telehealth codes (G0508/G0509, 99446-99449, 99451, PRs #29-34) shipped; 453 tests pass. Create infra/lib/monitoring-stack.ts with widgets for: Lambda invocations + errors (submit-note, batch-ingest, shadow-coder, batch-process, get-results), SQS queue depth + DLQ depth, API Gateway 4xx/5xx rates, Bedrock throttle errors. Add CloudTrail trail and API Gateway access logging. Lambda reserved concurrency: submit-note=10, batch-process=20. Deploy: cd infra && npx cdk deploy MonitoringStack --profile sevaro-sandbox (ask Steve first).",
           "fullPrompt": "## Task: CloudWatch Ops Dashboard + CDK Security Hardening\n\n**Repo:** sevaro-em-coding-engine\n**New file:** infra/lib/monitoring-stack.ts\n\n## Dashboard Widgets\n1. Lambda invocations + error count: submit-note, batch-ingest, batch-process, shadow-coder, get-results\n2. Lambda p50/p95 duration (submit-note is the critical path)\n3. SQS queue depth + DLQ depth (batch-queue)\n4. API Gateway 4xx/5xx rates by route\n5. Bedrock invocation count and throttle errors\n\n## Security Hardening\n1. CloudTrail trail for all API calls (write to S3)\n2. API Gateway access logging (structured JSON to CloudWatch)\n3. Lambda reserved concurrency: submit-note=10, batch-process=20\n\n## Acceptance Criteria\n- Dashboard visible in CloudWatch console\n- CloudTrail delivering logs to S3\n- Lambda concurrency limits set\n- npx cdk diff shows only expected changes before deploying",
           "manualSteps": [
             "Create infra/lib/monitoring-stack.ts with CloudWatch dashboard construct",
