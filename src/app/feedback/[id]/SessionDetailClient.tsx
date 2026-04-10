@@ -21,6 +21,21 @@ const TYPE_LABELS: Record<string, string> = {
   'content-fix': 'Content Fix',
 };
 
+const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
+  recording: { bg: 'rgba(239,68,68,0.15)', text: '#f87171', label: 'Recording' },
+  submitted: { bg: 'rgba(59,130,246,0.15)', text: '#60a5fa', label: 'Processing' },
+  transcribed: { bg: 'rgba(251,191,36,0.15)', text: '#fbbf24', label: 'Transcribed' },
+  summarized: { bg: 'rgba(34,197,94,0.15)', text: '#4ade80', label: 'Ready' },
+  error: { bg: 'rgba(245,158,11,0.15)', text: '#f59e0b', label: 'Processing Failed' },
+};
+
+const CATEGORY_COLORS: Record<string, { bg: string; text: string }> = {
+  bug: { bg: 'rgba(239,68,68,0.15)', text: '#f87171' },
+  suggestion: { bg: 'rgba(59,130,246,0.15)', text: '#60a5fa' },
+  confusion: { bg: 'rgba(251,191,36,0.15)', text: '#fbbf24' },
+  praise: { bg: 'rgba(34,197,94,0.15)', text: '#4ade80' },
+};
+
 const REVIEW_STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
   open: { bg: 'rgba(59,130,246,0.15)', text: '#60a5fa', label: 'Open' },
   in_progress: { bg: 'rgba(251,191,36,0.15)', text: '#fbbf24', label: 'In Progress' },
@@ -50,6 +65,8 @@ export function SessionDetailClient({ session, events, actionItems, chatMessages
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [notifyOnResolve, setNotifyOnResolve] = useState(false);
+  const [retrying, setRetrying] = useState(false);
+  const [retryDone, setRetryDone] = useState(false);
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const seekTo = (offsetMs: number) => {
@@ -130,6 +147,25 @@ export function SessionDetailClient({ session, events, actionItems, chatMessages
       showNotif('error', 'Failed to delete session');
       setDeleting(false);
       setShowDeleteConfirm(false);
+    }
+  };
+
+  const handleRetryProcessing = async () => {
+    setRetrying(true);
+    try {
+      const headers = await getAuthHeaders();
+      const res = await fetch(`/api/feedback/${session.sessionId}?appId=${session.appId}`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ status: 'submitted' }),
+      });
+      if (!res.ok) throw new Error('Failed to retry');
+      setRetryDone(true);
+      showNotif('success', 'Processing restarted — reload in a minute to check progress');
+    } catch {
+      showNotif('error', 'Failed to retry processing');
+    } finally {
+      setRetrying(false);
     }
   };
 
@@ -217,8 +253,17 @@ export function SessionDetailClient({ session, events, actionItems, chatMessages
         <div className="sd-header">
           <div className="sd-badges">
             <span className="sd-badge" style={{ background: 'rgba(60,160,240,0.15)', color: '#60a5fa' }}>{session.appId}</span>
-            <span className="sd-badge" style={{ background: 'rgba(251,191,36,0.15)', color: '#fbbf24' }}>{session.category}</span>
-            <span className="sd-badge" style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80' }}>{session.status}</span>
+            <span className="sd-badge" style={{ background: (CATEGORY_COLORS[session.category] || CATEGORY_COLORS.suggestion).bg, color: (CATEGORY_COLORS[session.category] || CATEGORY_COLORS.suggestion).text }}>
+              {session.category}
+            </span>
+            {(() => {
+              const st = STATUS_STYLES[session.status] || STATUS_STYLES.submitted;
+              return (
+                <span className="sd-badge" style={{ background: st.bg, color: st.text }}>
+                  {session.status === 'error' ? '\u26A0 ' : ''}{st.label}
+                </span>
+              );
+            })()}
             <span className="sd-badge" style={{ background: currentReviewStyle.bg, color: currentReviewStyle.text }}>
               {currentReviewStyle.label}
             </span>
@@ -233,6 +278,49 @@ export function SessionDetailClient({ session, events, actionItems, chatMessages
             {annotations.length > 0 && <span>{annotations.length} annotations</span>}
           </div>
         </div>
+
+        {/* Processing Error Banner */}
+        {session.status === 'error' && (
+          <div style={{
+            background: 'rgba(245,158,11,0.08)',
+            border: '1px solid rgba(245,158,11,0.25)',
+            borderRadius: 12, padding: '16px 20px', marginBottom: 20,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: session.processingError ? 8 : 0 }}>
+              <span style={{ fontSize: '1.1rem' }}>{'\u26A0\uFE0F'}</span>
+              <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#f59e0b' }}>
+                Processing Failed
+              </span>
+              {!retryDone && (
+                <button onClick={handleRetryProcessing} disabled={retrying} style={{
+                  marginLeft: 'auto', padding: '5px 14px', borderRadius: 6,
+                  border: '1px solid rgba(245,158,11,0.4)', background: 'rgba(245,158,11,0.15)',
+                  color: '#f59e0b', fontSize: '0.78rem', fontWeight: 600,
+                  cursor: retrying ? 'not-allowed' : 'pointer',
+                }}>
+                  {retrying ? 'Retrying...' : 'Retry Processing'}
+                </button>
+              )}
+              {retryDone && (
+                <span style={{ marginLeft: 'auto', fontSize: '0.78rem', color: '#4ade80', fontWeight: 600 }}>
+                  Resubmitted for processing
+                </span>
+              )}
+            </div>
+            {session.processingError && (
+              <div style={{
+                fontSize: '0.82rem', color: '#b0a070', lineHeight: 1.5,
+                background: 'rgba(0,0,0,0.2)', borderRadius: 6, padding: '8px 12px',
+                fontFamily: "'SF Mono', 'Fira Code', monospace",
+              }}>
+                {session.processingError}
+              </div>
+            )}
+            <div style={{ fontSize: '0.75rem', color: '#8890a4', marginTop: 8 }}>
+              The feedback chat data was captured successfully. Only the async post-processing (transcription/AI summary) failed.
+            </div>
+          </div>
+        )}
 
         {/* Admin: Status Management */}
         <div style={{
