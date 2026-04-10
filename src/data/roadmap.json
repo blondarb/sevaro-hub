@@ -1042,7 +1042,7 @@
             "aws/acoustic/",
             "unity/"
           ],
-          "quickPrompt": "In the SDNE repo, validate the end-to-end speech pipeline on the VR headset. Ensure temporal and acoustic metrics flow from headset capture through Lambda analysis to results display.",
+          "quickPrompt": "In the SDNE repo, validate the end-to-end speech pipeline on the VR headset. Current progress (Apr 9): score-speech Lambda wired into pipeline (PR #11, task ID matching + auth fixed); WAV capture fixed (Android mic conflict with SpeechRecognizer resolved); session upload sequenced before audio upload (foreign key dependency fix). Remaining: end-to-end validation that acoustic metrics flow from headset capture through Lambda analysis to RDS results display.",
           "fullPrompt": "## Task: Speech Pipeline Validation\n\n**Repo:** SDNE\n\n## Pipeline\nHeadset mic \u2192 Unity audio capture \u2192 Upload to S3 \u2192 Lambda acoustic analysis \u2192 Results in RDS \u2192 Dashboard display\n\n## Validate\n1. Audio capture quality on headset mic\n2. Upload reliability to S3\n3. Lambda processing (acoustic features extraction)\n4. Results accuracy vs known-good samples\n5. Dashboard display of results\n\n## Acceptance criteria\n- Full pipeline works end-to-end on headset\n- Acoustic metrics match expected values for test recordings\n- No data loss in pipeline",
           "manualSteps": [
             "Set up headset with SDNE app",
@@ -1160,6 +1160,24 @@
             "Scripts/Core/XRScreenCapture.cs"
           ],
           "quickPrompt": "April 6 headset test fixes shipped (Apr 6-7). All 8 priority issues resolved. XRScreenCapture protected. Next: validate speech pipeline end-to-end and T15/T16 gait tasks.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "sdne-beta-demo-apr9",
+          "title": "April 9 beta demo sprint \u2014 Lambda pipeline, P1-P5 fixes, WAV capture",
+          "status": "done",
+          "complexity": "high",
+          "description": "Full beta demo prep sprint (Apr 9, 2026): wired score-speech Lambda into pipeline (task ID matching + auth fixed, PR #11); sequenced session upload before audio upload (foreign key dependency fix); WAV capture fix (Android mic conflict with SpeechRecognizer resolved); T12 target behind panel + T19 duration + pursuit jerkiness; P1-P5 beta demo fixes (PR #12): pursuit jitter, walk distance, pronation, dysarthria. 13 total fixes tested on headset. PRs #11-12.",
+          "prerequisites": [
+            "sdne-headset-test-apr6"
+          ],
+          "keyFiles": [
+            "Scripts/Tasks/",
+            "Scripts/Cloud/",
+            "aws/acoustic/"
+          ],
+          "quickPrompt": "April 9 beta demo sprint complete (PRs #11-12). 13 fixes tested on headset: score-speech Lambda wired, WAV capture fixed, session/audio upload ordering fixed, P1-P5 beta demo fixes. Next: end-to-end speech pipeline validation (score-speech fully wired but acoustic metrics not yet end-to-end verified).",
           "fullPrompt": "",
           "manualSteps": []
         }

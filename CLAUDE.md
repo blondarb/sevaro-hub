@@ -40,6 +40,7 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 **Status**: Active
 
 ### Recent
+- **Daily sync (Apr 10)** — SDNE: April 9 beta demo sprint complete (PRs #11-12) — score-speech Lambda wired, WAV capture fixed, session/audio upload ordering fixed, 13 total fixes tested on headset; sdne-beta-demo-apr9 milestone added to roadmap, speech-pipeline-validation quickPrompt refreshed. Evidence Engine: pnpm lockfile sync (PR #253, Apr 8) added to BoW.
 - **Daily sync: OPSAmple + xr-test-companion BoW + roadmap refresh (Apr 8)** — OPSAmple: Neuro Intake/Consult Pipeline hardening (Apr 5-7) captured. xr-test-companion: auto-start video recording (PR #12, Apr 7) added. Roadmap: em-coding-cloudwatch-dashboard refreshed (Shadow Coder + telehealth codes done, 453 tests, last pending E/M milestone).
 - **Daily sync (Apr 7)** — em-coding-deploy milestone marked done (live at coding.neuroplans.app). SDNE Apr 6 headset session fixes captured in Body of Work. sevaro-em-coding-ui Planned updated (Phase 1C complete). Roadmap.json updated.
 - **Daily sync: roadmap prompts refreshed for pending milestones (Apr 7)** — Updated note-generation-polish quickPrompt/description to include On-Call Facility Guides (PR #250, Apr 6) and multi-record fixes (PR #248). Refreshed live-voice-streaming quickPrompt with Evidence Engine progressive streaming pattern (Apr 5) as reference.
