@@ -16,6 +16,7 @@ export const APP_TABS: AppTab[] = [
   { id: 'repgenius', label: 'RepGenius' },
   { id: 'sevaro-monitor', label: 'Monitor' },
   { id: 'sevaro-hub', label: 'Hub' },
+  { id: 'eeg-reporter', label: 'EEG Reporter' },
 ];
 
 /** App tabs excluding the "all" entry — for dropdowns and filters that need real app IDs */
