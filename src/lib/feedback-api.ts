@@ -1,4 +1,5 @@
 const API_URL = process.env.FEEDBACK_API_URL || 'https://8uagz9y5bh.execute-api.us-east-2.amazonaws.com/feedback';
+const API_KEY = process.env.FEEDBACK_API_KEY || '';
 
 export type ReviewStatus = 'open' | 'in_progress' | 'resolved' | 'dismissed';
 
@@ -92,14 +93,20 @@ export interface ActionItem {
 
 export async function listSessions(appId?: string): Promise<FeedbackSession[]> {
   const params = appId ? `?appId=${encodeURIComponent(appId)}` : '';
-  const res = await fetch(`${API_URL}/sessions${params}`, { cache: 'no-store' });
+  const res = await fetch(`${API_URL}/sessions${params}`, {
+    cache: 'no-store',
+    headers: { 'x-api-key': API_KEY },
+  });
   if (!res.ok) throw new Error(`Failed to list sessions: ${res.status}`);
   const data = await res.json();
   return (data.sessions || []).map(normalizeSession);
 }
 
 export async function getSession(sessionId: string, appId: string): Promise<FeedbackSession> {
-  const res = await fetch(`${API_URL}/sessions/${sessionId}?appId=${encodeURIComponent(appId)}`, { cache: 'no-store' });
+  const res = await fetch(`${API_URL}/sessions/${sessionId}?appId=${encodeURIComponent(appId)}`, {
+    cache: 'no-store',
+    headers: { 'x-api-key': API_KEY },
+  });
   if (!res.ok) throw new Error(`Failed to get session: ${res.status}`);
   return normalizeSession(await res.json());
 }
