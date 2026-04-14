@@ -6,6 +6,9 @@ dist/
 .env.local
 lambda/**/*.zip
 
+# Test coverage output
+coverage/
+
 # Superpowers brainstorming artifacts
 .superpowers/
 
