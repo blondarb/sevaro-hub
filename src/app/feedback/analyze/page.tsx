@@ -71,7 +71,13 @@ function AnalyzePageInner() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || `Analysis failed: ${res.status}`);
+        // The server route returns { error, details } in its catch. We were only
+        // reading `error` ("Analysis failed") which hid the actual Bedrock /
+        // listSessions exception. Include `details` so the operator can see WHY
+        // it failed without needing CloudWatch access.
+        const parts = [data.error || `Analysis failed: ${res.status}`];
+        if (data.details && data.details !== data.error) parts.push(data.details);
+        throw new Error(parts.join(' — '));
       }
 
       setResult(await res.json());
