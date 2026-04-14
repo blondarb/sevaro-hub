@@ -72,22 +72,38 @@ export function SessionDetailClient({ session, events, actionItems, chatMessages
     setTimeout(() => setNotification(null), 4000);
   }, []);
 
-  const getAuthHeaders = async (): Promise<Record<string, string>> => {
-    const token = await getIdToken();
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-    return headers;
-  };
+  // When the session is dead (refresh failed or backend rejected the JWT), surface
+  // a visible message and bounce through Cognito Hosted UI to re-authenticate.
+  // Without this, the original code silently dropped the Authorization header and
+  // the PATCH returned a confusing 401 with no user feedback.
+  const handleAuthExpired = useCallback(() => {
+    showNotif('error', 'Your session has expired. Redirecting to sign in…');
+    setTimeout(() => {
+      window.location.href = '/api/auth/login';
+    }, 1500);
+  }, [showNotif]);
 
   const handleStatusUpdate = async () => {
     setSaving(true);
     try {
-      const headers = await getAuthHeaders();
+      const token = await getIdToken();
+      if (!token) {
+        handleAuthExpired();
+        return;
+      }
+      const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      };
       const res = await fetch(`/api/feedback/${session.sessionId}?appId=${session.appId}`, {
         method: 'PATCH',
         headers,
         body: JSON.stringify({ reviewStatus, resolutionNote }),
       });
+      if (res.status === 401) {
+        handleAuthExpired();
+        return;
+      }
       if (!res.ok) throw new Error('Failed to update status');
 
       if (notifyOnResolve && reviewStatus === 'resolved' && session.userLabel) {
@@ -119,11 +135,26 @@ export function SessionDetailClient({ session, events, actionItems, chatMessages
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      const headers = await getAuthHeaders();
+      const token = await getIdToken();
+      if (!token) {
+        handleAuthExpired();
+        setDeleting(false);
+        setShowDeleteConfirm(false);
+        return;
+      }
       const res = await fetch(`/api/feedback/${session.sessionId}?appId=${session.appId}`, {
         method: 'DELETE',
-        headers,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       });
+      if (res.status === 401) {
+        handleAuthExpired();
+        setDeleting(false);
+        setShowDeleteConfirm(false);
+        return;
+      }
       if (!res.ok) throw new Error('Failed to delete');
       router.push('/feedback');
     } catch {
