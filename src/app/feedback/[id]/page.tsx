@@ -1,6 +1,9 @@
 import { getSession, formatDuration, formatTimestamp, generateClaudeCodePrompt } from '@/lib/feedback-api';
 import type { FeedbackEvent, ActionItem, ChatMessage, ScreenshotAnnotation, ChatSummary } from '@/lib/feedback-api';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { verifyToken } from '@/lib/verify-auth';
 import { SessionDetailClient } from './SessionDetailClient';
 
 export const dynamic = 'force-dynamic';
@@ -11,6 +14,29 @@ interface Props {
 }
 
 export default async function SessionDetailPage({ params, searchParams }: Props) {
+  // Server-side auth gate. Without this, a stale tab whose id_token has
+  // expired could still render this page (the underlying Lambda GET only
+  // requires x-api-key) and only fail when the user clicked Save Status,
+  // which produced the silent 401 in the original bug report.
+  const cookieStore = await cookies();
+  const idToken = cookieStore.get('id_token')?.value;
+  const user = idToken ? await verifyToken(idToken) : null;
+
+  if (!user) {
+    redirect('/api/auth/login');
+  }
+
+  if (!user.isAdmin) {
+    return (
+      <div style={{ padding: 40, color: '#f87171', fontFamily: 'system-ui' }}>
+        Admin access required to view feedback sessions.
+        <div style={{ marginTop: 12 }}>
+          <Link href="/" style={{ color: '#7aa2d4' }}>Back to Hub</Link>
+        </div>
+      </div>
+    );
+  }
+
   const { id } = await params;
   const { appId } = await searchParams;
 

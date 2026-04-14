@@ -64,6 +64,7 @@ export interface FeedbackSession {
   annotations?: ScreenshotAnnotation[] | string;
   chatSummary?: ChatSummary | string;
   status: string;
+  processingError?: string;
   reviewStatus?: ReviewStatus;
   resolutionNote?: string;
   resolvedBy?: string;
