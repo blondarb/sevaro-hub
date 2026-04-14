@@ -43,6 +43,19 @@ export interface ChatSummary {
   userSentiment: string;
 }
 
+export interface TriageProposal {
+  version: number;
+  createdAt: string;
+  classification: 'real_bug' | 'confused_user' | 'duplicate' | 'out_of_scope' | 'needs_info';
+  confidence: number;
+  themeId: string;
+  themeDescription: string;
+  suspectedRepo: string | null;
+  suspectedFiles: Array<{ path: string; line: number; excerpt: string }>;
+  rationale: string;
+  revisions: Array<{ version: number; prompt: string; instruction: string | null; createdAt: string }>;
+}
+
 export interface FeedbackSession {
   sessionId: string;
   appId: string;
@@ -69,6 +82,7 @@ export interface FeedbackSession {
   resolutionNote?: string;
   resolvedBy?: string;
   resolvedAt?: string;
+  triageProposal?: TriageProposal | null;
   createdAt: string;
   updatedAt?: string;
 }
@@ -127,6 +141,13 @@ function normalizeSession(session: FeedbackSession): FeedbackSession {
   }
   if (typeof session.chatSummary === 'string') {
     session.chatSummary = JSON.parse(session.chatSummary);
+  }
+  if (typeof session.triageProposal === 'string') {
+    try {
+      session.triageProposal = JSON.parse(session.triageProposal);
+    } catch {
+      session.triageProposal = null;
+    }
   }
   return session;
 }
