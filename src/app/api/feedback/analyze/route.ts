@@ -1,155 +1,127 @@
 import { NextResponse } from 'next/server';
-import { verifyToken, extractToken } from '@/lib/verify-auth';
-import { BedrockRuntimeClient, ConverseCommand } from '@aws-sdk/client-bedrock-runtime';
-import { listSessions } from '@/lib/feedback-api';
+import { extractToken, verifyToken } from '@/lib/verify-auth';
+import { fetchTriageHistory, type TriageHistoryEntry } from '@/lib/triage-api';
 
-const bedrock = new BedrockRuntimeClient({ region: 'us-east-2' });
+type ThemeRollup = {
+  themeId: string;
+  description: string;
+  voteCount: number;
+  statusBreakdown: { approved: number; open: number; rejected: number };
+  weeklyTrend: number[];
+  trending: boolean;
+  newVotesSinceDenial: number;
+  lastActivityAt: string;
+};
 
-export async function POST(request: Request) {
+function rollup(entries: TriageHistoryEntry[]): ThemeRollup[] {
+  const byTheme = new Map<string, TriageHistoryEntry[]>();
+  for (const e of entries) {
+    if (!e.themeId) continue;
+    const list = byTheme.get(e.themeId) ?? [];
+    list.push(e);
+    byTheme.set(e.themeId, list);
+  }
+
+  const themes: ThemeRollup[] = [];
+  const nowMs = Date.now();
+  const bucketWidthMs = 7 * 24 * 60 * 60 * 1000; // 1 week per bucket
+
+  for (const [themeId, list] of byTheme) {
+    list.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+    const desc =
+      (list[0]?.proposalSnapshot as { themeDescription?: string } | undefined)
+        ?.themeDescription || '';
+
+    const buckets = [0, 0, 0, 0, 0, 0];
+    let approved = 0;
+    let open = 0;
+    let rejected = 0;
+    let lastRejectTs: string | null = null;
+
+    for (const e of list) {
+      if (e.action === 'proposed') {
+        open += 1;
+      } else if (e.action === 'approved') {
+        approved += 1;
+        open = Math.max(0, open - 1);
+      } else if (e.action === 'rejected') {
+        rejected += 1;
+        open = Math.max(0, open - 1);
+        lastRejectTs = e.timestamp;
+      }
+
+      const ageMs = nowMs - new Date(e.timestamp).getTime();
+      const bucketIdx = 5 - Math.min(5, Math.floor(ageMs / bucketWidthMs));
+      if (bucketIdx >= 0) buckets[bucketIdx] += 1;
+    }
+
+    const newVotesSinceDenial = lastRejectTs
+      ? list.filter(
+          (e) => e.action === 'proposed' && e.timestamp > lastRejectTs!,
+        ).length
+      : 0;
+
+    const lastHalf = buckets[4] + buckets[5];
+    const firstHalf = buckets[0] + buckets[1];
+    const trending = lastHalf > firstHalf && lastHalf >= 2;
+
+    themes.push({
+      themeId,
+      description: desc,
+      voteCount: list.filter(
+        (e) => e.action === 'proposed' || e.action === 'approved',
+      ).length,
+      statusBreakdown: { approved, open, rejected },
+      weeklyTrend: buckets,
+      trending,
+      newVotesSinceDenial,
+      lastActivityAt: list[list.length - 1].timestamp,
+    });
+  }
+
+  return themes.sort((a, b) => b.voteCount - a.voteCount);
+}
+
+export async function GET(request: Request) {
   const token = extractToken(request);
-  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!token)
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const user = await verifyToken(token);
-  if (!user?.isAdmin) return NextResponse.json({ error: 'Admin required' }, { status: 403 });
+  if (!user?.isAdmin)
+    return NextResponse.json({ error: 'Admin required' }, { status: 403 });
 
-  const body = await request.json();
-  const days = body.days || 30;
-  const appId: string | undefined = body.appId; // undefined = cross-app mode
+  const { searchParams } = new URL(request.url);
+  const daysParam = searchParams.get('days');
+  const days = daysParam ? Number(daysParam) : 30;
 
   try {
-    const sessions = await listSessions();
-    const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
-
-    let unresolvedSessions = sessions.filter((s) => {
-      const isRecent = s.createdAt >= cutoff;
-      const isUnresolved = !s.reviewStatus || s.reviewStatus === 'open' || s.reviewStatus === 'in_progress';
-      return isRecent && isUnresolved;
-    });
-
-    // Filter by app if scoped
-    if (appId) {
-      unresolvedSessions = unresolvedSessions.filter((s) => s.appId === appId);
-    }
-
-    if (unresolvedSessions.length === 0) {
-      return NextResponse.json({
-        themes: [],
-        summary: appId
-          ? `No unresolved feedback sessions for ${appId} in the last ${days} days.`
-          : `No unresolved feedback sessions found in the last ${days} days.`,
-        topPriority: '',
-        sessionCount: 0,
-        analyzedDays: days,
-      });
-    }
-
-    const sessionSummaries = unresolvedSessions.map((s) => {
-      const actionItems = Array.isArray(s.actionItems) ? s.actionItems : [];
-      return {
-        sessionId: s.sessionId,
-        app: s.appId,
-        category: s.category,
-        date: s.createdAt,
-        user: s.userLabel || 'Anonymous',
-        summary: s.aiSummary || s.transcript?.slice(0, 300) || 'No summary',
-        actionItems: actionItems.map((a) => ({
-          type: a.type,
-          title: a.title,
-          description: a.description,
-          severity: a.severity,
-          pages: a.affectedPages,
-        })),
-      };
-    });
-
-    const prompt = appId
-      ? buildPerAppPrompt(sessionSummaries, days, appId)
-      : buildCrossAppPrompt(sessionSummaries, days);
-
-    const converseResponse = await bedrock.send(new ConverseCommand({
-      modelId: 'us.anthropic.claude-sonnet-4-6',
-      messages: [{ role: 'user', content: [{ text: prompt }] }],
-      inferenceConfig: { maxTokens: 2000, temperature: 0.2 },
-    }));
-
-    const responseText = converseResponse.output?.message?.content?.[0]?.text || '';
-
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      return NextResponse.json({ error: 'Failed to parse analysis', raw: responseText }, { status: 500 });
-    }
-
-    const analysis = JSON.parse(jsonMatch[0]);
-
+    const data = await fetchTriageHistory(days);
+    const themes = rollup(data.entries);
+    const stats = {
+      totalSessions: themes.reduce((s, t) => s + t.voteCount, 0),
+      totalThemes: themes.length,
+      trendingUp: themes.filter((t) => t.trending).length,
+      newVotesSinceDenial: themes.filter((t) => t.newVotesSinceDenial > 0)
+        .length,
+      awaitingTriage: 0, // wired up by a separate call later
+    };
     return NextResponse.json({
-      ...analysis,
-      sessionCount: unresolvedSessions.length,
-      analyzedDays: days,
+      timeRange: {
+        from: new Date(Date.now() - days * 86400000).toISOString(),
+        to: new Date().toISOString(),
+      },
+      stats,
+      themes,
     });
   } catch (err) {
-    console.error('Analysis error:', err);
+    console.error('Failed to roll up triage history:', err);
     return NextResponse.json(
-      { error: 'Analysis failed', details: err instanceof Error ? err.message : 'Unknown error' },
+      {
+        error: 'Failed to load analysis',
+        details: err instanceof Error ? err.message : 'Unknown error',
+      },
       { status: 500 },
     );
   }
-}
-
-function buildPerAppPrompt(
-  sessionSummaries: Record<string, unknown>[],
-  days: number,
-  appId: string,
-): string {
-  return `Analyze these ${sessionSummaries.length} unresolved feedback sessions from the last ${days} days for the "${appId}" app. Identify bugs, patterns, recurring user pain points, and suggest prioritized actions specific to this app.
-
-FEEDBACK DATA:
-${JSON.stringify(sessionSummaries, null, 2)}
-
-Respond with JSON in this exact format:
-{
-  "themes": [
-    {
-      "name": "Theme name",
-      "description": "What this theme covers",
-      "frequency": <number of sessions mentioning this>,
-      "severity": "critical" | "major" | "minor",
-      "affectedApps": ["${appId}"],
-      "relatedSessionIds": ["id1", "id2"],
-      "recommendation": "Specific actionable fix for this app"
-    }
-  ],
-  "summary": "1-2 sentence summary of this app's feedback patterns",
-  "topPriority": "Single most impactful thing to fix in this app"
-}`;
-}
-
-function buildCrossAppPrompt(
-  sessionSummaries: Record<string, unknown>[],
-  days: number,
-): string {
-  return `Analyze these ${sessionSummaries.length} unresolved feedback sessions from the last ${days} days across multiple Sevaro apps. Focus on:
-
-1. CROSS-APP PATTERNS: Issues or themes that appear in 2+ different apps (e.g., "login confusion" across multiple products). These are the most valuable findings.
-2. PORTFOLIO HEALTH: Which apps have the most feedback, highest severity, and which are suspiciously quiet.
-3. SYSTEMIC RECOMMENDATIONS: Improvements that should be applied across the board — shared UX patterns, common infrastructure fixes, design consistency issues.
-
-FEEDBACK DATA:
-${JSON.stringify(sessionSummaries, null, 2)}
-
-Respond with JSON in this exact format:
-{
-  "themes": [
-    {
-      "name": "Theme name",
-      "description": "What this theme covers and which apps are affected",
-      "frequency": <number of sessions mentioning this>,
-      "severity": "critical" | "major" | "minor",
-      "affectedApps": ["app1", "app2"],
-      "relatedSessionIds": ["id1", "id2"],
-      "recommendation": "What to do about it across the portfolio"
-    }
-  ],
-  "summary": "1-2 sentence portfolio-level summary highlighting cross-app patterns",
-  "topPriority": "Single most impactful systemic improvement"
-}`;
 }
