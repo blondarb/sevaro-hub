@@ -31,14 +31,21 @@ export async function POST(request: Request) {
   const user = await verifyToken(token);
   if (!user?.isAdmin) return NextResponse.json({ error: 'Admin required' }, { status: 403 });
 
+  let body: { sessionIds?: unknown };
   try {
-    const body = (await request.json()) as { sessionIds?: unknown };
-    if (!Array.isArray(body.sessionIds) || body.sessionIds.length === 0) {
-      return NextResponse.json(
-        { error: 'sessionIds must be a non-empty array' },
-        { status: 400 },
-      );
-    }
+    body = (await request.json()) as { sessionIds?: unknown };
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
+
+  if (!Array.isArray(body.sessionIds) || body.sessionIds.length === 0) {
+    return NextResponse.json(
+      { error: 'sessionIds must be a non-empty array' },
+      { status: 400 },
+    );
+  }
+
+  try {
     const sessionIds = body.sessionIds.filter((s): s is string => typeof s === 'string');
     const result = await postTriageRequest(user.email, sessionIds);
     return NextResponse.json(result);

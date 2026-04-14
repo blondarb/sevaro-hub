@@ -22,36 +22,48 @@ export async function PATCH(
 
   const { id } = await params;
 
+  let body: { status?: unknown; processedCount?: unknown };
   try {
-    const body = (await request.json()) as {
+    body = (await request.json()) as {
       status?: unknown;
       processedCount?: unknown;
     };
-    const updates: { status?: TriageRequestStatus; processedCount?: number } = {};
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
 
-    if (body.status !== undefined) {
-      if (
-        typeof body.status !== 'string' ||
-        !VALID_STATUSES.includes(body.status as TriageRequestStatus)
-      ) {
-        return NextResponse.json(
-          { error: `status must be one of: ${VALID_STATUSES.join(', ')}` },
-          { status: 400 },
-        );
-      }
-      updates.status = body.status as TriageRequestStatus;
+  const updates: { status?: TriageRequestStatus; processedCount?: number } = {};
+
+  if (body.status !== undefined) {
+    if (
+      typeof body.status !== 'string' ||
+      !VALID_STATUSES.includes(body.status as TriageRequestStatus)
+    ) {
+      return NextResponse.json(
+        { error: `status must be one of: ${VALID_STATUSES.join(', ')}` },
+        { status: 400 },
+      );
     }
+    updates.status = body.status as TriageRequestStatus;
+  }
 
-    if (body.processedCount !== undefined) {
-      if (typeof body.processedCount !== 'number') {
-        return NextResponse.json(
-          { error: 'processedCount must be a number' },
-          { status: 400 },
-        );
-      }
-      updates.processedCount = body.processedCount;
+  if (body.processedCount !== undefined) {
+    if (typeof body.processedCount !== 'number') {
+      return NextResponse.json(
+        { error: 'processedCount must be a number' },
+        { status: 400 },
+      );
     }
+    if (!Number.isInteger(body.processedCount) || body.processedCount < 0) {
+      return NextResponse.json(
+        { error: 'processedCount must be a non-negative integer' },
+        { status: 400 },
+      );
+    }
+    updates.processedCount = body.processedCount;
+  }
 
+  try {
     const result = await patchTriageRequest(id, updates);
     return NextResponse.json(result);
   } catch (err) {

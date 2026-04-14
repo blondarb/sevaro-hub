@@ -36,8 +36,17 @@ export async function POST(request: Request) {
   const user = await verifyToken(token);
   if (!user?.isAdmin) return NextResponse.json({ error: 'Admin required' }, { status: 403 });
 
+  let body: Omit<TriageHistoryEntry, 'timestamp' | 'reviewerEmail'>;
   try {
-    const body = (await request.json()) as Omit<TriageHistoryEntry, 'timestamp' | 'reviewerEmail'>;
+    body = (await request.json()) as Omit<
+      TriageHistoryEntry,
+      'timestamp' | 'reviewerEmail'
+    >;
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
+
+  try {
     const result = await postTriageHistory({
       ...body,
       reviewerEmail: user.email,

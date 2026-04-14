@@ -110,6 +110,29 @@ describe('POST /api/feedback/triage-history', () => {
     expect(res.status).toBe(401);
   });
 
+  it('returns 400 when body is malformed JSON', async () => {
+    vi.mocked(extractToken).mockReturnValue('token');
+    vi.mocked(verifyToken).mockResolvedValue({
+      email: 'steve@sevaro.com',
+      sub: 'abc',
+      isAdmin: true,
+    });
+
+    const req = new Request('http://localhost/api/feedback/triage-history', {
+      method: 'POST',
+      headers: {
+        cookie: 'id_token=valid',
+        'content-type': 'application/json',
+      },
+      body: 'not-json{',
+    });
+
+    const res = await POST(req);
+
+    expect(res.status).toBe(400);
+    expect(postTriageHistory).not.toHaveBeenCalled();
+  });
+
   it('forwards body plus reviewerEmail from verified user', async () => {
     vi.mocked(extractToken).mockReturnValue('token');
     vi.mocked(verifyToken).mockResolvedValue({

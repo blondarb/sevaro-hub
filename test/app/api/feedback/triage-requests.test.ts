@@ -33,6 +33,14 @@ describe('GET /api/feedback/triage-requests', () => {
     vi.clearAllMocks();
   });
 
+  it('returns 401 when no token present', async () => {
+    vi.mocked(extractToken).mockReturnValue(null);
+
+    const res = await GET(makeRequest());
+
+    expect(res.status).toBe(401);
+  });
+
   it('returns 403 when user not admin', async () => {
     vi.mocked(extractToken).mockReturnValue('token');
     vi.mocked(verifyToken).mockResolvedValue({
@@ -91,6 +99,29 @@ describe('POST /api/feedback/triage-requests', () => {
     );
 
     expect(res.status).toBe(401);
+  });
+
+  it('returns 400 when body is malformed JSON', async () => {
+    vi.mocked(extractToken).mockReturnValue('token');
+    vi.mocked(verifyToken).mockResolvedValue({
+      email: 'steve@sevaro.com',
+      sub: 'abc',
+      isAdmin: true,
+    });
+
+    const req = new Request('http://localhost/api/feedback/triage-requests', {
+      method: 'POST',
+      headers: {
+        cookie: 'id_token=valid',
+        'content-type': 'application/json',
+      },
+      body: 'not-json{',
+    });
+
+    const res = await POST(req);
+
+    expect(res.status).toBe(400);
+    expect(postTriageRequest).not.toHaveBeenCalled();
   });
 
   it('calls postTriageRequest with user email and body sessionIds', async () => {
@@ -153,6 +184,63 @@ describe('PATCH /api/feedback/triage-requests/[id]', () => {
     });
 
     const res = await PATCH(patchRequest({ status: 'garbage' }), {
+      params: Promise.resolve({ id: 'r1' }),
+    });
+
+    expect(res.status).toBe(400);
+    expect(patchTriageRequest).not.toHaveBeenCalled();
+  });
+
+  it('returns 400 when body is malformed JSON', async () => {
+    vi.mocked(extractToken).mockReturnValue('token');
+    vi.mocked(verifyToken).mockResolvedValue({
+      email: 'steve@sevaro.com',
+      sub: 'abc',
+      isAdmin: true,
+    });
+
+    const req = new Request('http://localhost/api/feedback/triage-requests/r1', {
+      method: 'PATCH',
+      headers: {
+        cookie: 'id_token=valid',
+        'content-type': 'application/json',
+      },
+      body: 'not-json{',
+    });
+
+    const res = await PATCH(req, {
+      params: Promise.resolve({ id: 'r1' }),
+    });
+
+    expect(res.status).toBe(400);
+    expect(patchTriageRequest).not.toHaveBeenCalled();
+  });
+
+  it('rejects negative processedCount with 400', async () => {
+    vi.mocked(extractToken).mockReturnValue('token');
+    vi.mocked(verifyToken).mockResolvedValue({
+      email: 'steve@sevaro.com',
+      sub: 'abc',
+      isAdmin: true,
+    });
+
+    const res = await PATCH(patchRequest({ processedCount: -1 }), {
+      params: Promise.resolve({ id: 'r1' }),
+    });
+
+    expect(res.status).toBe(400);
+    expect(patchTriageRequest).not.toHaveBeenCalled();
+  });
+
+  it('rejects non-integer processedCount with 400', async () => {
+    vi.mocked(extractToken).mockReturnValue('token');
+    vi.mocked(verifyToken).mockResolvedValue({
+      email: 'steve@sevaro.com',
+      sub: 'abc',
+      isAdmin: true,
+    });
+
+    const res = await PATCH(patchRequest({ processedCount: 3.7 }), {
       params: Promise.resolve({ id: 'r1' }),
     });
 
