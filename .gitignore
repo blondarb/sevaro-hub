@@ -8,3 +8,6 @@ lambda/**/*.zip
 
 # Superpowers brainstorming artifacts
 .superpowers/
+
+# Claude Code worktrees and agent workspace
+.claude/
