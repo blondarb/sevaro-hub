@@ -11,6 +11,11 @@ export default defineConfig({
     setupFiles: ['./test/setup.ts'],
     coverage: { provider: 'v8', reporter: ['text', 'html'] },
   },
+  // Override tsconfig's `jsx: preserve` so that oxc (rolldown) transforms
+  // JSX in component tests. Without this, TSX test files fail to parse.
+  oxc: {
+    jsx: { runtime: 'automatic' },
+  },
   resolve: {
     alias: { '@': path.resolve(__dirname, './src') },
   },
