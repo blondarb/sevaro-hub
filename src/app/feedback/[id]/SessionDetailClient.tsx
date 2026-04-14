@@ -21,6 +21,26 @@ const TYPE_LABELS: Record<string, string> = {
   'content-fix': 'Content Fix',
 };
 
+// Processing-pipeline status (recording → submitted → transcribed → summarized | error).
+// NOTE: "error" here means the Lambda failed to transcribe/summarize this session — it
+// is NOT the user's feedback category (which is bug/suggestion/confusion/praise). We
+// render error in amber with a ⚠ prefix so it's visually distinct from "bug" category
+// feedback, which the old red "Error" label was easy to confuse with.
+const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
+  recording: { bg: 'rgba(239,68,68,0.15)', text: '#f87171', label: 'Recording' },
+  submitted: { bg: 'rgba(59,130,246,0.15)', text: '#60a5fa', label: 'Processing' },
+  transcribed: { bg: 'rgba(251,191,36,0.15)', text: '#fbbf24', label: 'Transcribed' },
+  summarized: { bg: 'rgba(34,197,94,0.15)', text: '#4ade80', label: 'Ready' },
+  error: { bg: 'rgba(245,158,11,0.15)', text: '#f59e0b', label: 'Processing Failed' },
+};
+
+const CATEGORY_COLORS: Record<string, { bg: string; text: string }> = {
+  bug: { bg: 'rgba(239,68,68,0.15)', text: '#f87171' },
+  suggestion: { bg: 'rgba(59,130,246,0.15)', text: '#60a5fa' },
+  confusion: { bg: 'rgba(251,191,36,0.15)', text: '#fbbf24' },
+  praise: { bg: 'rgba(34,197,94,0.15)', text: '#4ade80' },
+};
+
 const REVIEW_STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
   open: { bg: 'rgba(59,130,246,0.15)', text: '#60a5fa', label: 'Open' },
   in_progress: { bg: 'rgba(251,191,36,0.15)', text: '#fbbf24', label: 'In Progress' },
@@ -172,6 +192,8 @@ export function SessionDetailClient({ session, events, actionItems, chatMessages
     : '';
 
   const currentReviewStyle = REVIEW_STATUS_STYLES[reviewStatus] || REVIEW_STATUS_STYLES.open;
+  const currentStatusStyle = STATUS_STYLES[session.status] || STATUS_STYLES.submitted;
+  const currentCategoryStyle = CATEGORY_COLORS[session.category] || CATEGORY_COLORS.suggestion;
 
   return (
     <>
@@ -248,8 +270,14 @@ export function SessionDetailClient({ session, events, actionItems, chatMessages
         <div className="sd-header">
           <div className="sd-badges">
             <span className="sd-badge" style={{ background: 'rgba(60,160,240,0.15)', color: '#60a5fa' }}>{session.appId}</span>
-            <span className="sd-badge" style={{ background: 'rgba(251,191,36,0.15)', color: '#fbbf24' }}>{session.category}</span>
-            <span className="sd-badge" style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80' }}>{session.status}</span>
+            <span className="sd-badge" style={{ background: currentCategoryStyle.bg, color: currentCategoryStyle.text }}>{session.category}</span>
+            <span
+              className="sd-badge"
+              style={{ background: currentStatusStyle.bg, color: currentStatusStyle.text }}
+              title={session.status === 'error' && session.processingError ? session.processingError : undefined}
+            >
+              {session.status === 'error' ? '\u26A0 ' : ''}{currentStatusStyle.label}
+            </span>
             <span className="sd-badge" style={{ background: currentReviewStyle.bg, color: currentReviewStyle.text }}>
               {currentReviewStyle.label}
             </span>
@@ -264,6 +292,31 @@ export function SessionDetailClient({ session, events, actionItems, chatMessages
             {annotations.length > 0 && <span>{annotations.length} annotations</span>}
           </div>
         </div>
+
+        {/* Processing failure banner — only when the pipeline (transcribe/summarize)
+            errored. Distinct from the "bug" category; this is a backend failure, not
+            user feedback. We surface processingError if the Lambda captured one so
+            admins don't have to go digging through CloudWatch to know what broke. */}
+        {session.status === 'error' && (
+          <div style={{
+            background: 'rgba(245,158,11,0.08)',
+            border: '1px solid rgba(245,158,11,0.25)',
+            borderRadius: 12, padding: '14px 18px', marginBottom: 16,
+            display: 'flex', alignItems: 'flex-start', gap: 12,
+          }}>
+            <div style={{ fontSize: '1.1rem', lineHeight: 1, marginTop: 2 }}>⚠</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#f59e0b', marginBottom: 4 }}>
+                Processing failed
+              </div>
+              <div style={{ fontSize: '0.82rem', color: '#b0b8c8', lineHeight: 1.5 }}>
+                {session.processingError
+                  ? session.processingError
+                  : 'The transcription or summarization pipeline failed for this session. Audio and events are still available below.'}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Admin: Status Management */}
         <div style={{

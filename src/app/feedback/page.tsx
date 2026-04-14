@@ -26,7 +26,7 @@ const STATUS_LABELS: Record<string, { bg: string; text: string; label: string }>
   submitted: { bg: 'rgba(59,130,246,0.15)', text: '#60a5fa', label: 'Processing' },
   transcribed: { bg: 'rgba(251,191,36,0.15)', text: '#fbbf24', label: 'Transcribed' },
   summarized: { bg: 'rgba(34,197,94,0.15)', text: '#4ade80', label: 'Ready' },
-  error: { bg: 'rgba(239,68,68,0.15)', text: '#f87171', label: 'Error' },
+  error: { bg: 'rgba(245,158,11,0.15)', text: '#f59e0b', label: 'Processing Failed' },
 };
 
 const REVIEW_STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
@@ -284,8 +284,12 @@ export default function FeedbackDashboard() {
                   <span className="fb-badge" style={{ background: cat.bg, color: cat.text }}>
                     {session.category}
                   </span>
-                  <span className="fb-badge" style={{ background: statusInfo.bg, color: statusInfo.text }}>
-                    {statusInfo.label}
+                  <span
+                    className="fb-badge"
+                    style={{ background: statusInfo.bg, color: statusInfo.text }}
+                    title={session.status === 'error' && session.processingError ? session.processingError : undefined}
+                  >
+                    {session.status === 'error' ? '\u26A0 ' : ''}{statusInfo.label}
                   </span>
                   <span className="fb-badge" style={{ background: rs.bg, color: rs.text }}>
                     {rs.label}
@@ -306,7 +310,7 @@ export default function FeedbackDashboard() {
                   )}
                 </div>
                 <div className="fb-session-summary">
-                  {session.aiSummary || session.transcript?.slice(0, 150) || 'Processing...'}
+                  {session.aiSummary || session.transcript?.slice(0, 150) || (session.status === 'error' ? `Processing failed${session.processingError ? ': ' + session.processingError : ''}` : 'Processing...')}
                 </div>
                 <div className="fb-session-meta">
                   <span>{session.userLabel || 'Anonymous'}</span>
