@@ -223,7 +223,7 @@ Based on user feedback from ${userCount} tester${userCount > 1 ? 's' : ''} (coll
   prompt += `Run the dev server and confirm each fix works correctly. Check for console errors, visual regressions, and that the reported behavior is resolved. If a fix doesn't work, iterate until it does.\n\n`;
 
   prompt += `### Step 2: Mark feedback as addressed\n`;
-  prompt += `Update the action item statuses in the feedback system by running this curl command:\n\n`;
+  prompt += `Update the action item statuses in the feedback system by running these commands. The feedback API requires an \`x-api-key\` header; the first line fetches it from AWS Secrets Manager (requires \`sevaro-sandbox\` AWS credentials), and the \`&&\` ensures the curl is only attempted if the key fetch succeeds:\n\n`;
   prompt += '```bash\n';
 
   // Build the updated action items with status changed to "resolved"
@@ -236,8 +236,10 @@ Based on user feedback from ${userCount} tester${userCount > 1 ? 's' : ''} (coll
   const appId = sessions[0]?.appId;
 
   if (sessionId && appId) {
+    prompt += `FEEDBACK_API_KEY=$(AWS_PROFILE=sevaro-sandbox aws secretsmanager get-secret-value --region us-east-2 --secret-id sevaro/feedback-api-key --query 'SecretString' --output text) && \\\n`;
     prompt += `curl -s -X PUT "https://8uagz9y5bh.execute-api.us-east-2.amazonaws.com/feedback/sessions/${sessionId}" \\\n`;
     prompt += `  -H "Content-Type: application/json" \\\n`;
+    prompt += `  -H "x-api-key: $FEEDBACK_API_KEY" \\\n`;
     prompt += `  -d '${JSON.stringify({ appId, status: 'addressed', actionItems: resolvedItems })}'\n`;
   }
 
