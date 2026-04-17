@@ -19,7 +19,7 @@
             "src/lib/evidence-tools.ts"
           ],
           "quickPrompt": "Two-phase synthesis (PR #156) ships Key Points in ~8s, full answer ~18s. Compact prompt active. Lambda + polling API updated.",
-          "fullPrompt": "## Task: Further Optimize Evidence Engine Haiku Synthesis Speed\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/lib/bedrock-converse.ts, src/lib/evidence-tools.ts\n\n## Current State (Mar 30, 2026)\n- PR #140: Compact synthesis prompt reduced avg Lambda from 27.4s to 23.4s (-14.6%). SYNTHESIS_PROMPT_COMPACT=1 set permanently on Lambda.\n- PR #136: Parallel validation ships synthesis to user before validation completes — improves perceived latency.\n- Benchmark: KB=5 result count had no effect on complex queries (28.7s avg, +1.3s vs baseline).\n- Confirmed bottleneck: Sonnet tool-calling loop, not Haiku synthesis or KB retrieval.\n- performanceConfig NOT supported for Haiku 4.5 in us-east-2.\n\n## Investigation areas\n1. Parallelize Sonnet reasoning steps (currently sequential tool-call rounds)\n2. Reduce number of tool-calling round-trips for common queries\n3. Investigate streaming synthesis tokens to client during Lambda execution\n4. Profile CloudWatch logs for largest context sections in tool-calling phase\n\n## Acceptance criteria\n- Complex queries synthesize in under 15s total Lambda duration\n- No quality regression (run qa/STEELMAN.md — must maintain 100/100)\n- CloudWatch logs confirm reduced duration",
+          "fullPrompt": "## Task: Further Optimize Evidence Engine Haiku Synthesis Speed\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/lib/bedrock-converse.ts, src/lib/evidence-tools.ts\n\n## Current State (Mar 30, 2026)\n- PR #140: Compact synthesis prompt reduced avg Lambda from 27.4s to 23.4s (-14.6%). SYNTHESIS_PROMPT_COMPACT=1 set permanently on Lambda.\n- PR #136: Parallel validation ships synthesis to user before validation completes \u2014 improves perceived latency.\n- Benchmark: KB=5 result count had no effect on complex queries (28.7s avg, +1.3s vs baseline).\n- Confirmed bottleneck: Sonnet tool-calling loop, not Haiku synthesis or KB retrieval.\n- performanceConfig NOT supported for Haiku 4.5 in us-east-2.\n\n## Investigation areas\n1. Parallelize Sonnet reasoning steps (currently sequential tool-call rounds)\n2. Reduce number of tool-calling round-trips for common queries\n3. Investigate streaming synthesis tokens to client during Lambda execution\n4. Profile CloudWatch logs for largest context sections in tool-calling phase\n\n## Acceptance criteria\n- Complex queries synthesize in under 15s total Lambda duration\n- No quality regression (run qa/STEELMAN.md \u2014 must maintain 100/100)\n- CloudWatch logs confirm reduced duration",
           "manualSteps": [
             "Open src/lib/bedrock-converse.ts and find the synthesis function",
             "Add CloudWatch logging for prompt token count on complex queries",
@@ -103,7 +103,7 @@
             "src/lib/evidence-tools.ts"
           ],
           "quickPrompt": "In the Evidence Engine repo, fix PubMed query construction in src/lib/pubmed-search.ts. Some valid clinical topics return 0 results. Add MeSH term fallbacks and broader query strategies.",
-          "fullPrompt": "## Task: Fix PubMed Query Construction\n\n**Repo:** sevaro-evidence-engine\n**Key file:** src/lib/pubmed-search.ts\n\n## Problem\nSonnet generates search queries for PubMed via the search_pubmed tool, but some valid topics return 0 results. Examples: rare neurological conditions, newer treatments.\n\n## Fix approach\n1. Add MeSH term expansion — map common clinical terms to MeSH vocabulary\n2. Implement query fallback: if first query returns 0, broaden terms and retry\n3. Consider splitting compound queries into simpler sub-queries\n4. Log failed queries for future analysis\n\n## Acceptance criteria\n- Known-failing queries now return relevant results\n- No increase in irrelevant results for queries that already work\n- Run qa/run_smoke.sh to verify",
+          "fullPrompt": "## Task: Fix PubMed Query Construction\n\n**Repo:** sevaro-evidence-engine\n**Key file:** src/lib/pubmed-search.ts\n\n## Problem\nSonnet generates search queries for PubMed via the search_pubmed tool, but some valid topics return 0 results. Examples: rare neurological conditions, newer treatments.\n\n## Fix approach\n1. Add MeSH term expansion \u2014 map common clinical terms to MeSH vocabulary\n2. Implement query fallback: if first query returns 0, broaden terms and retry\n3. Consider splitting compound queries into simpler sub-queries\n4. Log failed queries for future analysis\n\n## Acceptance criteria\n- Known-failing queries now return relevant results\n- No increase in irrelevant results for queries that already work\n- Run qa/run_smoke.sh to verify",
           "manualSteps": [
             "Open src/lib/pubmed-search.ts",
             "Find the query construction logic",
@@ -128,7 +128,7 @@
             "lambda/kb-sync/",
             "src/lib/evidence-tools.ts"
           ],
-          "quickPrompt": "In the Evidence Engine repo, automate KB updates with a kb-sync Lambda that triggers Bedrock KB re-ingestion when new docs land in S3. Context (Apr 4): User article ingestion pipeline now exists (PR #183) — web upload + email path + screener extract title/subspecialty/date. 19 EventBridge-scheduled fetcher Lambdas run daily. The missing piece is automated KB re-ingestion after S3 uploads. Build kb-sync Lambda triggered by S3 events to call Bedrock StartIngestionJob.",
+          "quickPrompt": "In the Evidence Engine repo, automate KB updates with a kb-sync Lambda that triggers Bedrock KB re-ingestion when new docs land in S3. Context (Apr 4): User article ingestion pipeline now exists (PR #183) \u2014 web upload + email path + screener extract title/subspecialty/date. 19 EventBridge-scheduled fetcher Lambdas run daily. The missing piece is automated KB re-ingestion after S3 uploads. Build kb-sync Lambda triggered by S3 events to call Bedrock StartIngestionJob.",
           "fullPrompt": "## Task: Automated KB Update Pipeline\n\n**Repo:** sevaro-evidence-engine\n**New files:** lambda/document-processor/, lambda/kb-sync/\n\n## Context\nThe Bedrock KB (T4W8S8RNMN) has ~26,524 docs in S3 sources/external/active/. Currently updated manually via fetcher Lambdas.\n\n## Build\n1. document-processor Lambda: Scheduled daily, fetches new content from PubMed, FDA, ClinicalTrials APIs, formats as text files, uploads to S3\n2. kb-sync Lambda: Triggered by S3 events, calls Bedrock StartIngestionJob to re-index\n3. SAM template for deployment\n4. EventBridge rule for daily schedule\n\n## Acceptance criteria\n- New docs appear in S3 after Lambda runs\n- KB re-ingests automatically\n- No duplicate documents\n- CloudWatch logs for monitoring",
           "manualSteps": [
             "Create lambda/document-processor/ directory with index.js",
@@ -141,7 +141,7 @@
         },
         {
           "id": "neurology-reasoning-engine",
-          "title": "Neurology Reasoning Engine — DDx Builder + Exam Interpreter + Validator",
+          "title": "Neurology Reasoning Engine \u2014 DDx Builder + Exam Interpreter + Validator",
           "status": "done",
           "complexity": "high",
           "description": "Three-stage AI reasoning: Sonnet reasons with tool-use, Haiku synthesizes evidence, Haiku validates. DDx Builder produces three-tiered differentials. Exam Interpreter provides neuroanatomical localization. Shipped in PR #69.",
@@ -275,7 +275,7 @@
         },
         {
           "id": "competitive-eval-impl",
-          "title": "Competitive evaluation framework — Python benchmarking pipeline (SEE vs competitors)",
+          "title": "Competitive evaluation framework \u2014 Python benchmarking pipeline (SEE vs competitors)",
           "status": "done",
           "complexity": "medium",
           "description": "Competitive evaluation pipeline shipped (PRs #185-194, Apr 3-4). qa/eval_competitive.py runs end-to-end via run-eval.sh. Benchmark bank expanded to 30 questions across weak subspecialties (qa/eval-questions.json). Playwright scrapers for Open Evidence, Vera Health, UpToDate with cookie-based auth. Bedrock cross-region inference profile for scoring. /eval admin page at src/app/eval/page.tsx. DynamoDB eval tables provisioned.",
@@ -296,7 +296,7 @@
         },
         {
           "id": "evidence-oncall-guides",
-          "title": "On-Call Facility Guides — hybrid DynamoDB + RAG (Operations KB)",
+          "title": "On-Call Facility Guides \u2014 hybrid DynamoDB + RAG (Operations KB)",
           "status": "done",
           "complexity": "high",
           "description": "Shipped On-Call Facility Guides (Apr 5-6, 2026): New Operations Bedrock KB (ZHG5JIHX1U) for hospital-specific protocols. 550 docs across 45 hospitals uploaded to S3 with metadata sidecars. Hospital-scoped filtering via hospital_id metadata. AI-synthesized answers with domain glossary (query expansion for shorthand terms). Web app: facility selector + detail card with collapsible sections. Chrome extension: 4th On Call tab with hospital dropdown, search, answer card. Textract OCR script for 388 scanned PDFs. Stat level 1/2 definitions. PRs #236-251.",
@@ -312,7 +312,7 @@
         },
         {
           "id": "evidence-encounter-workspace",
-          "title": "Encounter workspace refactor — Prep/Record/Note tabs + streaming transcription",
+          "title": "Encounter workspace refactor \u2014 Prep/Record/Note tabs + streaming transcription",
           "status": "done",
           "complexity": "high",
           "description": "Shipped EncounterWorkspace refactor (Apr 5, 2026): 3-tab layout (Prep/Record/Note), chart prep state persistence across remount, progressive streaming transcription (parallel Transcribe Medical during recording, transcript ready on stop). Multi-record flow fixes: Record More pre-captures tab stream, encounter ID tracing, stuck status fix. Anti-hallucination guardrails for note generation. 46 Playwright E2E tests passing. PRs #232-248.",
@@ -327,7 +327,7 @@
         },
         {
           "id": "evidence-sso-passkeys",
-          "title": "SSO Phase 4 — Passkeys/WebAuthn as TOTP alternative",
+          "title": "SSO Phase 4 \u2014 Passkeys/WebAuthn as TOTP alternative",
           "status": "pending",
           "complexity": "medium",
           "description": "Add WebAuthn/Passkeys as an alternative to TOTP MFA. User-requested, deferred until SSO is fully stable. Current MFA: required TOTP via Cognito. Target: allow passkey registration + use in Cognito User Pool.",
@@ -336,7 +336,7 @@
             "src/app/auth/",
             "src/lib/cognito.ts"
           ],
-          "quickPrompt": "In the sevaro-evidence-engine repo, add Passkeys/WebAuthn as a TOTP alternative. Cognito User Pool: us-east-2_9y6XyJnXC. Check passkey support: aws cognito-idp describe-user-pool --user-pool-id us-east-2_9y6XyJnXC --profile sevaro-sandbox. Implement passkey registration in src/app/settings/ and passkey sign-in in src/lib/cognito.ts. Keep existing TOTP path — passkeys are additive.",
+          "quickPrompt": "In the sevaro-evidence-engine repo, add Passkeys/WebAuthn as a TOTP alternative. Cognito User Pool: us-east-2_9y6XyJnXC. Check passkey support: aws cognito-idp describe-user-pool --user-pool-id us-east-2_9y6XyJnXC --profile sevaro-sandbox. Implement passkey registration in src/app/settings/ and passkey sign-in in src/lib/cognito.ts. Keep existing TOTP path \u2014 passkeys are additive.",
           "fullPrompt": "## Task: SSO Phase 4 - Passkeys/WebAuthn\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/app/auth/, src/lib/cognito.ts\n\n## Context\nCurrent auth: Cognito + required TOTP MFA. Users find TOTP friction high. Request: add passkey as alternative.\n\n## Approach\n1. Check Cognito passkey support on current pool settings\n2. Enable WebAuthn in the Cognito User Pool if supported\n3. Add passkey registration flow to the auth UI (after initial TOTP setup)\n4. Add passkey sign-in as an alternative on the login page\n5. Keep TOTP as fallback\n\n## Acceptance Criteria\n- User can register a passkey after first login\n- User can authenticate with passkey on subsequent visits\n- TOTP still works as fallback\n- No regression on existing auth flow\n\n## Constraints\n- Never bypass TOTP requirement on first login\n- All Cognito changes via CDK or AWS CLI with --profile sevaro-sandbox\n- Test with ephemeral test user before production changes",
           "manualSteps": [
             "Check Cognito passkey support: aws cognito-idp describe-user-pool --user-pool-id us-east-2_9y6XyJnXC --profile sevaro-sandbox",
@@ -368,7 +368,7 @@
             "src/lib/transcribe-streaming.ts",
             "src/app/api/ai/transcribe/"
           ],
-          "quickPrompt": "In the OPSAmple repo, add real-time voice streaming during encounters. Currently post-recording only. Reference pattern: Evidence Engine shipped progressive Transcribe Medical streaming (Apr 5) — parallel streaming during recording, transcript ready on stop, note generation begins immediately with batch fallback. See sevaro-evidence-engine chrome-extension/src/services/ for the implementation. Use AWS Transcribe Medical (HIPAA-eligible) for compliance. Target: words appear within 500ms of being spoken.",
+          "quickPrompt": "In the OPSAmple repo, add real-time voice streaming during encounters. Currently post-recording only. Reference pattern: Evidence Engine shipped progressive Transcribe Medical streaming (Apr 5) \u2014 parallel streaming during recording, transcript ready on stop, note generation begins immediately with batch fallback. See sevaro-evidence-engine chrome-extension/src/services/ for the implementation. Use AWS Transcribe Medical (HIPAA-eligible) for compliance. Target: words appear within 500ms of being spoken.",
           "fullPrompt": "## Task: Real-Time Voice Streaming\n\n**Repo:** OPSAmplehtml\n**Key area:** Transcription components\n\n## Context\nOPSAmple has post-recording transcription but no live streaming. Clinicians want to see words appear in real-time during encounters.\n\n## Approach\n1. Add WebSocket connection to streaming transcription service\n2. Display interim results in real-time, replace with finals\n3. Handle microphone permissions and audio capture in browser\n4. Consider AWS Transcribe Medical for HIPAA compliance\n\n## Acceptance criteria\n- Words appear within 500ms of being spoken\n- Final transcription matches post-recording quality\n- Works on Chrome and Safari\n- Graceful fallback if streaming unavailable",
           "manualSteps": [
             "Set up streaming transcription service",
@@ -531,8 +531,8 @@
           "keyFiles": [
             "src/data/projects.ts"
           ],
-          "quickPrompt": "In the GitHub Showcase repo, add all live v2 clinical plan sites to the portfolio: Neuro Plans v2 (plans.neuroplans.app, 378 plans / 53 scales / 14 subspecialties), Cardio Plans v2 (cardio.neuroplans.app, 135 plans), NeuroCrit Care Plans v2 (neurocrit.neuroplans.app — 150 plans, 18 scales, 20 tools), PM&R Rehab Plans v2 (pmr.neuroplans.app — 166 plans, 20 scales, 18 tools), Sevaro EEG Reporter (eeg.neuroplans.app — CPT coding engine, AWS Transcribe Medical voice dictation, Phases 1-7, 3-tab layout), Pulm & Crit Care Plans v2 (pulm.neuroplans.app, 136 plans), Spine Surgery Plans v2 (spine.neuroplans.app, 148 plans). Total: 1,128+ clinical plans across 6 specialty sites. All sites include @sevaro/feedback widget (security-hardened, API key auth). Insert entries into the repo_metadata RDS table with tech stack (Next.js 15/16, Cognito OAuth, RDS PostgreSQL), live URLs, and highlights.",
-          "fullPrompt": "## Task: Add v2 Clinical Sites to Showcase\n\n**Repo:** github-showcase\n\n## Live sites to add\n1. Neuro Plans v2 — plans.neuroplans.app (378 plans, 53 scales, 14 subspecialties)\n2. Cardio Plans v2 — cardio.neuroplans.app (deployed Mar 28, 2026)\n3. NeuroCrit Care Plans v2 — live (18 scoring scales, 20 clinical tools, critical care focus)\n4. PM&R Rehab Plans v2 — live (20 scales, 18 tools, rehab focus)\n5. Sevaro EEG Reporter — live (CPT coding engine, Phases 1-2+, Zeto EEG support)\n\n## In-development sites to note\n- Pulm & Crit Care Plans v2 — pulm.neuroplans.app (Amplify deploy pending)\n- Spine Surgery Plans v2 — spine.neuroplans.app (Amplify deploy pending)\n\n## Steps\n1. Add each live site to repo_metadata table in RDS\n2. Include: description, tech stack, live URL, highlights, status=live\n3. Mark in-dev sites with status=development\n4. Verify showcase renders all entries correctly",
+          "quickPrompt": "In the GitHub Showcase repo, add all live v2 clinical plan sites to the portfolio: Neuro Plans v2 (plans.neuroplans.app, 378 plans / 53 scales / 14 subspecialties), Cardio Plans v2 (cardio.neuroplans.app, 135 plans), NeuroCrit Care Plans v2 (neurocrit.neuroplans.app \u2014 150 plans, 18 scales, 20 tools), PM&R Rehab Plans v2 (pmr.neuroplans.app \u2014 166 plans, 20 scales, 18 tools), Sevaro EEG Reporter (eeg.neuroplans.app \u2014 CPT coding engine, AWS Transcribe Medical voice dictation, Phases 1-7, 3-tab layout), Pulm & Crit Care Plans v2 (pulm.neuroplans.app, 136 plans), Spine Surgery Plans v2 (spine.neuroplans.app, 148 plans). Total: 1,128+ clinical plans across 6 specialty sites. All sites include @sevaro/feedback widget (security-hardened, API key auth). Insert entries into the repo_metadata RDS table with tech stack (Next.js 15/16, Cognito OAuth, RDS PostgreSQL), live URLs, and highlights.",
+          "fullPrompt": "## Task: Add v2 Clinical Sites to Showcase\n\n**Repo:** github-showcase\n\n## Live sites to add\n1. Neuro Plans v2 \u2014 plans.neuroplans.app (378 plans, 53 scales, 14 subspecialties)\n2. Cardio Plans v2 \u2014 cardio.neuroplans.app (deployed Mar 28, 2026)\n3. NeuroCrit Care Plans v2 \u2014 live (18 scoring scales, 20 clinical tools, critical care focus)\n4. PM&R Rehab Plans v2 \u2014 live (20 scales, 18 tools, rehab focus)\n5. Sevaro EEG Reporter \u2014 live (CPT coding engine, Phases 1-2+, Zeto EEG support)\n\n## In-development sites to note\n- Pulm & Crit Care Plans v2 \u2014 pulm.neuroplans.app (Amplify deploy pending)\n- Spine Surgery Plans v2 \u2014 spine.neuroplans.app (Amplify deploy pending)\n\n## Steps\n1. Add each live site to repo_metadata table in RDS\n2. Include: description, tech stack, live URL, highlights, status=live\n3. Mark in-dev sites with status=development\n4. Verify showcase renders all entries correctly",
           "manualSteps": [
             "Connect to RDS github_showcase database",
             "Insert v2 sites into repo_metadata",
@@ -583,7 +583,7 @@
             "src/components/WorkoutPlayer.tsx"
           ],
           "quickPrompt": "In the Workouts repo, fix voice handoff reliability. Phrase matching drifts with transcription variations. Improve normalization and matching logic.",
-          "fullPrompt": "## Task: Fix Voice Handoff Reliability\n\n**Repo:** Workouts\n\n## Problem\nVoice handoff phrase matching is unreliable — transcription variations cause missed handoffs. Users say 'next exercise' but transcription might produce 'next excersize' or 'necks exercise'.\n\n## Fix approach\n1. Review current phrase matching in voice-handoff.ts\n2. Add fuzzy matching or Levenshtein distance tolerance\n3. Normalize common transcription errors\n4. Add touch fallback for all critical voice actions\n5. Test with varied speech patterns\n\n## Acceptance criteria\n- Voice handoff succeeds >95% of the time\n- Touch fallback available for every voice action\n- Test with qa/TEST_RUNBOOK.md voice scenarios",
+          "fullPrompt": "## Task: Fix Voice Handoff Reliability\n\n**Repo:** Workouts\n\n## Problem\nVoice handoff phrase matching is unreliable \u2014 transcription variations cause missed handoffs. Users say 'next exercise' but transcription might produce 'next excersize' or 'necks exercise'.\n\n## Fix approach\n1. Review current phrase matching in voice-handoff.ts\n2. Add fuzzy matching or Levenshtein distance tolerance\n3. Normalize common transcription errors\n4. Add touch fallback for all critical voice actions\n5. Test with varied speech patterns\n\n## Acceptance criteria\n- Voice handoff succeeds >95% of the time\n- Touch fallback available for every voice action\n- Test with qa/TEST_RUNBOOK.md voice scenarios",
           "manualSteps": [
             "Open src/lib/voice-handoff.ts",
             "Review phrase matching logic",
@@ -606,8 +606,8 @@
           "keyFiles": [
             "qa/TEST_RUNBOOK.md"
           ],
-          "quickPrompt": "In the Workouts repo, run the full QA pass per qa/TEST_RUNBOOK.md. OAuth SSO migration is done (PR #11 — Cognito Hosted UI). Privacy policy update is in progress. After QA pass completes with no blockers, deploy to production. Ensure all known issues are documented before shipping.",
-          "fullPrompt": "## Task: QA Pass and Production Deploy\n\n**Repo:** Workouts\n\n## Prerequisites\n- OAuth SSO migration done (PR #11 — Cognito OAuth + PKCE) ✅\n- Privacy policy and scope docs updated (check status)\n- Voice handoff reliability improved (fix-voice-handoff milestone — pending)\n\n## Steps\n1. Read qa/TEST_RUNBOOK.md for full QA checklist\n2. Test OAuth login flow end-to-end (Cognito Hosted UI redirect)\n3. Test voice handoff with current normalization logic\n4. Run all automated tests if available\n5. Fix any issues found\n6. Deploy to production on main branch\n7. Verify live deployment works",
+          "quickPrompt": "In the Workouts repo, run the full QA pass per qa/TEST_RUNBOOK.md. OAuth SSO migration is done (PR #11 \u2014 Cognito Hosted UI). Privacy policy update is in progress. After QA pass completes with no blockers, deploy to production. Ensure all known issues are documented before shipping.",
+          "fullPrompt": "## Task: QA Pass and Production Deploy\n\n**Repo:** Workouts\n\n## Prerequisites\n- OAuth SSO migration done (PR #11 \u2014 Cognito OAuth + PKCE) \u2705\n- Privacy policy and scope docs updated (check status)\n- Voice handoff reliability improved (fix-voice-handoff milestone \u2014 pending)\n\n## Steps\n1. Read qa/TEST_RUNBOOK.md for full QA checklist\n2. Test OAuth login flow end-to-end (Cognito Hosted UI redirect)\n3. Test voice handoff with current normalization logic\n4. Run all automated tests if available\n5. Fix any issues found\n6. Deploy to production on main branch\n7. Verify live deployment works",
           "manualSteps": [
             "Read qa/TEST_RUNBOOK.md",
             "Run each test scenario manually",
@@ -691,7 +691,7 @@
           "title": "Submit iOS update to App Store",
           "status": "pending",
           "complexity": "medium",
-          "description": "After Supabase is fully removed and all features tested, submit an updated Neuro Plans build to the App Store. This is a maintenance update — no new features, just backend migration.",
+          "description": "After Supabase is fully removed and all features tested, submit an updated Neuro Plans build to the App Store. This is a maintenance update \u2014 no new features, just backend migration.",
           "prerequisites": [
             "Supabase SDK removed",
             "All endpoints tested",
@@ -715,7 +715,7 @@
           "title": "Specialty hub with 67+ clinical tools + subspecialty navigation across neurology, pulmonology, critical care, spine, PM&R",
           "status": "done",
           "complexity": "high",
-          "description": "Built specialty hub at plans.neuroplans.app with 67+ clinical tools spanning scales, calculators, protocols, and references. Added Pulm/Crit Care (PR #7), Spine Surgery, PM&R card (PR #15, Mar 28). Mobile-friendly navigation (PR #13, Mar 28). Promoted scales/calculators/protocols/references to top-level nav (PR #12, Mar 28). ICP threshold corrected 20→22 mmHg per BTF 4th Edition (PR #14). Feedback widget (PR #11). OAuth SSO via Cognito Hosted UI (PR #8). Subspecialty tab navigation with 14 filters (PR #16, Mar 29). Dual schema support: old subsection + new JSONB pipeline (PR #17). 25 new scoring scales for expanded subspecialties (PR #18). Flat plan view when subspecialty tab selected (PR #19). Hub card updated: 378 plans, 53 scales, 14 subspecialties.",
+          "description": "Built specialty hub at plans.neuroplans.app with 67+ clinical tools spanning scales, calculators, protocols, and references. Added Pulm/Crit Care (PR #7), Spine Surgery, PM&R card (PR #15, Mar 28). Mobile-friendly navigation (PR #13, Mar 28). Promoted scales/calculators/protocols/references to top-level nav (PR #12, Mar 28). ICP threshold corrected 20\u219222 mmHg per BTF 4th Edition (PR #14). Feedback widget (PR #11). OAuth SSO via Cognito Hosted UI (PR #8). Subspecialty tab navigation with 14 filters (PR #16, Mar 29). Dual schema support: old subsection + new JSONB pipeline (PR #17). 25 new scoring scales for expanded subspecialties (PR #18). Flat plan view when subspecialty tab selected (PR #19). Hub card updated: 378 plans, 53 scales, 14 subspecialties.",
           "prerequisites": [],
           "keyFiles": [],
           "quickPrompt": "Specialty hub shipped with 67+ clinical tools across neurology, pulmonology, critical care, spine surgery, and PM&R. Subspecialty tab navigation (14 filters), dual-schema DB support, 25 new scales, and flat subspecialty view all live as of Mar 29. Hub shows 378 plans, 53 scales, 14 subspecialties.",
@@ -936,7 +936,7 @@
             "SevaroMonitor/Views/Assessments/"
           ],
           "quickPrompt": "In the SevaroMonitor repo, polish the spiral drawing and gait assessment UIs for clinical usability. Focus on clear instructions, smooth drawing capture, and results display.",
-          "fullPrompt": "## Task: Assessment UI Polish\n\n**Repo:** SevaroMonitor\n\n## Assessments to polish\n1. Spiral drawing — capture finger-drawn spirals for tremor analysis\n2. Gait assessment — walk test with IMU data capture\n\n## Focus areas\n- Clear patient-facing instructions\n- Smooth drawing capture (spiral)\n- Accurate timing and step counting (gait)\n- Results display with clinical context\n\n## Acceptance criteria\n- Both assessments are intuitive for patients\n- Data captures are accurate and complete\n- Results show clinically meaningful metrics",
+          "fullPrompt": "## Task: Assessment UI Polish\n\n**Repo:** SevaroMonitor\n\n## Assessments to polish\n1. Spiral drawing \u2014 capture finger-drawn spirals for tremor analysis\n2. Gait assessment \u2014 walk test with IMU data capture\n\n## Focus areas\n- Clear patient-facing instructions\n- Smooth drawing capture (spiral)\n- Accurate timing and step counting (gait)\n- Results display with clinical context\n\n## Acceptance criteria\n- Both assessments are intuitive for patients\n- Data captures are accurate and complete\n- Results show clinically meaningful metrics",
           "manualSteps": [
             "Open spiral drawing view",
             "Improve drawing capture smoothness",
@@ -985,7 +985,7 @@
             "SevaroMonitor/"
           ],
           "quickPrompt": "Prepare SevaroMonitor for production clinical deployment. Security audit, HIPAA compliance review, and clinical pilot setup.",
-          "fullPrompt": "## Task: Production Deploy\n\n**Repo:** SevaroMonitor\n\n## Steps\n1. Security audit — API auth, data encryption, access controls\n2. HIPAA compliance review — BAA coverage, audit logging, data retention\n3. TestFlight beta with clinical staff\n4. Clinical pilot with 5-10 patients\n5. Production deployment\n\n## Acceptance criteria\n- Security audit passed\n- HIPAA requirements met\n- Clinical staff trained\n- 5+ patients successfully monitored",
+          "fullPrompt": "## Task: Production Deploy\n\n**Repo:** SevaroMonitor\n\n## Steps\n1. Security audit \u2014 API auth, data encryption, access controls\n2. HIPAA compliance review \u2014 BAA coverage, audit logging, data retention\n3. TestFlight beta with clinical staff\n4. Clinical pilot with 5-10 patients\n5. Production deployment\n\n## Acceptance criteria\n- Security audit passed\n- HIPAA requirements met\n- Clinical staff trained\n- 5+ patients successfully monitored",
           "manualSteps": [
             "Run security audit on API and app",
             "Review HIPAA compliance checklist",
@@ -1018,7 +1018,7 @@
           "title": "Cross-modal sensor fusion Phase 1",
           "status": "done",
           "complexity": "high",
-          "description": "Cross-modal sensor fusion Phase 1 shipped (Mar 31, 2026). Concurrent gaze logging in T12 (gaze-hand lead time, eye-hand coordination) and T11 (saccadic intrusion detection during tapping). FlagAggregator now runs 4 cross-domain pattern detectors: eye-hand coordination deficit, gaze instability during motor, tremor-voice correlation, widespread motor slowing. Sensor fixes: T05 pursuit gain world-space gaze retransformation bug fixed, T09/T10 dominant-axis frequency estimation, speech pipeline transcribe→score-speech link added.",
+          "description": "Cross-modal sensor fusion Phase 1 shipped (Mar 31, 2026). Concurrent gaze logging in T12 (gaze-hand lead time, eye-hand coordination) and T11 (saccadic intrusion detection during tapping). FlagAggregator now runs 4 cross-domain pattern detectors: eye-hand coordination deficit, gaze instability during motor, tremor-voice correlation, widespread motor slowing. Sensor fixes: T05 pursuit gain world-space gaze retransformation bug fixed, T09/T10 dominant-axis frequency estimation, speech pipeline transcribe\u2192score-speech link added.",
           "prerequisites": [
             "xr-screenshot-capture"
           ],
@@ -1032,7 +1032,7 @@
           "title": "End-to-end speech pipeline validation on headset",
           "status": "done",
           "complexity": "high",
-          "description": "Validate the full speech analysis pipeline on the VR headset — from audio capture through acoustic analysis to clinical metrics. Both temporal and acoustic metrics need to flow correctly.",
+          "description": "Validate the full speech analysis pipeline on the VR headset \u2014 from audio capture through acoustic analysis to clinical metrics. Both temporal and acoustic metrics need to flow correctly.",
           "prerequisites": [
             "SDNE repo cloned",
             "VR headset available",
@@ -1043,7 +1043,7 @@
             "unity/"
           ],
           "quickPrompt": "In the SDNE repo, validate the end-to-end speech pipeline on the VR headset. Current progress (Apr 9): score-speech Lambda wired into pipeline (PR #11, task ID matching + auth fixed); WAV capture fixed (Android mic conflict with SpeechRecognizer resolved); session upload sequenced before audio upload (foreign key dependency fix). Remaining: end-to-end validation that acoustic metrics flow from headset capture through Lambda analysis to RDS results display.",
-          "fullPrompt": "## Task: Speech Pipeline Validation\n\n**Repo:** SDNE\n\n## Pipeline\nHeadset mic → Unity audio capture → Upload to S3 → Lambda acoustic analysis → Results in RDS → Dashboard display\n\n## Validate\n1. Audio capture quality on headset mic\n2. Upload reliability to S3\n3. Lambda processing (acoustic features extraction)\n4. Results accuracy vs known-good samples\n5. Dashboard display of results\n\n## Acceptance criteria\n- Full pipeline works end-to-end on headset\n- Acoustic metrics match expected values for test recordings\n- No data loss in pipeline",
+          "fullPrompt": "## Task: Speech Pipeline Validation\n\n**Repo:** SDNE\n\n## Pipeline\nHeadset mic \u2192 Unity audio capture \u2192 Upload to S3 \u2192 Lambda acoustic analysis \u2192 Results in RDS \u2192 Dashboard display\n\n## Validate\n1. Audio capture quality on headset mic\n2. Upload reliability to S3\n3. Lambda processing (acoustic features extraction)\n4. Results accuracy vs known-good samples\n5. Dashboard display of results\n\n## Acceptance criteria\n- Full pipeline works end-to-end on headset\n- Acoustic metrics match expected values for test recordings\n- No data loss in pipeline",
           "manualSteps": [
             "Set up headset with SDNE app",
             "Run speech tasks (sustained vowel, passage reading)",
@@ -1150,7 +1150,7 @@
         },
         {
           "id": "sdne-headset-test-apr6",
-          "title": "April 6 headset test session — 8-issue fix sprint",
+          "title": "April 6 headset test session \u2014 8-issue fix sprint",
           "status": "done",
           "complexity": "medium",
           "description": "Fixed 8 priority issues from April 6 on-device testing (Apr 6-7, 2026): T18 WaterPouring IL2CPP physics stripping fix + shader fallback + cylinder cup + larger particles; T24 Dysarthria event wiring + timeout 60 to 90s; T14 Naming: distance 1.2m to 0.7m + hammer/key rotations + 7s display; T12 FingerToTarget: pulsing glass sphere + size regression fix; T13 Semantic Fluency: 3s prep phase; T06 Fixation: horizontal plane projection; T25 SpiralDrawing: moved to 0.7m + thicker guide lines; T11 pinch threshold 0.35 to 0.20. TTS duplication fix, eye panel occlusion fix, audio recording retry 100ms. Gait boundary suppression. Protected XRScreenCapture from accidental removal.",
@@ -1165,7 +1165,7 @@
         },
         {
           "id": "sdne-beta-demo-apr9",
-          "title": "April 9 beta demo sprint — Lambda pipeline, P1-P5 fixes, WAV capture",
+          "title": "April 9 beta demo sprint \u2014 Lambda pipeline, P1-P5 fixes, WAV capture",
           "status": "done",
           "complexity": "high",
           "description": "Full beta demo prep sprint (Apr 9, 2026): wired score-speech Lambda into pipeline (task ID matching + auth fixed, PR #11); sequenced session upload before audio upload (foreign key dependency fix); WAV capture fix (Android mic conflict with SpeechRecognizer resolved); T12 target behind panel + T19 duration + pursuit jerkiness; P1-P5 beta demo fixes (PR #12): pursuit jitter, walk distance, pronation, dysarthria. 13 total fixes tested on headset. PRs #11-12.",
@@ -1192,7 +1192,7 @@
           "title": "Note generation quality polish",
           "status": "in-progress",
           "complexity": "medium",
-          "description": "Note generation runs via async Lambda (202+poll). As of Apr 15: Unified Encounter Workspace shipped (PRs #226-231, Apr 5) — Prep/Record/Note tabs with anti-hallucination guardrails, chart prep cards persist through note generation, all 46 Playwright E2E tests passing. On Call Guide tab in Chrome extension (PRs #241-244, Apr 5) with hospital dropdown, AI-synthesized answers via Operations KB RetrieveAndGenerate. Extension UX hardened (PR #245, Apr 6): tools drawer state fixed, mic permission streamlined, Record More wired, transcript merge on multi-segment recordings. On-Call Facility Guides shipped (PR #250, Apr 6): 160 facility records in DynamoDB (sevaro-oncall-facilities), 151 KB markdown docs for RAG. Multi-record fixes shipped (PR #248, Apr 6): pre-capture tab stream for Record More, encounter ID tracing throughout multi-record flow, stuck-processing fix. Document attachment for chat shipped (PR #254, Apr 10): users can attach text files/PDFs for context-aware analysis. Full-text expansion (PRs #258-260, Apr 12): PMC-first upgrader backfills full PDFs for PMC abstracts, PDF viewer in source cards, Unpaywall + PMC OA bulk sources added — substantially richer evidence base for note generation. KB monitoring active (PR #255). Watchdog + journal expansion (PR #262, Apr 13): staleness detection enhanced, PMC journal list expanded — richer and more current full-text evidence pipeline. Extension stability sprint (PRs #263-#269, Apr 13-14): async Lambda polling, manifest microphone permission fix, recording connection freeze fix, E2E tests, mic permission banner fix (v1.3.2), skip display media for inpatient encounters. Critical extension fixes (v1.3.4-1.3.7, Apr 14-15): phase-marker telemetry + silent-hang timeout (v1.3.4), root-cause fix for Sam's frozen Record Visit button via skipping getMediaStreamId on non-audible tabs (v1.3.5), userId telemetry for per-user CloudWatch correlation (v1.3.6), drawer context-invalidation recovery with amber reload indicator (v1.3.7). Remaining: template adherence across encounter types, EHR paste formatting consistency.",
+          "description": "Note generation runs via async Lambda (202+poll). As of Apr 17: Unified Encounter Workspace shipped (PRs #226-231, Apr 5) \u2014 Prep/Record/Note tabs with anti-hallucination guardrails, chart prep cards persist through note generation, all 46 Playwright E2E tests passing. On Call Guide tab in Chrome extension (PRs #241-244, Apr 5) with hospital dropdown, AI-synthesized answers via Operations KB RetrieveAndGenerate. Extension UX hardened (PR #245, Apr 6): tools drawer state fixed, mic permission streamlined, Record More wired, transcript merge on multi-segment recordings. On-Call Facility Guides shipped (PR #250, Apr 6): 160 facility records in DynamoDB (sevaro-oncall-facilities), 151 KB markdown docs for RAG. Document attachment for chat shipped (PR #254, Apr 10): users can attach text files/PDFs for context-aware analysis. Full-text expansion (PRs #258-260, Apr 12): PMC-first upgrader, Unpaywall + PMC OA bulk, PDF viewer in source cards. KB pipeline overhaul (PRs #255-262, Apr 12-13): KB monitoring, 35k stale staging files cleaned, 1,044 new full-text articles ingested. Extension stability sprint (PRs #263-274, Apr 13-15): async Lambda polling, manifest microphone permission fix, recording connection freeze fix, E2E tests, inpatient skip-capture fix. Critical extension fixes v1.3.4-1.3.7 (Apr 14-15): phase-marker telemetry, frozen Record Visit button root-cause fix, userId telemetry, drawer context-invalidation recovery. Extension v1.3.8-1.3.12 (Apr 15-16): date UX + patient-list N+1 fix, ghost recording session reconciliation, live transcript font size control, deep reconcile, pre-release audit. KB publication-date fixes (PRs #275-279, #281, Apr 15): 5 fetcher regex fixes deployed + backfill script for ~26K sidecars + phase 3 watchdog date audit. KB resilience: sync failure tickets, section sidecar source_type, PATH_RULES (PR #285, Apr 16). Deep Research moved to style selector, succinct mode optimized (PR #286, Apr 16). Billing audit removed \u2014 migrated to sevaro-em-coding-ui (PR #287, Apr 16). Remaining: template adherence across encounter types, EHR paste formatting consistency.",
           "prerequisites": [
             "sevaro-evidence-engine repo (chrome-extension/ directory) cloned",
             "Lambda access"
@@ -1201,8 +1201,8 @@
             "lambda/generate-note/",
             "src/services/NoteGenerationService.ts"
           ],
-          "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), continue polishing note generation quality. Current state (Apr 15): Unified Encounter Workspace shipped (PRs #226-231, Apr 5) — Prep/Record/Note tabs, anti-hallucination guardrails active, chart prep state persists across layout remounts, all 46 Playwright E2E tests passing. On Call Guide in extension (PRs #241-244, Apr 5): hospital dropdown, AI answers via Operations KB RetrieveAndGenerate, stat level 1/2 definitions + code stroke criteria added (PR #247). Extension UX: tools drawer fixed, mic permission streamlined, Record More wired, multi-segment transcript merge (PR #245, Apr 6). On-Call Facility Guides (PR #250, Apr 6): 160 facility records in sevaro-oncall-facilities DynamoDB, 151 KB markdown docs, web app facility selector, Chrome extension facility dropdown quick-info card. Multi-record fixes (PR #248, Apr 6): pre-capture tab stream for Record More, encounter ID tracing, stuck-processing fix, transcript merge verified. Operations KB (ZHG5JIHX1U): 550 docs, 45 hospitals. Document attachment for chat shipped (PR #254, Apr 10): users can attach text/PDF files alongside evidence queries. Full-text expansion (PRs #258-260, Apr 12): PMC-first upgrader backfills PDFs for PMC abstracts, PDF viewer in source cards, Unpaywall + PMC OA bulk — richer evidence base available for note generation context. KB watchdog + journal expansion (PR #262, Apr 13): enhanced staleness detection, expanded PMC journal list — fetcher pipeline now covers more journals and gaps are monitored daily. Extension stability sprint (PRs #263-#274, Apr 13-15): async Lambda polling for evidence search, manifest microphone permission fix, recording connection freeze fix, E2E tests for update detection + recording + telemetry, mic permission banner fix (v1.3.2), skip getDisplayMedia for inpatient encounters. Critical extension fixes (v1.3.4-1.3.7, Apr 14-15): phase-marker telemetry + 5s silent-hang timeout (v1.3.4), skip getMediaStreamId on non-audible tabs — root-cause fix for Sam's frozen Record Visit button (v1.3.5), userId field in telemetry payloads for per-user CloudWatch correlation (v1.3.6), drawer context-invalidation recovery — amber reload indicator on stale Chrome extension context (v1.3.7). Remaining: template adherence across all 6 encounter types, EHR paste formatting consistency.",
-          "fullPrompt": "## Task: Note Generation Quality Polish\n\n**Repo:** sevaro-evidence-engine (chrome-extension/ directory)\n\n## Context (as of Apr 1, 2026)\nAsynchronous Lambda delegation pattern handles all heavy workloads. All 6 clinical workflows are live: SOAP visit note, addendum, APP attestation (PR #151), off-service handoff, chart prep, and batch chart prep. Two-phase synthesis ships Key Points (~8s) then full answer (~18s). Style profiles wired into note generation. Multi-visit continuity sidebar with prior handoff injection. Bedrock enhancements: prompt caching across Lambda invocations, automated reasoning guardrail v5 (36 clinical verification rules), 5 versioned prompts in Bedrock Prompt Management. Beta rollout shipped (tour, help docs, Chrome extension — PR #164, Apr 1).\n\n## Polish areas\n1. Template adherence — ensure notes match configured exam profile note templates across all 6 encounter types\n2. Edge cases — handle partial transcriptions, multiple speakers, interrupted recordings, very short encounters\n3. Multi-encounter consistency — stable note quality across short/long/follow-up encounters\n4. EHR paste formatting — clean bullet points, consistent terminology, no raw JSON artifacts\n\n## Acceptance criteria\n- Notes follow consistent structure across all encounter types\n- No fabricated clinical details (guardrail enforced)\n- Clean formatting suitable for EHR paste\n- Edge cases handled gracefully",
+          "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), continue polishing note generation quality. Current state (Apr 17): Unified Encounter Workspace shipped (PRs #226-231, Apr 5) \u2014 Prep/Record/Note tabs, anti-hallucination guardrails active, chart prep state persists, all 46 Playwright E2E tests passing. On Call Guide in extension (PRs #241-244, Apr 5): hospital dropdown, AI answers via Operations KB RetrieveAndGenerate, stat level definitions + code stroke criteria. Extension UX: tools drawer fixed, mic permission streamlined, Record More wired, multi-segment transcript merge (PR #245, Apr 6). On-Call Facility Guides (PR #250, Apr 6): 160 facility records in sevaro-oncall-facilities DynamoDB, 151 KB markdown docs. Document attachment for chat shipped (PR #254, Apr 10): attach text/PDF files alongside evidence queries. Full-text expansion (PRs #258-260, Apr 12): PMC-first upgrader, Unpaywall + PMC OA bulk, PDF viewer in source cards. KB pipeline overhaul (PRs #255-262, Apr 12-13): KB monitoring, 1,044 new full-text articles, 35k stale staging files cleaned. Extension stability sprint (PRs #263-274, Apr 13-15): async Lambda polling, manifest fix, recording freeze fix, E2E tests, inpatient skip-capture fix. Critical extension fixes v1.3.4-1.3.7 (Apr 14-15): phase-marker telemetry, frozen Record Visit button root-cause fix, userId telemetry, drawer context-invalidation recovery. Extension v1.3.8-1.3.12 (Apr 15-16): date UX + patient-list N+1 fix (60s\u21921-2s), ghost recording session reconciliation (v1.3.10), live transcript font size control (v1.3.9), deep reconcile (v1.3.11), pre-release audit (v1.3.12). KB publication-date fixes (PRs #275-279, #281, Apr 15): 5 fetcher bugs fixed (PubMed year extraction, PMC pub-type scoping, CT.gov first-post date, bioRxiv DOI parsing) + backfill script + phase 3 watchdog date audit. KB resilience: sync failure tickets, section sidecar source_type, PATH_RULES (PR #285, Apr 16). Deep Research moved to style selector, succinct mode optimized (PR #286, Apr 16). Billing audit removed \u2014 migrated to sevaro-em-coding-ui (PR #287, Apr 16). Remaining: template adherence across all 6 encounter types, EHR paste formatting consistency.",
+          "fullPrompt": "## Task: Note Generation Quality Polish\n\n**Repo:** sevaro-evidence-engine (chrome-extension/ directory)\n\n## Context (as of Apr 1, 2026)\nAsynchronous Lambda delegation pattern handles all heavy workloads. All 6 clinical workflows are live: SOAP visit note, addendum, APP attestation (PR #151), off-service handoff, chart prep, and batch chart prep. Two-phase synthesis ships Key Points (~8s) then full answer (~18s). Style profiles wired into note generation. Multi-visit continuity sidebar with prior handoff injection. Bedrock enhancements: prompt caching across Lambda invocations, automated reasoning guardrail v5 (36 clinical verification rules), 5 versioned prompts in Bedrock Prompt Management. Beta rollout shipped (tour, help docs, Chrome extension \u2014 PR #164, Apr 1).\n\n## Polish areas\n1. Template adherence \u2014 ensure notes match configured exam profile note templates across all 6 encounter types\n2. Edge cases \u2014 handle partial transcriptions, multiple speakers, interrupted recordings, very short encounters\n3. Multi-encounter consistency \u2014 stable note quality across short/long/follow-up encounters\n4. EHR paste formatting \u2014 clean bullet points, consistent terminology, no raw JSON artifacts\n\n## Acceptance criteria\n- Notes follow consistent structure across all encounter types\n- No fabricated clinical details (guardrail enforced)\n- Clean formatting suitable for EHR paste\n- Edge cases handled gracefully",
           "manualSteps": [
             "Review sample generated notes for quality issues",
             "Test with varied encounter types",
@@ -1215,7 +1215,7 @@
           "title": "Chart prep to visit transition workflow",
           "status": "done",
           "complexity": "medium",
-          "description": "Shipped as part of the Unified Encounter Workspace (PRs #226-231, Apr 5). The workspace provides Prep/Record/Note tabs — clinicians complete chart prep in the Prep tab, then move to Record tab which carries chart prep context forward into encounter recording mode. View & Finalize Note button (PR #228), state persistence across layout remounts (PR #233), chart prep cards preserved through note generation. All 46 Playwright E2E tests passing.",
+          "description": "Shipped as part of the Unified Encounter Workspace (PRs #226-231, Apr 5). The workspace provides Prep/Record/Note tabs \u2014 clinicians complete chart prep in the Prep tab, then move to Record tab which carries chart prep context forward into encounter recording mode. View & Finalize Note button (PR #228), state persistence across layout remounts (PR #233), chart prep cards preserved through note generation. All 46 Playwright E2E tests passing.",
           "prerequisites": [
             "Note generation pipeline polished"
           ],
@@ -1224,7 +1224,7 @@
             "src/components/EncounterView.tsx"
           ],
           "quickPrompt": "Chart prep to visit transition shipped as part of the Unified Encounter Workspace (PRs #226-231, Apr 5). Prep/Record/Note tabbed layout carries chart prep context into recording mode. Done.",
-          "fullPrompt": "## Task: Chart Prep to Visit Transition\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Workflow\n1. Clinician completes chart prep (reviews prior notes, labs, imaging)\n2. Patient arrives — clinician clicks 'Start Visit'\n3. Extension carries forward chart prep context\n4. Switches to encounter recording mode\n5. Chart prep data available as reference during encounter\n\n## Build\n1. 'Start Visit' button in chart prep view\n2. Context transfer from chart prep to encounter\n3. Split-view or reference panel during encounter\n4. Ensure recording captures only the encounter, not chart prep\n\n## Acceptance criteria\n- Smooth transition from chart prep to visit\n- Chart prep notes accessible during encounter\n- Recording starts fresh for the encounter",
+          "fullPrompt": "## Task: Chart Prep to Visit Transition\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Workflow\n1. Clinician completes chart prep (reviews prior notes, labs, imaging)\n2. Patient arrives \u2014 clinician clicks 'Start Visit'\n3. Extension carries forward chart prep context\n4. Switches to encounter recording mode\n5. Chart prep data available as reference during encounter\n\n## Build\n1. 'Start Visit' button in chart prep view\n2. Context transfer from chart prep to encounter\n3. Split-view or reference panel during encounter\n4. Ensure recording captures only the encounter, not chart prep\n\n## Acceptance criteria\n- Smooth transition from chart prep to visit\n- Chart prep notes accessible during encounter\n- Recording starts fresh for the encounter",
           "manualSteps": [
             "Add Start Visit button to ChartPrepView",
             "Build context transfer logic",
@@ -1238,7 +1238,7 @@
           "title": "Wire up Deepgram streaming (implemented but not connected)",
           "status": "pending",
           "complexity": "medium",
-          "description": "The DeepgramService class is fully implemented but never instantiated — streaming transcription is not wired up. Currently uses batch transcription via Lambda. Connect the streaming service for real-time transcription during encounters.",
+          "description": "The DeepgramService class is fully implemented but never instantiated \u2014 streaming transcription is not wired up. Currently uses batch transcription via Lambda. Connect the streaming service for real-time transcription during encounters.",
           "prerequisites": [
             "Deepgram API key with streaming access"
           ],
@@ -1247,7 +1247,7 @@
             "src/offscreen/offscreen.ts"
           ],
           "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), wire up the existing DeepgramService for real-time streaming transcription. The class is implemented but not instantiated anywhere.",
-          "fullPrompt": "## Task: Wire Up Deepgram Streaming\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Context\nDeepgramService.ts is fully implemented with WebSocket subprotocol auth. But it's never instantiated — the extension uses batch transcription via Lambda /transcribe endpoint.\n\n## Wire up\n1. Instantiate DeepgramService in the offscreen document\n2. Connect microphone audio to Deepgram WebSocket\n3. Display interim results in real-time in the side panel\n4. Replace final transcription with Deepgram finals\n5. Keep batch transcription as fallback\n\n## Acceptance criteria\n- Words appear in real-time during recording\n- Final transcript quality matches or exceeds batch\n- Fallback to batch if streaming fails\n- No memory leaks from WebSocket connections",
+          "fullPrompt": "## Task: Wire Up Deepgram Streaming\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Context\nDeepgramService.ts is fully implemented with WebSocket subprotocol auth. But it's never instantiated \u2014 the extension uses batch transcription via Lambda /transcribe endpoint.\n\n## Wire up\n1. Instantiate DeepgramService in the offscreen document\n2. Connect microphone audio to Deepgram WebSocket\n3. Display interim results in real-time in the side panel\n4. Replace final transcription with Deepgram finals\n5. Keep batch transcription as fallback\n\n## Acceptance criteria\n- Words appear in real-time during recording\n- Final transcript quality matches or exceeds batch\n- Fallback to batch if streaming fails\n- No memory leaks from WebSocket connections",
           "manualSteps": [
             "Open src/services/DeepgramService.ts",
             "Find where to instantiate it in offscreen.ts",
@@ -1302,7 +1302,7 @@
             "src/auth/CognitoAuth.ts"
           ],
           "quickPrompt": "In the sevaro-scribe repo, set DEV_MODE=false in src/constants.ts and test the full Cognito auth flow. Fix any issues that surface.",
-          "fullPrompt": "## Task: Test Cognito Auth\n\n**Repo:** sevaro-scribe\n\n## Context\nDEV_MODE=true in constants.ts bypasses all auth. The Cognito popup login flow is implemented but untested in production mode.\n\n## Steps\n1. Set DEV_MODE=false in src/constants.ts\n2. Load extension in Chrome\n3. Click extension icon — should show login popup\n4. Log in with steve@sevaro.com\n5. Verify authenticated state persists\n6. Test logout\n7. Fix any auth flow issues\n\n## Acceptance criteria\n- Login popup appears when not authenticated\n- Login succeeds with valid credentials\n- Authenticated state persists across popup open/close\n- Logout clears state\n- Extension features only accessible when authenticated",
+          "fullPrompt": "## Task: Test Cognito Auth\n\n**Repo:** sevaro-scribe\n\n## Context\nDEV_MODE=true in constants.ts bypasses all auth. The Cognito popup login flow is implemented but untested in production mode.\n\n## Steps\n1. Set DEV_MODE=false in src/constants.ts\n2. Load extension in Chrome\n3. Click extension icon \u2014 should show login popup\n4. Log in with steve@sevaro.com\n5. Verify authenticated state persists\n6. Test logout\n7. Fix any auth flow issues\n\n## Acceptance criteria\n- Login popup appears when not authenticated\n- Login succeeds with valid credentials\n- Authenticated state persists across popup open/close\n- Logout clears state\n- Extension features only accessible when authenticated",
           "manualSteps": [
             "Edit src/constants.ts: set DEV_MODE=false",
             "Load extension in Chrome",
@@ -1415,7 +1415,7 @@
             "VoiceTranscriber/Services/TranscriptionService.swift"
           ],
           "quickPrompt": "Evaluate AWS Transcribe Medical vs Deepgram Nova-3 for VoiceTranscriber production use. Test with ~/dev/test-audio/ corpus and compare accuracy, latency, and medical terms.",
-          "fullPrompt": "## Task: Transcription Service Evaluation\n\n**Repo:** VoiceTranscriber\n\n## Test plan\n1. Run all test audio files through both services\n2. Measure: word error rate, latency, medical term accuracy\n3. Compare cost per hour of audio\n4. Document findings\n\n## Test corpus\n~/dev/test-audio/ — 16kHz 16-bit PCM WAV files\nIncludes: clinical dictation, encounters, ER scenarios, elderly speakers\n\n## Decision criteria\n- Medical term accuracy is most important\n- Latency under 500ms for streaming\n- Cost-effective at projected volume\n- HIPAA compliance mandatory for production",
+          "fullPrompt": "## Task: Transcription Service Evaluation\n\n**Repo:** VoiceTranscriber\n\n## Test plan\n1. Run all test audio files through both services\n2. Measure: word error rate, latency, medical term accuracy\n3. Compare cost per hour of audio\n4. Document findings\n\n## Test corpus\n~/dev/test-audio/ \u2014 16kHz 16-bit PCM WAV files\nIncludes: clinical dictation, encounters, ER scenarios, elderly speakers\n\n## Decision criteria\n- Medical term accuracy is most important\n- Latency under 500ms for streaming\n- Cost-effective at projected volume\n- HIPAA compliance mandatory for production",
           "manualSteps": [
             "Run test audio through Deepgram Nova-3",
             "Run same audio through Transcribe Medical",
@@ -1460,7 +1460,7 @@
           "title": "TestFlight build and beta testing",
           "status": "pending",
           "complexity": "medium",
-          "description": "Create a TestFlight build of PostSeed for beta testing. The v1 feature set is complete — this is about packaging, signing, and distributing for feedback.",
+          "description": "Create a TestFlight build of PostSeed for beta testing. The v1 feature set is complete \u2014 this is about packaging, signing, and distributing for feedback.",
           "prerequisites": [
             "PostSeed repo cloned",
             "Apple Developer account"
@@ -1516,7 +1516,7 @@
             "PostSeed/Services/"
           ],
           "quickPrompt": "Add cloud sync to PostSeed. Decide between iCloud (simpler) or custom API backend, then implement. Start with iCloud unless cross-platform is needed.",
-          "fullPrompt": "## Task: Cloud Sync\n\n**Repo:** PostSeed\n\n## Options\n1. iCloud + CloudKit — automatic sync, no server, Apple-only\n2. Custom API + RDS — full control, cross-platform, more work\n\n## Recommendation: Start with iCloud\n- Simpler implementation\n- No server costs\n- Automatic conflict resolution\n- Can add API backend later if needed\n\n## Build (iCloud path)\n1. Enable CloudKit capability\n2. Create CKRecord types for Moments\n3. Sync on-device data with CloudKit\n4. Handle conflicts and offline mode\n\n## Acceptance criteria\n- Moments sync across iPhone and iPad\n- Offline capture works (syncs when online)\n- No data loss on conflict",
+          "fullPrompt": "## Task: Cloud Sync\n\n**Repo:** PostSeed\n\n## Options\n1. iCloud + CloudKit \u2014 automatic sync, no server, Apple-only\n2. Custom API + RDS \u2014 full control, cross-platform, more work\n\n## Recommendation: Start with iCloud\n- Simpler implementation\n- No server costs\n- Automatic conflict resolution\n- Can add API backend later if needed\n\n## Build (iCloud path)\n1. Enable CloudKit capability\n2. Create CKRecord types for Moments\n3. Sync on-device data with CloudKit\n4. Handle conflicts and offline mode\n\n## Acceptance criteria\n- Moments sync across iPhone and iPad\n- Offline capture works (syncs when online)\n- No data loss on conflict",
           "manualSteps": [
             "Enable CloudKit in Xcode capabilities",
             "Create CloudKit record types",
@@ -1592,10 +1592,10 @@
         },
         {
           "id": "phase1-architecture-refactor",
-          "title": "Phase 1 architecture refactor — 5 sub-tasks, adaptive difficulty, FrustrationDetector",
+          "title": "Phase 1 architecture refactor \u2014 5 sub-tasks, adaptive difficulty, FrustrationDetector",
           "status": "done",
           "complexity": "medium",
-          "description": "Architecture refactor shipped (Apr 1, 2026). Phase 1 split into 5 independent sub-task classes (OrientationCheck, AttentionTask, MemoryRegistration, NamingStand, NeglectScreen). DevSessionStarter rewired to production flow. AdaptiveDifficultyEngine connected — DifficultyProfile is single source of truth for item counts and shelf filtering. VoiceInput → FrustrationDetector wired.",
+          "description": "Architecture refactor shipped (Apr 1, 2026). Phase 1 split into 5 independent sub-task classes (OrientationCheck, AttentionTask, MemoryRegistration, NamingStand, NeglectScreen). DevSessionStarter rewired to production flow. AdaptiveDifficultyEngine connected \u2014 DifficultyProfile is single source of truth for item counts and shelf filtering. VoiceInput \u2192 FrustrationDetector wired.",
           "prerequisites": [
             "grab-physics-sorting"
           ],
@@ -1722,7 +1722,7 @@
         },
         {
           "id": "silent-service-failures-fix",
-          "title": "Fix silent service failures — async ADB, health indicators, timed capture",
+          "title": "Fix silent service failures \u2014 async ADB, health indicators, timed capture",
           "status": "done",
           "complexity": "medium",
           "description": "Resolved silent service failures with async ADB operations, service health indicators, and timed capture as default mode. Shipped in PR #5 (Mar 19, 2026).",
@@ -1755,7 +1755,7 @@
       "milestones": [
         {
           "id": "feedback-widget-v1",
-          "title": "Feedback widget v1 — voice recording, chatbot, screenshot annotation, navigation guidance",
+          "title": "Feedback widget v1 \u2014 voice recording, chatbot, screenshot annotation, navigation guidance",
           "status": "done",
           "complexity": "high",
           "description": "Embeddable @sevaro/feedback package with voice recording, AI chatbot (Bedrock Haiku 4.5), screenshot annotation, navigation guidance. Integrated into Evidence Engine and OPSAmple. Lambda API + S3 + DynamoDB backend.",
@@ -1780,13 +1780,13 @@
           "keyFiles": [
             "src/useChatApi.ts"
           ],
-          "quickPrompt": "In the sevaro-feedback repo, wire up voice-in-chat transcription. Audio is recorded (src/useChatApi.ts) but not yet transcribed. Use AWS Transcribe Medical for HIPAA compliance — reference the EEG Reporter pattern in PRs #14-20 (feature-voice-dictation, feature-transcribe-fix, feature-transcribe-debug, feature-audio-worklet in sevaro-eeg-reporter). The buffer-on-stop pattern (PR #18) is the recommended approach for Lambda compatibility. Infrastructure note (Apr 13): PR #11 fixed the race condition in chat message storage (atomic list_append) — the DynamoDB layer is now stable for high-concurrency transcription callbacks.",
+          "quickPrompt": "In the sevaro-feedback repo, wire up voice-in-chat transcription. Audio is recorded (src/useChatApi.ts) but not yet transcribed. Use AWS Transcribe Medical for HIPAA compliance \u2014 reference the EEG Reporter pattern in PRs #14-20 (feature-voice-dictation, feature-transcribe-fix, feature-transcribe-debug, feature-audio-worklet in sevaro-eeg-reporter). The buffer-on-stop pattern (PR #18) is the recommended approach for Lambda compatibility. Infrastructure note (Apr 13): PR #11 fixed the race condition in chat message storage (atomic list_append) \u2014 the DynamoDB layer is now stable for high-concurrency transcription callbacks.",
           "fullPrompt": "",
           "manualSteps": []
         },
         {
           "id": "annotation-overlay-fix",
-          "title": "Fix annotation overlay — prevent duplicates and ensure cleanup",
+          "title": "Fix annotation overlay \u2014 prevent duplicates and ensure cleanup",
           "status": "done",
           "complexity": "low",
           "description": "Hardened the annotation overlay to prevent duplicate annotations and ensure proper cleanup. Fixed feedback widget so annotation visual confirmation works and input is not disabled. Shipped Mar 19-20, 2026.",
@@ -1801,12 +1801,12 @@
           "title": "Feedback analytics dashboard",
           "status": "pending",
           "complexity": "medium",
-          "description": "Build an analytics view to aggregate feedback across all apps — trends, sentiment analysis, and action item tracking.",
+          "description": "Build an analytics view to aggregate feedback across all apps \u2014 trends, sentiment analysis, and action item tracking.",
           "prerequisites": [
             "Feedback widget deployed across apps"
           ],
           "keyFiles": [],
-          "quickPrompt": "In the sevaro-feedback repo and sevaro-hub, build a feedback analytics dashboard that aggregates feedback across all Sevaro apps with automated trends and action items. Context (Apr 15): Feedback triage system is now live (Hub PRs #18-21, sevaro-feedback Apr 14) — human-in-the-loop triage with classify/approve/reject/refine-prompt loop, theme rollup view at /feedback/analyze, /feedback/triage two-pane UI with keyboard nav. This is Phase 1 of analytics capability. Remaining for full analytics dashboard: automated trend aggregation across apps without manual triage trigger, sentiment scoring over time, action-item tracking by category, export/digest functionality. Build on top of the existing sevaro-feedback-triage DynamoDB tables and the /themes endpoint already in API Gateway 8uagz9y5bh.",
+          "quickPrompt": "In the sevaro-feedback repo and sevaro-hub, build a feedback analytics dashboard that aggregates feedback across all Sevaro apps with automated trends and action items. Context (Apr 15): Feedback triage system is now live (Hub PRs #18-21, sevaro-feedback Apr 14) \u2014 human-in-the-loop triage with classify/approve/reject/refine-prompt loop, theme rollup view at /feedback/analyze, /feedback/triage two-pane UI with keyboard nav. This is Phase 1 of analytics capability. Remaining for full analytics dashboard: automated trend aggregation across apps without manual triage trigger, sentiment scoring over time, action-item tracking by category, export/digest functionality. Build on top of the existing sevaro-feedback-triage DynamoDB tables and the /themes endpoint already in API Gateway 8uagz9y5bh.",
           "fullPrompt": "",
           "manualSteps": []
         }
@@ -1818,7 +1818,7 @@
       "milestones": [
         {
           "id": "monitoring-gap-closure",
-          "title": "Close monitoring gaps — 10 new services, 17 metric filters, 8 alarms",
+          "title": "Close monitoring gaps \u2014 10 new services, 17 metric filters, 8 alarms",
           "status": "done",
           "complexity": "high",
           "description": "Added comprehensive CloudWatch monitoring: 10 new service monitors, 17 metric filters, and 8 alarms for centralized operations visibility. Error-responder Lambda for automated incident handling. Shipped in PR #1 (Mar 23, 2026).",
@@ -1833,7 +1833,7 @@
           "title": "Alerting escalation and on-call routing",
           "status": "pending",
           "complexity": "medium",
-          "description": "Build escalation paths for critical alerts — SNS topics for different severity levels, PagerDuty or Slack integration for on-call routing.",
+          "description": "Build escalation paths for critical alerts \u2014 SNS topics for different severity levels, PagerDuty or Slack integration for on-call routing.",
           "prerequisites": [
             "Monitoring infrastructure deployed"
           ],
@@ -1852,7 +1852,7 @@
       "milestones": [
         {
           "id": "initial-build",
-          "title": "Initial build — Cognito + Bedrock management with MCP server",
+          "title": "Initial build \u2014 Cognito + Bedrock management with MCP server",
           "status": "done",
           "complexity": "high",
           "description": "Built the Sevaro Admin API with Cognito user management and Bedrock model configuration. Includes MCP server for Claude Code/Cowork integration. Shipped Mar 19, 2026.",
@@ -1867,7 +1867,7 @@
           "title": "User management UI for Cognito operations",
           "status": "pending",
           "complexity": "medium",
-          "description": "Build a lightweight admin UI for common Cognito operations — user creation, password resets, group management — without needing the AWS Console.",
+          "description": "Build a lightweight admin UI for common Cognito operations \u2014 user creation, password resets, group management \u2014 without needing the AWS Console.",
           "prerequisites": [
             "Admin API deployed"
           ],
@@ -1896,7 +1896,7 @@
         },
         {
           "id": "3d-avatar-lip-sync",
-          "title": "Tier 2 — 3D GLB avatar with lip sync",
+          "title": "Tier 2 \u2014 3D GLB avatar with lip sync",
           "status": "in-progress",
           "complexity": "high",
           "description": "Add 3D GLB avatar rendering with real-time lip sync driven by Polly visemes. Open PR #1.",
@@ -1906,7 +1906,7 @@
           "keyFiles": [
             "src/avatar/"
           ],
-          "quickPrompt": "In the sonali-agent repo, implement Tier 2 — 3D GLB avatar with lip sync using Polly viseme events.",
+          "quickPrompt": "In the sonali-agent repo, implement Tier 2 \u2014 3D GLB avatar with lip sync using Polly viseme events.",
           "fullPrompt": "",
           "manualSteps": []
         }
@@ -1921,7 +1921,7 @@
           "title": "DDx Builder + Exam Interpreter + Validator shipped (PR #69)",
           "status": "done",
           "complexity": "high",
-          "description": "Deployed reasoning engine at /reasoning with three interconnected components: DDx Builder (differential diagnosis), Exam Interpreter (neuroanatomical localization), and Validator (quality checks). Sonnet reasons + calls KB/PubMed tools → Haiku synthesizes → Haiku validates (deadline-gated at 28s). Shipped in PR #69 (Mar 18, 2026).",
+          "description": "Deployed reasoning engine at /reasoning with three interconnected components: DDx Builder (differential diagnosis), Exam Interpreter (neuroanatomical localization), and Validator (quality checks). Sonnet reasons + calls KB/PubMed tools \u2192 Haiku synthesizes \u2192 Haiku validates (deadline-gated at 28s). Shipped in PR #69 (Mar 18, 2026).",
           "prerequisites": [],
           "keyFiles": [
             "src/app/reasoning/page.tsx",
@@ -1946,8 +1946,8 @@
             "src/lib/evidence-tools.ts",
             "src/lib/query-router.ts"
           ],
-          "quickPrompt": "Reasoning latency optimized: speculative pre-fetch (KB+PubMed cached before Sonnet asks), evidence-sufficient round skip (67% of queries skip round 1), two-phase synthesis (Key Points at ~10s, full answer at ~20s). Total: 26s → 18s avg (-31%). PRs #153, #156 (Mar 30, 2026).",
-          "fullPrompt": "## Task: Optimize Reasoning Engine Speed for Complex Queries\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/lib/bedrock-converse.ts, src/lib/evidence-tools.ts, src/lib/query-router.ts\n\n## Context\nAdaptive routing (PR #83) handles simple queries in 2-4s via a Haiku fast path. Complex/deep tier queries still hit Haiku synthesis at 7-14s. VeraHealth benchmarks at ~5s.\n\n## Investigation areas\n1. Measure prompt token count for standard/deep tier — are we sending too much context?\n2. Trim KB results before synthesis (cap at top-N most relevant)\n3. Evaluate streaming optimizations for perceived latency\n4. Reduce synthesis prompt verbosity\n5. Consider Bedrock connection pooling\n\n## Acceptance criteria\n- Complex queries synthesize in under 8 seconds\n- No quality regression in synthesis output\n- Run qa/run_smoke.sh to verify",
+          "quickPrompt": "Reasoning latency optimized: speculative pre-fetch (KB+PubMed cached before Sonnet asks), evidence-sufficient round skip (67% of queries skip round 1), two-phase synthesis (Key Points at ~10s, full answer at ~20s). Total: 26s \u2192 18s avg (-31%). PRs #153, #156 (Mar 30, 2026).",
+          "fullPrompt": "## Task: Optimize Reasoning Engine Speed for Complex Queries\n\n**Repo:** sevaro-evidence-engine\n**Key files:** src/lib/bedrock-converse.ts, src/lib/evidence-tools.ts, src/lib/query-router.ts\n\n## Context\nAdaptive routing (PR #83) handles simple queries in 2-4s via a Haiku fast path. Complex/deep tier queries still hit Haiku synthesis at 7-14s. VeraHealth benchmarks at ~5s.\n\n## Investigation areas\n1. Measure prompt token count for standard/deep tier \u2014 are we sending too much context?\n2. Trim KB results before synthesis (cap at top-N most relevant)\n3. Evaluate streaming optimizations for perceived latency\n4. Reduce synthesis prompt verbosity\n5. Consider Bedrock connection pooling\n\n## Acceptance criteria\n- Complex queries synthesize in under 8 seconds\n- No quality regression in synthesis output\n- Run qa/run_smoke.sh to verify",
           "manualSteps": [
             "Open src/lib/bedrock-converse.ts and find the synthesis function",
             "Log prompt token count for complex queries",
@@ -2004,7 +2004,7 @@
           ],
           "keyFiles": [],
           "quickPrompt": "Add actionable slash commands to the CTOClaude Discord bot: /status for project health, /roadmap for current milestones from roadmap.json, /review to trigger code review. Integrate with the Hub API.",
-          "fullPrompt": "## Task: Add Slash Commands to CTOClaude Discord Bot\n\n## Context\nCTOClaude bot runs daily morning briefings. Add actionable slash commands for project management.\n\n## Commands to implement\n1. /status [project] — Show project health (recent deploys, error rates, last commit)\n2. /roadmap [project] — Show current milestones from roadmap.json\n3. /review [pr-url] — Trigger a code review\n\n## Acceptance criteria\n- Commands respond within 3 seconds\n- /roadmap reads from sevaro-hub roadmap.json\n- Error handling for unknown projects",
+          "fullPrompt": "## Task: Add Slash Commands to CTOClaude Discord Bot\n\n## Context\nCTOClaude bot runs daily morning briefings. Add actionable slash commands for project management.\n\n## Commands to implement\n1. /status [project] \u2014 Show project health (recent deploys, error rates, last commit)\n2. /roadmap [project] \u2014 Show current milestones from roadmap.json\n3. /review [pr-url] \u2014 Trigger a code review\n\n## Acceptance criteria\n- Commands respond within 3 seconds\n- /roadmap reads from sevaro-hub roadmap.json\n- Error handling for unknown projects",
           "manualSteps": []
         }
       ]
@@ -2196,7 +2196,7 @@
           ],
           "keyFiles": [],
           "quickPrompt": "In the sevaro-plan-pipeline repo, run the generation pipeline to populate the neurocrit_care RDS database with clinical plans. DONE: 150 plans generated, Gemini-verified citations, 38 ICD-10 codes added (Mar 30, 2026).",
-          "fullPrompt": "## Task: Populate NeuroCrit Care Plans via Pipeline\n\n**Repo:** sevaro-plan-pipeline\n**Target database:** neurocrit_care\n\n## Current State (Mar 30, 2026)\n- Site live with 18 scoring scales and 20 clinical tools (frontend data)\n- neurocrit_care added to allowed databases (Mar 28)\n- Pipeline enhancements available: Gemini verification Lambda (PR #4), clinical consistency validator (PR #3), auto specialty-specific tool generation (default)\n- RDS database empty — clinical plans not yet populated\n\n## Steps\n1. Confirm neurocrit_care DATABASE_NAME env var in pipeline config\n2. Run pipeline for neurocritical care categories (ICP management, status epilepticus, TBI, stroke, etc.)\n3. Verify plan import via VerifyImport Lambda\n4. Check RDS for populated plans\n5. Test frontend plan display at live site\n\n## Note\nTools auto-generation is now default (use --no-tools to skip). Gemini verification adds clinical accuracy layer.",
+          "fullPrompt": "## Task: Populate NeuroCrit Care Plans via Pipeline\n\n**Repo:** sevaro-plan-pipeline\n**Target database:** neurocrit_care\n\n## Current State (Mar 30, 2026)\n- Site live with 18 scoring scales and 20 clinical tools (frontend data)\n- neurocrit_care added to allowed databases (Mar 28)\n- Pipeline enhancements available: Gemini verification Lambda (PR #4), clinical consistency validator (PR #3), auto specialty-specific tool generation (default)\n- RDS database empty \u2014 clinical plans not yet populated\n\n## Steps\n1. Confirm neurocrit_care DATABASE_NAME env var in pipeline config\n2. Run pipeline for neurocritical care categories (ICP management, status epilepticus, TBI, stroke, etc.)\n3. Verify plan import via VerifyImport Lambda\n4. Check RDS for populated plans\n5. Test frontend plan display at live site\n\n## Note\nTools auto-generation is now default (use --no-tools to skip). Gemini verification adds clinical accuracy layer.",
           "manualSteps": []
         }
       ]
@@ -2281,7 +2281,7 @@
             "amplify.yml"
           ],
           "quickPrompt": "Deploy spine-surgery-v2 to AWS Amplify and set up custom domain spine. DONE: Deployed to Amplify, custom domain spine.neuroplans.app live (verified Mar 30, 2026).",
-          "fullPrompt": "## Task: Deploy Spine Surgery Plans v2 to Amplify\n\n**Repo:** spine-surgery-v2\n**Target URL:** spine.neuroplans.app\n\n## Site Status (Mar 30, 2026)\nFeature-complete — all 6 PRs shipped:\n- PR #1: OAuth SSO (Cognito pool us-east-2_9y6XyJnXC, client 52l4jf338uogt9g3i43pguu75f)\n- PR #2: Dosing display fix\n- PR #3: Feedback widget (@sevaro/feedback, appId: spine-plans)\n- PR #4: Spine-specific tools (12 scales, decision support)\n- PR #5: Top-level nav (Scales/Calculators/Protocols/References)\n- PR #6: Mobile hamburger nav\n\n## Deployment Steps\n1. Create Amplify app in AWS console → connect blondarb/spine-surgery-v2\n2. Set build settings (use amplify.yml if present, else Next.js defaults)\n3. Set env vars: NEXT_PUBLIC_APP_URL, COGNITO_CLIENT_ID, COGNITO_POOL_ID, etc.\n4. Deploy main branch\n5. Add custom domain spine.neuroplans.app in Amplify console\n6. Verify OAuth callback URLs match Amplify domain in Cognito app client",
+          "fullPrompt": "## Task: Deploy Spine Surgery Plans v2 to Amplify\n\n**Repo:** spine-surgery-v2\n**Target URL:** spine.neuroplans.app\n\n## Site Status (Mar 30, 2026)\nFeature-complete \u2014 all 6 PRs shipped:\n- PR #1: OAuth SSO (Cognito pool us-east-2_9y6XyJnXC, client 52l4jf338uogt9g3i43pguu75f)\n- PR #2: Dosing display fix\n- PR #3: Feedback widget (@sevaro/feedback, appId: spine-plans)\n- PR #4: Spine-specific tools (12 scales, decision support)\n- PR #5: Top-level nav (Scales/Calculators/Protocols/References)\n- PR #6: Mobile hamburger nav\n\n## Deployment Steps\n1. Create Amplify app in AWS console \u2192 connect blondarb/spine-surgery-v2\n2. Set build settings (use amplify.yml if present, else Next.js defaults)\n3. Set env vars: NEXT_PUBLIC_APP_URL, COGNITO_CLIENT_ID, COGNITO_POOL_ID, etc.\n4. Deploy main branch\n5. Add custom domain spine.neuroplans.app in Amplify console\n6. Verify OAuth callback URLs match Amplify domain in Cognito app client",
           "manualSteps": []
         },
         {
@@ -2322,7 +2322,7 @@
           "title": "Deploy to Amplify with custom domain",
           "status": "done",
           "complexity": "medium",
-          "description": "Deploy Pulm/Crit Care Plans v2 to AWS Amplify and configure a custom domain (e.g., pulm.neuroplans.app). Note: Cognito client ID is TBD in CLAUDE.md — configure this first.",
+          "description": "Deploy Pulm/Crit Care Plans v2 to AWS Amplify and configure a custom domain (e.g., pulm.neuroplans.app). Note: Cognito client ID is TBD in CLAUDE.md \u2014 configure this first.",
           "prerequisites": [
             "App builds successfully",
             "AWS Amplify access",
@@ -2332,7 +2332,7 @@
             "amplify.yml"
           ],
           "quickPrompt": "Deploy pulm-crit-care-v2 to AWS Amplify and set up custom domain pulm. DONE: Deployed to Amplify, custom domain pulm.neuroplans.app live (verified Mar 30, 2026).",
-          "fullPrompt": "## Task: Deploy Pulm & Crit Care Plans v2 to Amplify\n\n**Repo:** pulm-crit-care-v2\n**Target URL:** pulm.neuroplans.app\n\n## Site Status (Mar 30, 2026)\nFeature-complete — all 6 PRs shipped:\n- PR #1: Dosing display fix\n- PR #2: Feedback widget (@sevaro/feedback, appId: pulm-plans)\n- PR #3: Pulm/crit care tools (calculators, protocols, references)\n- PR #4: Top-level nav promotion\n- PR #5: OAuth SSO migration (pool us-east-2_9y6XyJnXC)\n- PR #6: Mobile hamburger nav\n\n## Deployment Steps\n1. Check CLAUDE.md for Cognito client ID — if TBD, create new app client in pool us-east-2_9y6XyJnXC\n2. Add callback URL: https://pulm.neuroplans.app/api/auth/callback to app client\n3. Create Amplify app → connect blondarb/pulm-crit-care-v2\n4. Set env vars: NEXT_PUBLIC_APP_URL=https://pulm.neuroplans.app, COGNITO_CLIENT_ID, COGNITO_POOL_ID=us-east-2_9y6XyJnXC\n5. Deploy main branch, configure custom domain pulm.neuroplans.app",
+          "fullPrompt": "## Task: Deploy Pulm & Crit Care Plans v2 to Amplify\n\n**Repo:** pulm-crit-care-v2\n**Target URL:** pulm.neuroplans.app\n\n## Site Status (Mar 30, 2026)\nFeature-complete \u2014 all 6 PRs shipped:\n- PR #1: Dosing display fix\n- PR #2: Feedback widget (@sevaro/feedback, appId: pulm-plans)\n- PR #3: Pulm/crit care tools (calculators, protocols, references)\n- PR #4: Top-level nav promotion\n- PR #5: OAuth SSO migration (pool us-east-2_9y6XyJnXC)\n- PR #6: Mobile hamburger nav\n\n## Deployment Steps\n1. Check CLAUDE.md for Cognito client ID \u2014 if TBD, create new app client in pool us-east-2_9y6XyJnXC\n2. Add callback URL: https://pulm.neuroplans.app/api/auth/callback to app client\n3. Create Amplify app \u2192 connect blondarb/pulm-crit-care-v2\n4. Set env vars: NEXT_PUBLIC_APP_URL=https://pulm.neuroplans.app, COGNITO_CLIENT_ID, COGNITO_POOL_ID=us-east-2_9y6XyJnXC\n5. Deploy main branch, configure custom domain pulm.neuroplans.app",
           "manualSteps": []
         },
         {
@@ -2358,10 +2358,10 @@
       "milestones": [
         {
           "id": "eeg-builder-v1",
-          "title": "EEG Report Builder v1 — Phases 1-2, mobile, clinical efficiency, Zeto device support",
+          "title": "EEG Report Builder v1 \u2014 Phases 1-2, mobile, clinical efficiency, Zeto device support",
           "status": "done",
           "complexity": "high",
-          "description": "Built full EEG Report Builder at eeg.neuroplans.app. Phases 1-2: initial build with CPT coding engine, 150+ sentence library (PR #1). Mobile-responsive layout (PR #2). Fixed 7 usability issues (PR #3). Clinical efficiency improvements — Quick Normal Report one-click, smart defaults, auto-advance (PR #4). Replaced activation dropdowns with toggle button strips (PR #5). Added Zeto EEG device support with recording device selector and Zeto-specific workflow (PR #6). OAuth Hosted UI auth. All shipped Mar 28, 2026.",
+          "description": "Built full EEG Report Builder at eeg.neuroplans.app. Phases 1-2: initial build with CPT coding engine, 150+ sentence library (PR #1). Mobile-responsive layout (PR #2). Fixed 7 usability issues (PR #3). Clinical efficiency improvements \u2014 Quick Normal Report one-click, smart defaults, auto-advance (PR #4). Replaced activation dropdowns with toggle button strips (PR #5). Added Zeto EEG device support with recording device selector and Zeto-specific workflow (PR #6). OAuth Hosted UI auth. All shipped Mar 28, 2026.",
           "prerequisites": [],
           "keyFiles": [],
           "quickPrompt": "",
@@ -2402,7 +2402,7 @@
         },
         {
           "id": "eeg-phase7-tab-consolidation",
-          "title": "Phase 7: EEG chair Phase II feedback — 3-tab consolidation",
+          "title": "Phase 7: EEG chair Phase II feedback \u2014 3-tab consolidation",
           "status": "done",
           "complexity": "medium",
           "description": "Phase 7 shipped (PR #13, Apr 1, 2026). Consolidated 6 tabs to 3 (Study, Findings, Report) per EEG chair Phase II feedback. Section ordering, label refinements, template wording all addressed. 3-tab layout now default.",
@@ -2430,7 +2430,7 @@
         },
         {
           "id": "eeg-billing-ux",
-          "title": "Billing UX — hard stop checklist, tab error dots, My Templates",
+          "title": "Billing UX \u2014 hard stop checklist, tab error dots, My Templates",
           "status": "done",
           "complexity": "medium",
           "description": "Billing UX and fixes shipped (PRs #16-17, Apr 1, 2026). Hard stop errors render as actionable checklist with per-item status. Tab headers show error dot badges. My Templates drawer with per-neurologist saved templates. SW-1 false positive fixed. Duration range picker added.",
@@ -2496,7 +2496,7 @@
           ],
           "keyFiles": [],
           "quickPrompt": "Run the sevaro-plan-pipeline for all v2 clinical site databases: neurocrit_care, pmr_rehab, spine_surgery, pulm_crit_care. DONE: All 6 databases populated and Gemini-verified: neuro (393), neurocrit (150), cardio (135), pulm (136), spine (148), pmr (166). Total: 1,128 plans (Mar 30, 2026).",
-          "fullPrompt": "## Task: Run Pipeline for All v2 Clinical Sites\n\n**Repo:** sevaro-plan-pipeline\n\n## Pipeline Capabilities (Mar 30, 2026)\n- 7-layer verification: GeneratePlan → VerifyParallel (4 branches) → MergeResults → ImportPlan → EnrichDosing → VerifyImport → Notify\n- Gemini-powered clinical verification Lambda (PR #4) — additional accuracy layer\n- Clinical consistency validator (PR #3) — GenerateTools JSON repair\n- Auto specialty-specific tool generation — default enabled (use --no-tools to skip)\n- All 4 v2 databases in allowed list: neurocrit_care, pmr_rehab, spine_surgery, pulm_crit_care\n\n## Execution Order (recommended)\n1. neurocrit_care — site is live, database empty\n2. pmr_rehab — site is live, database empty, JSONB fixes applied Mar 28\n3. spine_surgery — deploy to Amplify first, then populate\n4. pulm_crit_care — deploy to Amplify first, then populate\n\n## Per-database run\n1. Set DATABASE_NAME env var to target database\n2. Trigger Step Functions state machine for each plan category\n3. Monitor CloudWatch for Lambda errors\n4. Run VerifyImport to confirm plan data integrity\n5. Verify frontend displays plans correctly at live site",
+          "fullPrompt": "## Task: Run Pipeline for All v2 Clinical Sites\n\n**Repo:** sevaro-plan-pipeline\n\n## Pipeline Capabilities (Mar 30, 2026)\n- 7-layer verification: GeneratePlan \u2192 VerifyParallel (4 branches) \u2192 MergeResults \u2192 ImportPlan \u2192 EnrichDosing \u2192 VerifyImport \u2192 Notify\n- Gemini-powered clinical verification Lambda (PR #4) \u2014 additional accuracy layer\n- Clinical consistency validator (PR #3) \u2014 GenerateTools JSON repair\n- Auto specialty-specific tool generation \u2014 default enabled (use --no-tools to skip)\n- All 4 v2 databases in allowed list: neurocrit_care, pmr_rehab, spine_surgery, pulm_crit_care\n\n## Execution Order (recommended)\n1. neurocrit_care \u2014 site is live, database empty\n2. pmr_rehab \u2014 site is live, database empty, JSONB fixes applied Mar 28\n3. spine_surgery \u2014 deploy to Amplify first, then populate\n4. pulm_crit_care \u2014 deploy to Amplify first, then populate\n\n## Per-database run\n1. Set DATABASE_NAME env var to target database\n2. Trigger Step Functions state machine for each plan category\n3. Monitor CloudWatch for Lambda errors\n4. Run VerifyImport to confirm plan data integrity\n5. Verify frontend displays plans correctly at live site",
           "manualSteps": []
         }
       ]
@@ -2507,10 +2507,10 @@
       "milestones": [
         {
           "id": "em-coding-v1",
-          "title": "E/M Coding Engine v1 — LLM extraction + deterministic rules + 65-test regression suite",
+          "title": "E/M Coding Engine v1 \u2014 LLM extraction + deterministic rules + 65-test regression suite",
           "status": "done",
           "complexity": "high",
-          "description": "Built E/M Coding Engine v1 (Apr 5, 2026). Bedrock Claude extracts structured fields; deterministic TypeScript rule engine applies the Sevaro Inpatient Neurology EM Coding Playbook v1.10.1 billing decision trees. Supports Medicare + Commercial payer paths, critical care, telehealth G-codes, 99418/G0316 time stacking, complete audit trail. 65-test regression suite covers all 64 test case library scenarios. PR #1: 5 Codex review fixes — deployment blockers + billing logic corrections.",
+          "description": "Built E/M Coding Engine v1 (Apr 5, 2026). Bedrock Claude extracts structured fields; deterministic TypeScript rule engine applies the Sevaro Inpatient Neurology EM Coding Playbook v1.10.1 billing decision trees. Supports Medicare + Commercial payer paths, critical care, telehealth G-codes, 99418/G0316 time stacking, complete audit trail. 65-test regression suite covers all 64 test case library scenarios. PR #1: 5 Codex review fixes \u2014 deployment blockers + billing logic corrections.",
           "prerequisites": [],
           "keyFiles": [
             "src/rules/",
@@ -2523,7 +2523,7 @@
         },
         {
           "id": "em-coding-ui-scaffold",
-          "title": "E/M Coding UI scaffold — Next.js 15 + Cognito OAuth + Sevaro Design System",
+          "title": "E/M Coding UI scaffold \u2014 Next.js 15 + Cognito OAuth + Sevaro Design System",
           "status": "done",
           "complexity": "medium",
           "description": "Scaffolded E/M Coding UI (Apr 5, 2026): Next.js 15 App Router, Cognito OAuth PKCE via shared SSO pool (us-east-2_9y6XyJnXC), Sevaro Design System tokens and typography wired. API Gateway: https://aordqzigs4.execute-api.us-east-2.amazonaws.com/dev/. Target domain: coding.neuroplans.app.",
@@ -2543,7 +2543,7 @@
           "title": "Deploy E/M Coding Engine Lambda + connect UI + Amplify deploy",
           "status": "done",
           "complexity": "medium",
-          "description": "E/M Coding Engine deployed and live at coding.neuroplans.app (Apr 7, 2026). Lambda via CDK at aordqzigs4.execute-api.us-east-2.amazonaws.com/dev/. Full pipeline: Cognito login → batch/single note submission → Bedrock extraction → rule engine → adjudication → CSV export. Vendor comparison dashboard with CSV upload, Compare tab, accept/override workflow all shipped (PRs #6-8 in sevaro-em-coding-ui, PRs #9-18 in sevaro-em-coding-engine).",
+          "description": "E/M Coding Engine deployed and live at coding.neuroplans.app (Apr 7, 2026). Lambda via CDK at aordqzigs4.execute-api.us-east-2.amazonaws.com/dev/. Full pipeline: Cognito login \u2192 batch/single note submission \u2192 Bedrock extraction \u2192 rule engine \u2192 adjudication \u2192 CSV export. Vendor comparison dashboard with CSV upload, Compare tab, accept/override workflow all shipped (PRs #6-8 in sevaro-em-coding-ui, PRs #9-18 in sevaro-em-coding-engine).",
           "prerequisites": [
             "em-coding-v1",
             "em-coding-ui-scaffold"
@@ -2553,7 +2553,7 @@
             "src/app/api/"
           ],
           "quickPrompt": "In the sevaro-em-coding-engine repo, deploy the Lambda via CDK: cd infra && npx cdk synth --profile sevaro-sandbox (then ask Steve before deploying). In sevaro-em-coding-ui, build the encounter note input form that calls the API Gateway endpoint (https://aordqzigs4.execute-api.us-east-2.amazonaws.com/dev/) and renders CPT codes + audit trail. Push to main for Amplify auto-deploy at coding.neuroplans.app.",
-          "fullPrompt": "## Task: Deploy E/M Coding Engine + Wire UI\n\n**Repos:** sevaro-em-coding-engine (Lambda), sevaro-em-coding-ui (frontend)\n\n## Step 1: Deploy Lambda via CDK\n1. cd infra/\n2. npx cdk synth --profile sevaro-sandbox\n3. Review plan with Steve, then: npx cdk deploy --profile sevaro-sandbox\n4. Confirm Lambda ARN and API Gateway URL\n\n## Step 2: Wire UI to API\n1. Build encounter note textarea + payer type selector (Medicare/Commercial)\n2. POST to /code endpoint with encounter note text\n3. Render coding result: CPT/HCPCS codes with code_type, description, audit trail\n4. Handle error states (hard stops, missing fields)\n\n## Step 3: Deploy to Amplify\n1. Connect blondarb/sevaro-em-coding-ui to Amplify\n2. Set env vars: CODING_API_URL, NEXT_PUBLIC_COGNITO_* (pool us-east-2_9y6XyJnXC)\n3. Push to main — auto-deploys to coding.neuroplans.app\n4. Add callback URL to Cognito app client\n\n## Acceptance criteria\n- coding.neuroplans.app loads with Cognito OAuth login\n- Enter encounter note → receive CPT/HCPCS codes with audit trail\n- Medicare and Commercial payer paths both work\n- Hard stop errors surfaced clearly in UI",
+          "fullPrompt": "## Task: Deploy E/M Coding Engine + Wire UI\n\n**Repos:** sevaro-em-coding-engine (Lambda), sevaro-em-coding-ui (frontend)\n\n## Step 1: Deploy Lambda via CDK\n1. cd infra/\n2. npx cdk synth --profile sevaro-sandbox\n3. Review plan with Steve, then: npx cdk deploy --profile sevaro-sandbox\n4. Confirm Lambda ARN and API Gateway URL\n\n## Step 2: Wire UI to API\n1. Build encounter note textarea + payer type selector (Medicare/Commercial)\n2. POST to /code endpoint with encounter note text\n3. Render coding result: CPT/HCPCS codes with code_type, description, audit trail\n4. Handle error states (hard stops, missing fields)\n\n## Step 3: Deploy to Amplify\n1. Connect blondarb/sevaro-em-coding-ui to Amplify\n2. Set env vars: CODING_API_URL, NEXT_PUBLIC_COGNITO_* (pool us-east-2_9y6XyJnXC)\n3. Push to main \u2014 auto-deploys to coding.neuroplans.app\n4. Add callback URL to Cognito app client\n\n## Acceptance criteria\n- coding.neuroplans.app loads with Cognito OAuth login\n- Enter encounter note \u2192 receive CPT/HCPCS codes with audit trail\n- Medicare and Commercial payer paths both work\n- Hard stop errors surfaced clearly in UI",
           "manualSteps": [
             "cd infra/ && npx cdk synth --profile sevaro-sandbox",
             "Review CDK plan, then deploy with Steve's approval",
@@ -2652,7 +2652,7 @@
       "milestones": [
         {
           "id": "synapse-prototype-shipped",
-          "title": "High-fidelity prototype shipped — 3 screens with Sevaro design tokens",
+          "title": "High-fidelity prototype shipped \u2014 3 screens with Sevaro design tokens",
           "status": "done",
           "complexity": "medium",
           "description": "Full interactive prototype of Synapse 2.0 telemedicine platform. Screens: /queue (patient queue + chart prep), /encounter/[patientId] (live encounter with scribe + PACS viewer), /review/[patientId] (note review + billing). All data is mock. Built Mar 31, 2026.",
@@ -2665,14 +2665,14 @@
         },
         {
           "id": "synapse-live-api",
-          "title": "Wire live API calls — replace mock data with real endpoints",
+          "title": "Wire live API calls \u2014 replace mock data with real endpoints",
           "status": "pending",
           "complexity": "high",
           "description": "Replace all mock data in lib/mock-data.ts with live API calls to the OPSAmple backend and Evidence Engine. Requires Cognito auth, patient queue API, encounter API, and SEE review API integration.",
           "prerequisites": [
             "synapse-prototype-shipped"
           ],
-          "quickPrompt": "In the synapse-teleencounter repo, wire live API calls to replace mock data in lib/mock-data.ts. Connect to OPSAmple patient queue, encounter, and Evidence Engine SEE review endpoints. Add Cognito OAuth auth middleware. Design is complete — only the data layer needs wiring.",
+          "quickPrompt": "In the synapse-teleencounter repo, wire live API calls to replace mock data in lib/mock-data.ts. Connect to OPSAmple patient queue, encounter, and Evidence Engine SEE review endpoints. Add Cognito OAuth auth middleware. Design is complete \u2014 only the data layer needs wiring.",
           "fullPrompt": "## Task: Wire Live API Calls to Synapse Teleencounter\n\nRepo: ~/dev/repos/synapse-teleencounter\n\nCurrent state: All 3 screens built and styled with mock data in lib/mock-data.ts. No auth.\n\n1. Add Cognito OAuth auth (same pool pattern as other v2 sites)\n2. Replace patient queue mock with live OPSAmple /api/patients\n3. Replace encounter mock with live encounter data\n4. Wire SEE review to live Evidence Engine review endpoint\n5. Deploy to Amplify\n\nKey files: lib/mock-data.ts, app/queue/page.tsx, app/encounter/[patientId]/page.tsx, app/review/[patientId]/page.tsx",
           "manualSteps": [
             "Review OPSAmple API contracts",
