@@ -40,16 +40,22 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const { searchParams } = new URL(request.url);
   const appId = searchParams.get('appId') || body.appId || '';
 
+  // Only stamp resolvedBy when the client is flipping reviewStatus to
+  // 'resolved'. The previous unconditional override wrote resolvedBy on every
+  // PATCH (including pure triageProposal writes from the triage runner),
+  // which corrupted session state for anything that wasn't a manual resolve.
+  const bodyToSend: Record<string, unknown> = { ...body };
+  if (body.reviewStatus === 'resolved' && body.resolvedBy === undefined) {
+    bodyToSend.resolvedBy = user.email;
+  }
+
   const res = await fetch(`${API_URL}/sessions/${id}?appId=${encodeURIComponent(appId)}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': API_KEY,
     },
-    body: JSON.stringify({
-      ...body,
-      resolvedBy: user.email,
-    }),
+    body: JSON.stringify(bodyToSend),
   });
 
   if (!res.ok) {
