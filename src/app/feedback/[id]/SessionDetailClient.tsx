@@ -479,15 +479,10 @@ export function SessionDetailClient({ session, events, actionItems, chatMessages
                     </span>
                   </div>
                   <div className="sd-annotation-element">
-                    &lt;{ann.elementInfo.tag}&gt; {ann.elementInfo.selector}
+                    &lt;{ann.elementInfo.tag}&gt; {ann.elementInfo.testId ? `[data-testid="${ann.elementInfo.testId}"]` : ann.elementInfo.dataTour ? `[data-tour="${ann.elementInfo.dataTour}"]` : ann.elementInfo.role ? `[role="${ann.elementInfo.role}"]` : ann.elementInfo.className ? `.${ann.elementInfo.className.split(' ').join('.')}` : ann.elementInfo.selector}
                   </div>
-                  {ann.elementInfo.text && (
-                    <div style={{ fontSize: '0.82rem', color: '#8890a4' }}>
-                      Text: &ldquo;{ann.elementInfo.text.slice(0, 150)}{ann.elementInfo.text.length > 150 ? '...' : ''}&rdquo;
-                    </div>
-                  )}
                   <div className="sd-annotation-meta">
-                    Page: {ann.pageUrl}
+                    Route: {ann.routePath}
                   </div>
                   {ann.userComment && (
                     <div style={{ fontSize: '0.85rem', color: '#7aa2d4', fontStyle: 'italic' }}>
