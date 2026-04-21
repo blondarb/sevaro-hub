@@ -111,9 +111,7 @@ export async function POST(
         },
         body: JSON.stringify({
           appId: session.appId,
-          reviewStatus: 'resolved',
-          resolvedBy: user.email,
-          resolvedAt: new Date().toISOString(),
+          reviewStatus: 'in_progress',
           triageProposal: null,
         }),
       },
