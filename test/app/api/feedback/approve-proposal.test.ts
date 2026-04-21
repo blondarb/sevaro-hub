@@ -276,16 +276,18 @@ describe('POST /api/feedback/[id]/approve-proposal', () => {
       }),
     );
 
-    // Session was patched via the feedback Lambda with resolved + null proposal
+    // Approval moves session to in_progress (fix is queued, not shipped).
+    // Resolution only happens when the fix actually lands — a separate
+    // manual step on the session detail page.
     expect(fetchSpy).toHaveBeenCalledTimes(1);
     const [patchUrl, patchInit] = fetchSpy.mock.calls[0];
     expect(patchUrl).toContain(`/sessions/${SESSION_ID}`);
     expect(patchUrl).toContain(`appId=${APP_ID}`);
     expect(patchInit.method).toBe('PATCH');
     const patchBody = JSON.parse(patchInit.body as string);
-    expect(patchBody.reviewStatus).toBe('resolved');
-    expect(patchBody.resolvedBy).toBe('steve@sevaro.com');
-    expect(patchBody.resolvedAt).toBeDefined();
+    expect(patchBody.reviewStatus).toBe('in_progress');
+    expect(patchBody.resolvedBy).toBeUndefined();
+    expect(patchBody.resolvedAt).toBeUndefined();
     expect(patchBody.triageProposal).toBeNull();
   });
 

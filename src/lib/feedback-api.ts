@@ -19,18 +19,20 @@ export interface ChatAttachment {
 }
 
 export interface ScreenshotAnnotation {
-  screenshotKey: string;
+  screenshotKey?: string;
   screenshotUrl?: string;
   coordinates: { x: number; y: number };
   elementInfo: {
     selector: string;
     tag: string;
-    text: string;
-    id?: string;
     className?: string;
+    testId?: string;
+    dataTour?: string;
+    role?: string;
   };
   userComment?: string;
-  pageUrl: string;
+  routePath: string;
+  pageUrl?: string;
   viewport: { width: number; height: number };
 }
 
@@ -127,6 +129,9 @@ export async function getSession(sessionId: string, appId: string): Promise<Feed
 }
 
 function normalizeSession(session: FeedbackSession): FeedbackSession {
+  if ((session.reviewStatus as string | undefined) === 'in_review') {
+    session.reviewStatus = 'in_progress';
+  }
   if (typeof session.events === 'string') {
     session.events = JSON.parse(session.events);
   }
@@ -138,6 +143,21 @@ function normalizeSession(session: FeedbackSession): FeedbackSession {
   }
   if (typeof session.annotations === 'string') {
     session.annotations = JSON.parse(session.annotations);
+  }
+  if (Array.isArray(session.annotations)) {
+    session.annotations = session.annotations.map((annotation) => ({
+      ...annotation,
+      routePath:
+        annotation.routePath ||
+        (() => {
+          if (!annotation.pageUrl) return '/';
+          try {
+            return new URL(annotation.pageUrl).pathname || '/';
+          } catch {
+            return annotation.pageUrl || '/';
+          }
+        })(),
+    }));
   }
   if (typeof session.chatSummary === 'string') {
     session.chatSummary = JSON.parse(session.chatSummary);
