@@ -17,6 +17,7 @@ const nextConfig: NextConfig = {
   env: {
     FEEDBACK_API_URL: process.env.FEEDBACK_API_URL || 'https://8uagz9y5bh.execute-api.us-east-2.amazonaws.com/feedback',
     FEEDBACK_API_KEY: process.env.FEEDBACK_API_KEY || '',
+    ADMIN_EMAILS: process.env.ADMIN_EMAILS || 'steve@sevaro.com',
     NEXT_PUBLIC_COGNITO_USER_POOL_ID: process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID || '',
     NEXT_PUBLIC_COGNITO_CLIENT_ID: process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || '',
   },
