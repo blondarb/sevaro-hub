@@ -1,0 +1,28 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm install -g pnpm
+        - pnpm install --frozen-lockfile
+    build:
+      commands:
+        # Expose branch-level env vars to Next.js SSR runtime. Amplify does NOT
+        # forward non-NEXT_PUBLIC_ vars to the SSR compute automatically — they
+        # must be written to .env.production at build time so Next.js picks
+        # them up for API routes and Server Components.
+        #
+        # Secrets (FEEDBACK_API_KEY, ADMIN_EMAILS) MUST NOT be placed in
+        # next.config.ts's `env` block — that inlines them into client bundles.
+        # See https://docs.aws.amazon.com/amplify/latest/userguide/ssr-environment-variables.html
+        - env | grep -e FEEDBACK_API_URL -e FEEDBACK_API_KEY -e ADMIN_EMAILS >> .env.production
+        - env | grep -e NEXT_PUBLIC_ >> .env.production
+        - pnpm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+      - .next/cache/**/*

@@ -1,23 +1,20 @@
 import type { NextConfig } from 'next';
 
-// Why FEEDBACK_API_KEY is in the `env` block:
-// Amplify branch env vars should be available via `process.env` at SSR runtime,
-// but after the computeRoleArn reconfiguration on 2026-04-14 (Amplify build #82)
-// runtime propagation broke for non-`NEXT_PUBLIC_` vars that weren't inlined at
-// build time. `FEEDBACK_API_URL` was already here and kept working;
-// `FEEDBACK_API_KEY` was not, so /api/feedback/sessions and
-// /api/feedback/analyze both started 500ing because the Lambda received an
-// empty x-api-key. Inlining it here forces build-time substitution.
+// SECURITY NOTE: do NOT add FEEDBACK_API_KEY, ADMIN_EMAILS, or any other
+// server-only secret to the `env` block below. Values in `env` are inlined
+// by Webpack's DefinePlugin into BOTH server and client bundles, leaking
+// secrets to every browser. Previous commits (07a12f0, 93d222d) added these
+// as a workaround for an Amplify SSR runtime-propagation issue — that bug is
+// now fixed properly in `amplify.yml` by writing non-NEXT_PUBLIC_ branch
+// env vars to `.env.production` at build time so Next.js loads them at
+// SSR runtime without client-bundle exposure.
 //
-// Security: verified that `FEEDBACK_API_URL` does NOT leak into client bundles
-// (tree-shaking keeps server-only lib imports out of client chunks). The same
-// applies to `FEEDBACK_API_KEY` as long as no client component imports
-// `process.env.FEEDBACK_API_KEY` — do not do that.
+// `FEEDBACK_API_URL` is a public API Gateway URL (non-secret) and is left
+// in the `env` block for backward compat; moving it is non-breaking but
+// out of scope for the secret-leak fix.
 const nextConfig: NextConfig = {
   env: {
     FEEDBACK_API_URL: process.env.FEEDBACK_API_URL || 'https://8uagz9y5bh.execute-api.us-east-2.amazonaws.com/feedback',
-    FEEDBACK_API_KEY: process.env.FEEDBACK_API_KEY || '',
-    ADMIN_EMAILS: process.env.ADMIN_EMAILS || 'steve@sevaro.com',
     NEXT_PUBLIC_COGNITO_USER_POOL_ID: process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID || '',
     NEXT_PUBLIC_COGNITO_CLIENT_ID: process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || '',
   },

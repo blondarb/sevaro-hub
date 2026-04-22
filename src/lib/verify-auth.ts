@@ -22,9 +22,13 @@ export interface VerifiedUser {
   isAdmin: boolean;
 }
 
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'steve@sevaro.com')
+// Fail closed: no hardcoded fallback. If ADMIN_EMAILS is unset (mis-configured
+// deploy), the allowlist is empty and nobody is admin. Previous fallback of
+// 'steve@sevaro.com' was fail-open authz. Amplify branch env var must be set.
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '')
   .split(',')
-  .map((e) => e.trim().toLowerCase());
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
 
 export async function verifyToken(token: string): Promise<VerifiedUser | null> {
   try {
