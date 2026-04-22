@@ -225,22 +225,45 @@ describe('PATCH /api/feedback/[id]', () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it('still stamps from JWT when prior-state lookup transiently fails — JWT is the source of truth', async () => {
-    // If the prior-state fetch fails, we treat the safer default as "stamp
-    // from JWT". The alternative (proceed with no resolvedBy) leaves the
-    // resolved session without an auditable owner. Forgery is still
-    // impossible because the value comes from the verified JWT, not the
-    // client body.
+  it('returns 503 when prior-state lookup throws AND reviewStatus=resolved — refuse to blind-stamp', async () => {
+    // Codex R2 H#3: on lookup failure, priorStatus stays undefined and
+    // `undefined !== "resolved"` is true, so the old code re-stamped
+    // resolvedBy/resolvedAt blindly. If the session was ALREADY resolved by
+    // another admin, this would clobber the original stamp on every retry.
+    // New behavior: refuse. Return 503 and ask the client to retry once the
+    // lookup succeeds.
     vi.mocked(getSession).mockRejectedValue(new Error('transient network'));
-    await PATCH(
+    const res = await PATCH(
       makePatch(
         { appId: APP_ID, reviewStatus: 'resolved', resolvedBy: 'attacker@evil.com' },
         `?appId=${APP_ID}`,
       ),
       { params: Promise.resolve({ id: SESSION_ID }) },
     );
+    expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.error).toMatch(/verify prior state/i);
+    // The downstream PATCH must NOT have happened — no blind stamp.
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('proceeds WITHOUT stamping when prior-state lookup throws AND reviewStatus is non-resolved', async () => {
+    // Codex R2 H#3: only resolve transitions need the strict guard. A flip
+    // to in_progress / open / dismissed does not stamp resolvedBy/resolvedAt,
+    // so the lookup failure is non-blocking. Let the downstream Lambda
+    // arbitrate whether the session exists.
+    vi.mocked(getSession).mockRejectedValue(new Error('transient network'));
+    const res = await PATCH(
+      makePatch(
+        { appId: APP_ID, reviewStatus: 'in_progress' },
+        `?appId=${APP_ID}`,
+      ),
+      { params: Promise.resolve({ id: SESSION_ID }) },
+    );
+    expect(res.status).toBe(200);
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
     const sent = JSON.parse(fetchSpy.mock.calls[0][1].body as string);
-    expect(sent.resolvedBy).toBe('steve@sevaro.com');
-    expect(typeof sent.resolvedAt).toBe('string');
+    expect(sent.resolvedBy).toBeUndefined();
+    expect(sent.resolvedAt).toBeUndefined();
   });
 });

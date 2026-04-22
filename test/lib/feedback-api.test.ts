@@ -2,9 +2,11 @@ import { describe, it, expect } from 'vitest';
 import {
   toSessionDetailDTO,
   toAnnotationDTO,
+  toChatMessageDTO,
   derivePathname,
   type FeedbackSession,
   type ScreenshotAnnotation,
+  type ChatMessage,
 } from '@/lib/feedback-api';
 import { deriveProposalPromptId } from '@/lib/improvement-queue-api';
 
@@ -210,6 +212,129 @@ describe('derivePathname (routePath fallback)', () => {
     const result = derivePathname('ht!tp://\x00\x01');
     expect(result.startsWith('/')).toBe(true);
     expect(result).not.toContain('\x00');
+  });
+});
+
+describe('toChatMessageDTO (Codex R2 H#1 — PHI in chat attachments)', () => {
+  function makeMsg(overrides: Partial<ChatMessage> = {}): ChatMessage {
+    return {
+      id: 'msg-1',
+      role: 'user',
+      content: 'hello',
+      timestamp: '2026-04-22T09:00:00Z',
+      ...overrides,
+    };
+  }
+
+  it('preserves the whitelisted top-level fields (id, role, content, timestamp)', () => {
+    const dto = toChatMessageDTO(
+      makeMsg({
+        id: 'm-7',
+        role: 'assistant',
+        content: 'reply text',
+        timestamp: '2026-04-22T09:05:00Z',
+      }),
+    );
+    expect(dto.id).toBe('m-7');
+    expect(dto.role).toBe('assistant');
+    expect(dto.content).toBe('reply text');
+    expect(dto.timestamp).toBe('2026-04-22T09:05:00Z');
+  });
+
+  it('strips pageUrl, screenshotUrl, screenshotKey from nested annotation attachments', () => {
+    const dto = toChatMessageDTO(
+      makeMsg({
+        attachments: [
+          {
+            type: 'annotation',
+            annotation: {
+              pageUrl: '/patient/123?name=JaneDoe',
+              screenshotUrl: 'https://s3/bucket/shot.png',
+              screenshotKey: 's3-key/shot.png',
+              coordinates: { x: 0, y: 0 },
+              viewport: { width: 100, height: 100 },
+              elementInfo: { tag: 'button', selector: 'button' },
+              routePath: '/patient/123',
+            },
+          },
+        ],
+      }),
+    );
+    const serialized = JSON.stringify(dto);
+    expect(serialized).not.toContain('pageUrl');
+    expect(serialized).not.toContain('JaneDoe');
+    expect(serialized).not.toContain('screenshotUrl');
+    expect(serialized).not.toContain('screenshotKey');
+    expect(serialized).not.toContain('s3-key');
+    // Whitelisted fields survive
+    expect(dto.attachments?.[0]?.annotation?.routePath).toBe('/patient/123');
+    expect(dto.attachments?.[0]?.annotation?.elementInfo.tag).toBe('button');
+  });
+
+  it('narrows attachment-annotation elementInfo to the rendered keys', () => {
+    const raw = {
+      id: 'msg-1',
+      role: 'user' as const,
+      content: 'hi',
+      timestamp: '2026-04-22T09:00:00Z',
+      attachments: [
+        {
+          type: 'annotation' as const,
+          annotation: {
+            coordinates: { x: 1, y: 2 },
+            viewport: { width: 100, height: 100 },
+            // Legacy raw payload may include PHI-bearing keys (mrn, innerText).
+            elementInfo: {
+              tag: 'button',
+              selector: 'button',
+              mrn: '1234567',
+              innerText: 'Jane Doe',
+            },
+            routePath: '/patient',
+          },
+        },
+      ],
+    } as unknown as ChatMessage;
+
+    const dto = toChatMessageDTO(raw);
+    const serialized = JSON.stringify(dto);
+    expect(dto.attachments?.[0]?.annotation?.elementInfo.tag).toBe('button');
+    expect(serialized).not.toContain('mrn');
+    expect(serialized).not.toContain('1234567');
+    expect(serialized).not.toContain('innerText');
+    expect(serialized).not.toContain('Jane Doe');
+  });
+
+  it('preserves attachment.type so the UI renders the "Screenshot annotation attached" badge', () => {
+    const dto = toChatMessageDTO(
+      makeMsg({
+        attachments: [
+          {
+            type: 'annotation',
+            annotation: {
+              coordinates: { x: 0, y: 0 },
+              viewport: { width: 100, height: 100 },
+              elementInfo: { tag: 'button', selector: 'button' },
+              routePath: '/',
+            },
+          },
+        ],
+      }),
+    );
+    expect(dto.attachments?.[0]?.type).toBe('annotation');
+  });
+
+  it('handles messages with no attachments and messages with voice-transcript attachments (no annotation field)', () => {
+    const noAttach = toChatMessageDTO(makeMsg());
+    expect(noAttach.attachments).toBeUndefined();
+
+    const voice = toChatMessageDTO(
+      makeMsg({
+        attachments: [{ type: 'voice-transcript' }],
+      }),
+    );
+    expect(voice.attachments?.[0]?.type).toBe('voice-transcript');
+    expect(voice.attachments?.[0]?.annotation).toBeUndefined();
   });
 });
 

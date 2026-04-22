@@ -377,3 +377,59 @@ export function toAnnotationDTO(annotation: ScreenshotAnnotation): AnnotationCli
     userComment: annotation.userComment,
   };
 }
+
+/**
+ * Client-safe DTO for chat-attachment payloads.
+ *
+ * Reuses {@link AnnotationClientDTO} for the nested annotation so the same
+ * whitelist applies (no pageUrl / screenshotUrl / screenshotKey; elementInfo
+ * narrowed to the rendered keys). The top-level `annotations` array on the
+ * session was already redacted on the server; this DTO closes the parallel
+ * leak through `chatMessages[].attachments[].annotation`.
+ */
+export interface ChatAttachmentClientDTO {
+  type: 'annotation' | 'voice-transcript';
+  annotation?: AnnotationClientDTO;
+}
+
+/**
+ * Client-safe DTO for a chat message. Only fields the UI actually renders are
+ * serialized: `id`, `role`, `content`, `timestamp`, and a redacted
+ * `attachments` array. The raw `key` / `url` fields on a ChatAttachment are
+ * dropped — the UI only checks `type` on attachments, and rendering raw S3
+ * URLs in the RSC/browser payload is exactly the leak this DTO prevents.
+ */
+export interface ChatMessageClientDTO {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+  attachments?: ChatAttachmentClientDTO[];
+}
+
+/**
+ * Redact a chat message for client rendering. Runs every attachment's nested
+ * `annotation` through {@link toAnnotationDTO} so the same whitelist applies.
+ *
+ * Codex round-2 H#1: the top-level `annotations` array was already redacted
+ * via {@link toSessionDetailDTO} + {@link toAnnotationDTO}, but chat messages
+ * shipped raw to the client — each `ChatAttachment.annotation` still carried
+ * `pageUrl` (often `/patient/<id>?name=...`), `screenshotUrl`, `screenshotKey`
+ * and arbitrary legacy `elementInfo` keys. This helper closes that channel.
+ */
+export function toChatMessageDTO(msg: ChatMessage): ChatMessageClientDTO {
+  const attachments = msg.attachments?.map((a) => {
+    const redacted: ChatAttachmentClientDTO = { type: a.type };
+    if (a.annotation) {
+      redacted.annotation = toAnnotationDTO(a.annotation);
+    }
+    return redacted;
+  });
+  return {
+    id: msg.id,
+    role: msg.role,
+    content: msg.content,
+    timestamp: msg.timestamp,
+    ...(attachments ? { attachments } : {}),
+  };
+}

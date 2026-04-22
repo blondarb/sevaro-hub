@@ -55,18 +55,45 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   // Only look up the prior session when reviewStatus is in the body (the only
   // trigger for stamping or clearing); skip the fetch for unrelated PATCHes
   // (e.g. the triage runner writing triageProposal only).
+  //
+  // Codex R2 H#3: distinguish "prior state known and not resolved" from
+  // "prior state unknown" via an explicit `priorLookupOk` flag. The previous
+  // implementation let `priorStatus` stay `undefined` on lookup failure and
+  // compared `undefined !== 'resolved'` — which is always `true` — so a
+  // transient failure silently re-stamped resolvedBy/resolvedAt even on a
+  // session that was already resolved by another admin. For resolve
+  // transitions we now refuse with 503 rather than guess.
+  //
+  // Known limitation: two concurrent resolve PATCHes can still both observe
+  // a non-resolved prior and both stamp — benign last-write-wins with two
+  // reviewerId stamps. A real fix requires DynamoDB ConditionExpression on
+  // the feedback Lambda (`reviewStatus <> :resolved`), which is out of scope
+  // for this Hub-only PR.
   if (body.reviewStatus !== undefined) {
     let priorStatus: string | undefined;
+    let priorLookupOk = false;
     if (appId) {
       try {
         const existing = await getSession(id, appId);
         priorStatus = existing.reviewStatus as string | undefined;
+        priorLookupOk = true;
       } catch {
-        // Session may not exist yet or fetch may transiently fail — fall
-        // through and let the Lambda PATCH handle the 404. We intentionally
-        // do not stamp resolvedBy/resolvedAt when prior state is unknown; the
-        // downstream PATCH will reject unknown sessions either way.
+        // Session may not exist yet or fetch may transiently fail — we
+        // cannot safely infer prior state. For resolve transitions we must
+        // bail out below; for other transitions we fall through and let the
+        // Lambda PATCH handle the 404.
+        priorLookupOk = false;
       }
+    }
+
+    if (body.reviewStatus === 'resolved' && !priorLookupOk) {
+      // Cannot determine whether this is a genuine transition or a re-stamp
+      // on an already-resolved session. Refuse. The client can retry once
+      // the downstream fetch is healthy.
+      return NextResponse.json(
+        { error: 'Cannot verify prior state; try again' },
+        { status: 503 },
+      );
     }
 
     if (body.reviewStatus === 'resolved' && priorStatus !== 'resolved') {

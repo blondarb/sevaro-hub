@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import type { FeedbackEvent, ActionItem, ReviewStatus, ChatMessage, ChatSummary, SessionDetailClientDTO, AnnotationClientDTO } from '@/lib/feedback-api';
+import type { FeedbackEvent, ActionItem, ReviewStatus, ChatMessageClientDTO, ChatSummary, SessionDetailClientDTO, AnnotationClientDTO } from '@/lib/feedback-api';
 import { formatDuration, formatTimestamp } from '@/lib/feedback-api';
 import { getIdToken } from '@/lib/auth';
 
@@ -52,7 +52,7 @@ interface Props {
   session: SessionDetailClientDTO;
   events: FeedbackEvent[];
   actionItems: ActionItem[];
-  chatMessages: ChatMessage[];
+  chatMessages: ChatMessageClientDTO[];
   annotations: AnnotationClientDTO[];
   chatSummary: ChatSummary | null;
   audioUrl: string;
