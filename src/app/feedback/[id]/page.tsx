@@ -1,4 +1,4 @@
-import { getSession, formatDuration, formatTimestamp, generateClaudeCodePrompt } from '@/lib/feedback-api';
+import { getSession, generateClaudeCodePrompt, toSessionDetailDTO, toAnnotationDTO } from '@/lib/feedback-api';
 import type { FeedbackEvent, ActionItem, ChatMessage, ScreenshotAnnotation, ChatSummary } from '@/lib/feedback-api';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -62,7 +62,7 @@ export default async function SessionDetailPage({ params, searchParams }: Props)
   const events = (Array.isArray(session.events) ? session.events : []) as FeedbackEvent[];
   const actionItems = (Array.isArray(session.actionItems) ? session.actionItems : []) as ActionItem[];
   const chatMessages = (Array.isArray(session.chatMessages) ? session.chatMessages : []) as ChatMessage[];
-  const annotations = (Array.isArray(session.annotations) ? session.annotations : []) as ScreenshotAnnotation[];
+  const rawAnnotations = (Array.isArray(session.annotations) ? session.annotations : []) as ScreenshotAnnotation[];
   const chatSummary = (typeof session.chatSummary === 'object' && session.chatSummary !== null ? session.chatSummary : null) as ChatSummary | null;
   const audioUrl = session.audioUrl || '';
 
@@ -71,9 +71,17 @@ export default async function SessionDetailPage({ params, searchParams }: Props)
     ? generateClaudeCodePrompt(session.appId, actionItems, [session])
     : null;
 
+  // Build redacted client DTOs at the server/client boundary. Passing the raw
+  // `session` object would serialize legacy annotation fields (`pageUrl`,
+  // `screenshotUrl`) and any extra `elementInfo` keys into the RSC payload
+  // even if no UI element renders them, leaking to the browser. The DTO
+  // builders whitelist only the fields `SessionDetailClient` actually reads.
+  const sessionDTO = toSessionDetailDTO(session);
+  const annotations = rawAnnotations.map(toAnnotationDTO);
+
   return (
     <SessionDetailClient
-      session={session}
+      session={sessionDTO}
       events={events}
       actionItems={actionItems}
       chatMessages={chatMessages}

@@ -63,15 +63,16 @@ function makeSession(overrides: Record<string, unknown> = {}) {
   };
 }
 
-function makeImprovement() {
+function makeImprovement(overrides: Record<string, unknown> = {}) {
   return {
     repoName: 'sevaro-evidence-engine',
-    promptId: 'feedback-a3f2-1234567890',
+    promptId: 'improvement-a3f2-v2',
     title: 'fonts-too-small',
     priority: 'P2' as const,
     status: 'pending' as const,
     promptText: 'refined prompt',
     createdAt: '2026-04-14T09:30:00Z',
+    ...overrides,
   };
 }
 
@@ -250,15 +251,18 @@ describe('POST /api/feedback/[id]/approve-proposal', () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.improvement).toBeDefined();
-    expect(body.improvement.promptId).toBe('feedback-a3f2-1234567890');
+    // Stable, version-based promptId (atomicity fix Codex 2026-04-21 M#4)
+    expect(body.improvement.promptId).toBe('improvement-a3f2-v2');
 
-    // Uses the LATEST (v2) revision prompt, not v1
+    // Uses the LATEST (v2) revision prompt, not v1, and the stable
+    // sessionId/proposalVersion key rather than a time-based source string.
     expect(createImprovementFromProposal).toHaveBeenCalledWith(
       {
         repoName: 'sevaro-evidence-engine',
         promptText: 'refined prompt',
         title: 'fonts-too-small',
-        source: `feedback:${SESSION_ID}`,
+        sessionId: SESSION_ID,
+        proposalVersion: 2,
         reviewerNotes: 'lgtm',
       },
       'user-token',
@@ -270,7 +274,7 @@ describe('POST /api/feedback/[id]/approve-proposal', () => {
         sessionId: SESSION_ID,
         action: 'approved',
         themeId: 'fonts-too-small',
-        improvementQueueItemId: 'feedback-a3f2-1234567890',
+        improvementQueueItemId: 'improvement-a3f2-v2',
         reviewerNotes: 'lgtm',
         reviewerEmail: 'steve@sevaro.com',
       }),
@@ -331,6 +335,8 @@ describe('POST /api/feedback/[id]/approve-proposal', () => {
       expect.objectContaining({
         repoName: APP_ID,
         promptText: 'only prompt',
+        sessionId: SESSION_ID,
+        proposalVersion: 1,
       }),
       'user-token',
     );
@@ -367,7 +373,7 @@ describe('POST /api/feedback/[id]/approve-proposal', () => {
     expect(getSession).toHaveBeenCalledWith(SESSION_ID, APP_ID);
   });
 
-  it('returns 500 when createImprovementFromProposal throws', async () => {
+  it('returns 500 when createImprovementFromProposal throws — after PATCH, so no history write', async () => {
     vi.mocked(extractToken).mockReturnValue('user-token');
     vi.mocked(verifyToken).mockResolvedValue({
       sub: 'abc',
@@ -385,6 +391,89 @@ describe('POST /api/feedback/[id]/approve-proposal', () => {
 
     expect(res.status).toBe(500);
     expect(postTriageHistory).not.toHaveBeenCalled();
-    expect(fetchSpy).not.toHaveBeenCalled();
+    // PATCH now runs FIRST (Codex M#4: atomicity reorder). So fetchSpy IS
+    // called once for the PATCH, but the queue write fails downstream.
+    // The client retry will re-hit PATCH (idempotent — session already at
+    // in_progress), then re-create the queue entry with the same stable
+    // promptId (idempotent upsert).
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    const [, patchInit] = fetchSpy.mock.calls[0];
+    expect(patchInit.method).toBe('PATCH');
+  });
+
+  it('returns 500 when session PATCH fails — queue and history do NOT run', async () => {
+    vi.mocked(extractToken).mockReturnValue('user-token');
+    vi.mocked(verifyToken).mockResolvedValue({
+      sub: 'abc',
+      email: 'steve@sevaro.com',
+      isAdmin: true,
+    });
+    vi.mocked(getSession).mockResolvedValue(makeSession() as never);
+    fetchSpy.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: 'dynamo throttle' }), { status: 500 }),
+    );
+
+    const res = await POST(makeRequest({ appId: APP_ID }), {
+      params: Promise.resolve({ id: SESSION_ID }),
+    });
+
+    expect(res.status).toBe(500);
+    // PATCH failed FIRST, so neither downstream side-effect ran. A client
+    // retry is safe: nothing to clean up.
+    expect(createImprovementFromProposal).not.toHaveBeenCalled();
+    expect(postTriageHistory).not.toHaveBeenCalled();
+  });
+
+  it('retry after transient queue failure produces exactly ONE queue entry with the expected stable promptId', async () => {
+    // Simulates the Codex M#4 flake scenario:
+    //   1st POST: session PATCH succeeds, queue creation fails (timeout)
+    //   2nd POST (retry): session PATCH succeeds again (idempotent — no-op
+    //                     since triageProposal is already null),
+    //                     queue creation succeeds.
+    // After both calls, there is exactly ONE queue entry because promptId
+    // is derived from (sessionId, proposalVersion), and the queue Lambda
+    // uses PutCommand which is an idempotent upsert on the primary key.
+    vi.mocked(extractToken).mockReturnValue('user-token');
+    vi.mocked(verifyToken).mockResolvedValue({
+      sub: 'abc',
+      email: 'steve@sevaro.com',
+      isAdmin: true,
+    });
+    vi.mocked(getSession).mockResolvedValue(makeSession() as never);
+
+    // 1st call: queue throws
+    vi.mocked(createImprovementFromProposal).mockRejectedValueOnce(
+      new Error('queue timeout'),
+    );
+    // 2nd call: queue succeeds — returns the same stable promptId the 1st
+    // call would have used, because the key is derived from the inputs.
+    vi.mocked(createImprovementFromProposal).mockResolvedValueOnce(
+      makeImprovement({ promptId: 'improvement-a3f2-v2' }) as never,
+    );
+    vi.mocked(postTriageHistory).mockResolvedValue({ ok: true });
+
+    const res1 = await POST(makeRequest({ appId: APP_ID }), {
+      params: Promise.resolve({ id: SESSION_ID }),
+    });
+    expect(res1.status).toBe(500);
+
+    const res2 = await POST(makeRequest({ appId: APP_ID }), {
+      params: Promise.resolve({ id: SESSION_ID }),
+    });
+    expect(res2.status).toBe(200);
+
+    // Both calls used the SAME stable promptId derived from sessionId + v2.
+    expect(createImprovementFromProposal).toHaveBeenCalledTimes(2);
+    for (const call of vi.mocked(createImprovementFromProposal).mock.calls) {
+      const [input] = call;
+      expect(input.sessionId).toBe(SESSION_ID);
+      expect(input.proposalVersion).toBe(2);
+    }
+
+    // History only runs on the successful second call — the first run's
+    // queue failure short-circuited before history.
+    expect(postTriageHistory).toHaveBeenCalledTimes(1);
+    const historyCall = vi.mocked(postTriageHistory).mock.calls[0][0];
+    expect(historyCall.improvementQueueItemId).toBe('improvement-a3f2-v2');
   });
 });

@@ -128,6 +128,24 @@ export async function getSession(sessionId: string, appId: string): Promise<Feed
   return normalizeSession(await res.json());
 }
 
+/**
+ * Derive a safe pathname from an annotation's pageUrl for display as a route.
+ *
+ * Parsing against a dummy base (`https://redacted.invalid`) handles both
+ * absolute and relative URLs, and `URL#pathname` strips any query string or
+ * hash fragment — which may carry PHI-bearing identifiers like
+ * `?name=Jane+Doe` or `#/mrn=123`. If the URL is truly unparseable, fall back
+ * to `/`.
+ */
+export function derivePathname(pageUrl: string | undefined): string {
+  if (!pageUrl) return '/';
+  try {
+    return new URL(pageUrl, 'https://redacted.invalid').pathname || '/';
+  } catch {
+    return '/';
+  }
+}
+
 function normalizeSession(session: FeedbackSession): FeedbackSession {
   if ((session.reviewStatus as string | undefined) === 'in_review') {
     session.reviewStatus = 'in_progress';
@@ -147,16 +165,7 @@ function normalizeSession(session: FeedbackSession): FeedbackSession {
   if (Array.isArray(session.annotations)) {
     session.annotations = session.annotations.map((annotation) => ({
       ...annotation,
-      routePath:
-        annotation.routePath ||
-        (() => {
-          if (!annotation.pageUrl) return '/';
-          try {
-            return new URL(annotation.pageUrl).pathname || '/';
-          } catch {
-            return annotation.pageUrl || '/';
-          }
-        })(),
+      routePath: annotation.routePath || derivePathname(annotation.pageUrl),
     }));
   }
   if (typeof session.chatSummary === 'string') {
@@ -267,4 +276,104 @@ Based on user feedback from ${userCount} tester${userCount > 1 ? 's' : ''} (coll
   prompt += `This marks the session as "addressed" and all action items as "resolved" in the feedback dashboard so the team knows it has been handled.\n`;
 
   return prompt;
+}
+
+/**
+ * Client-safe DTO for the session detail page.
+ *
+ * Only whitelisted fields are serialized into the RSC/client payload. Legacy
+ * annotation fields that older Lambda versions stored verbatim (raw pageUrl,
+ * screenshot S3 URLs/keys, arbitrary elementInfo metadata) are stripped at the
+ * server/client boundary so they cannot leak into the browser even if no UI
+ * element renders them today.
+ *
+ * Any new field rendered by `SessionDetailClient` must be added here
+ * explicitly — the DTO is the contract.
+ */
+export interface SessionDetailClientDTO {
+  sessionId: string;
+  appId: string;
+  userLabel?: string;
+  category: string;
+  duration: number;
+  screenSize?: string;
+  status: string;
+  processingError?: string;
+  reviewStatus?: ReviewStatus;
+  resolutionNote?: string;
+  resolvedBy?: string;
+  resolvedAt?: string;
+  aiSummary?: string;
+  transcript?: string;
+  createdAt: string;
+}
+
+export interface AnnotationClientDTO {
+  coordinates: { x: number; y: number };
+  viewport: { width: number; height: number };
+  elementInfo: {
+    tag: string;
+    selector?: string;
+    role?: string;
+    testId?: string;
+    dataTour?: string;
+    className?: string;
+  };
+  routePath: string;
+  userComment?: string;
+}
+
+/**
+ * Build the redacted session DTO rendered by the client component. Drops
+ * heavy/unused fields (events, actionItems, chatMessages — passed as separate
+ * props) and any top-level keys not explicitly whitelisted above.
+ */
+export function toSessionDetailDTO(session: FeedbackSession): SessionDetailClientDTO {
+  return {
+    sessionId: session.sessionId,
+    appId: session.appId,
+    userLabel: session.userLabel,
+    category: session.category,
+    duration: session.duration,
+    screenSize: session.screenSize,
+    status: session.status,
+    processingError: session.processingError,
+    reviewStatus: session.reviewStatus,
+    resolutionNote: session.resolutionNote,
+    resolvedBy: session.resolvedBy,
+    resolvedAt: session.resolvedAt,
+    aiSummary: session.aiSummary,
+    transcript: session.transcript,
+    createdAt: session.createdAt,
+  };
+}
+
+/**
+ * Redact a single annotation for client rendering. Strips `pageUrl`,
+ * `screenshotKey`, `screenshotUrl`, and any elementInfo keys outside the
+ * explicit whitelist — older clients wrote arbitrary DOM metadata here that
+ * could carry PHI (e.g. aria-label text, raw innerText).
+ */
+export function toAnnotationDTO(annotation: ScreenshotAnnotation): AnnotationClientDTO {
+  const info = annotation.elementInfo || { selector: '', tag: '' };
+  return {
+    coordinates: {
+      x: annotation.coordinates?.x ?? 0,
+      y: annotation.coordinates?.y ?? 0,
+    },
+    viewport: {
+      width: annotation.viewport?.width ?? 0,
+      height: annotation.viewport?.height ?? 0,
+    },
+    elementInfo: {
+      tag: info.tag,
+      selector: info.selector,
+      role: info.role,
+      testId: info.testId,
+      dataTour: info.dataTour,
+      className: info.className,
+    },
+    routePath: annotation.routePath,
+    userComment: annotation.userComment,
+  };
 }

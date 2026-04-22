@@ -22,6 +22,7 @@ interface ProposalRevision {
 }
 
 interface TriageProposalLike {
+  version?: number;
   themeId?: string;
   classification?: string;
   confidence?: number;
@@ -78,27 +79,20 @@ export async function POST(
       );
     }
 
-    const improvement = await createImprovementFromProposal(
-      {
-        repoName: proposal.suspectedRepo || session.appId,
-        promptText: currentRevision.prompt,
-        title: proposal.themeId || `feedback-${sessionId}`,
-        source: `feedback:${sessionId}`,
-        reviewerNotes: body.reviewerNotes,
-      },
-      token,
-    );
-
-    await postTriageHistory({
-      sessionId,
-      action: 'approved',
-      themeId: proposal.themeId,
-      reviewerEmail: user.email,
-      reviewerNotes: body.reviewerNotes,
-      improvementQueueItemId: improvement.promptId,
-      proposalSnapshot: proposal as Record<string, unknown>,
-    });
-
+    // Atomicity fix (Codex 2026-04-21 Medium finding #4): patch the session
+    // FIRST. Previously the order was (1) create queue item → (2) write
+    // history → (3) patch session; if step 3 failed, steps 1+2 had already
+    // happened, and because promptId was time-based, retrying produced a
+    // duplicate queue entry. New order:
+    //
+    //   1. PATCH session (clear triageProposal, flip to in_progress).
+    //      If this fails, nothing downstream has happened — safe to retry.
+    //   2. Create queue item with stable promptId = improvement-<sid>-v<ver>.
+    //      Queue Lambda uses PutCommand keyed on (repoName, promptId), so a
+    //      retry with the same key is an idempotent upsert, not a new row.
+    //   3. Write triage history. If this fails after the queue write, the
+    //      queue item still exists with the expected promptId — a retry of
+    //      the full POST re-uses it rather than duplicating.
     const patchRes = await fetch(
       `${FEEDBACK_API_URL}/sessions/${sessionId}?appId=${encodeURIComponent(
         session.appId,
@@ -121,13 +115,37 @@ export async function POST(
       const errBody = await patchRes.json().catch(() => ({}));
       return NextResponse.json(
         {
-          error: 'Failed to patch session after approval',
-          improvement,
+          error: 'Failed to patch session — approval not persisted',
           detail: errBody,
         },
         { status: 500 },
       );
     }
+
+    const improvement = await createImprovementFromProposal(
+      {
+        repoName: proposal.suspectedRepo || session.appId,
+        promptText: currentRevision.prompt,
+        title: proposal.themeId || `feedback-${sessionId}`,
+        sessionId,
+        // Guard against a malformed proposal without a version. Defaulting
+        // to 1 still yields a stable key because the same default is used
+        // on retries of the same approval call.
+        proposalVersion: proposal.version ?? 1,
+        reviewerNotes: body.reviewerNotes,
+      },
+      token,
+    );
+
+    await postTriageHistory({
+      sessionId,
+      action: 'approved',
+      themeId: proposal.themeId,
+      reviewerEmail: user.email,
+      reviewerNotes: body.reviewerNotes,
+      improvementQueueItemId: improvement.promptId,
+      proposalSnapshot: proposal as Record<string, unknown>,
+    });
 
     return NextResponse.json({ improvement });
   } catch (err) {

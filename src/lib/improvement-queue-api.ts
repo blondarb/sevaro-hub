@@ -112,10 +112,31 @@ export interface ProposalApprovalInput {
   promptText: string;
   /** Short human-readable title — usually the proposal's themeId. */
   title: string;
-  /** Provenance string, e.g. `feedback:<sessionId>`. Used to derive promptId. */
-  source: string;
+  /**
+   * Session ID the proposal was approved against. Used to derive a stable,
+   * retry-safe `promptId` so a flaky network at approval time produces at
+   * most one queue entry instead of one per retry.
+   */
+  sessionId: string;
+  /**
+   * Proposal version at approval time. Included in the promptId so that
+   * re-approving a refined proposal (version bumped on /refine-prompt) is
+   * treated as a distinct queue entry rather than silently overwriting the
+   * original approval.
+   */
+  proposalVersion: number;
   /** Optional reviewer notes appended to promptText. */
   reviewerNotes?: string;
+}
+
+/**
+ * Derive the stable, idempotent promptId for a proposal approval. Exported
+ * for tests and for the route layer, which needs to reference the same key
+ * when computing retry semantics.
+ */
+export function deriveProposalPromptId(sessionId: string, proposalVersion: number): string {
+  const safeSession = sessionId.replace(/[^a-z0-9]/gi, '-');
+  return `improvement-${safeSession}-v${proposalVersion}`;
 }
 
 /**
@@ -127,6 +148,12 @@ export interface ProposalApprovalInput {
  * `/admin/improvements` later. Reviewer notes are appended to `promptText` so
  * downstream automation sees them inline.
  *
+ * The promptId is derived from `(sessionId, proposalVersion)` and is stable
+ * across retries — the queue Lambda writes via `PutCommand`, so a retry with
+ * the same primary key is an idempotent upsert, not a new row. Previously the
+ * promptId was time-based (`Date.now()`), which meant every retry after a
+ * partial failure created a duplicate queue entry.
+ *
  * The improvement-queue Lambda verifies Cognito JWTs via `aws-jwt-verify`, so
  * the caller must pass the user's id_token through as `token`.
  */
@@ -134,7 +161,7 @@ export async function createImprovementFromProposal(
   input: ProposalApprovalInput,
   token: string,
 ): Promise<ImprovementEntry> {
-  const promptId = `${input.source.replace(/[^a-z0-9]/gi, '-')}-${Date.now()}`;
+  const promptId = deriveProposalPromptId(input.sessionId, input.proposalVersion);
   const promptText = input.reviewerNotes
     ? `${input.promptText}\n\n---\nReviewer notes: ${input.reviewerNotes}`
     : input.promptText;
