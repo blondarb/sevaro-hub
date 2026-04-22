@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import type { FeedbackSession, FeedbackEvent, ActionItem, ReviewStatus, ChatMessage, ScreenshotAnnotation, ChatSummary } from '@/lib/feedback-api';
+import type { FeedbackEvent, ActionItem, ReviewStatus, ChatMessage, ChatSummary, SessionDetailClientDTO, AnnotationClientDTO } from '@/lib/feedback-api';
 import { formatDuration, formatTimestamp } from '@/lib/feedback-api';
 import { getIdToken } from '@/lib/auth';
 
@@ -49,11 +49,11 @@ const REVIEW_STATUS_STYLES: Record<string, { bg: string; text: string; label: st
 };
 
 interface Props {
-  session: FeedbackSession;
+  session: SessionDetailClientDTO;
   events: FeedbackEvent[];
   actionItems: ActionItem[];
   chatMessages: ChatMessage[];
-  annotations: ScreenshotAnnotation[];
+  annotations: AnnotationClientDTO[];
   chatSummary: ChatSummary | null;
   audioUrl: string;
   claudePrompt: string | null;
