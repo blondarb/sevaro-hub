@@ -1,4 +1,4 @@
-import { getSession, generateClaudeCodePrompt, toSessionDetailDTO, toAnnotationDTO } from '@/lib/feedback-api';
+import { getSession, generateClaudeCodePrompt, toSessionDetailDTO, toAnnotationDTO, toChatMessageDTO } from '@/lib/feedback-api';
 import type { FeedbackEvent, ActionItem, ChatMessage, ScreenshotAnnotation, ChatSummary } from '@/lib/feedback-api';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -76,15 +76,22 @@ export default async function SessionDetailPage({ params, searchParams }: Props)
   // `screenshotUrl`) and any extra `elementInfo` keys into the RSC payload
   // even if no UI element renders them, leaking to the browser. The DTO
   // builders whitelist only the fields `SessionDetailClient` actually reads.
+  //
+  // Codex R2 H#1: chat messages have nested annotation attachments whose PHI
+  // (pageUrl carrying patient identifiers, raw S3 screenshot keys/URLs, legacy
+  // elementInfo with innerText / mrn / etc.) was leaking verbatim until today.
+  // `toChatMessageDTO` closes that channel using the same whitelist as the
+  // top-level annotations array.
   const sessionDTO = toSessionDetailDTO(session);
   const annotations = rawAnnotations.map(toAnnotationDTO);
+  const redactedChatMessages = chatMessages.map(toChatMessageDTO);
 
   return (
     <SessionDetailClient
       session={sessionDTO}
       events={events}
       actionItems={actionItems}
-      chatMessages={chatMessages}
+      chatMessages={redactedChatMessages}
       annotations={annotations}
       chatSummary={chatSummary}
       audioUrl={audioUrl}
