@@ -1246,7 +1246,7 @@
             "src/services/DeepgramService.ts",
             "src/offscreen/offscreen.ts"
           ],
-          "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), context (May 2, 2026): the canonical recording path is now chunked WebM upload + chunk-concat Lambda + AWS Transcribe Medical (recording durability PRs #408-416). Streaming transcript via Transcribe Medical already exists as a UX-only overlay (Phase 6, PR #413). The DeepgramService class exists but is unused and this milestone is effectively superseded by the chunked Transcribe Medical path. If Deepgram quality comparison is desired, instantiate DeepgramService in offscreen.ts and wire to the streaming overlay — but first benchmark against the existing Transcribe Medical streaming baseline. Otherwise close this milestone as superseded.",
+          "quickPrompt": "In the sevaro-evidence-engine repo (chrome-extension/ directory), context (May 3, 2026): AWS Transcribe Medical migration is DONE (PR #505, v2.0.55) — DictButton, Amend Note, and NeuroScribe section dictation all migrated. The canonical recording path is chunked WebM upload + chunk-concat Lambda + AWS Transcribe Medical (recording durability sprint PRs #508-512, v2.0.57-2.0.61, shipped Apr 29 – May 3). Streaming transcript via Transcribe Medical already exists as a UX-only overlay. The DeepgramService class exists but is unused and this milestone is fully superseded by the completed Transcribe Medical path. Close this milestone as superseded unless a Deepgram quality comparison is explicitly requested.",
           "fullPrompt": "## Task: Wire Up Deepgram Streaming\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Context\nDeepgramService.ts is fully implemented with WebSocket subprotocol auth. But it's never instantiated \u2014 the extension uses batch transcription via Lambda /transcribe endpoint.\n\n## Wire up\n1. Instantiate DeepgramService in the offscreen document\n2. Connect microphone audio to Deepgram WebSocket\n3. Display interim results in real-time in the side panel\n4. Replace final transcription with Deepgram finals\n5. Keep batch transcription as fallback\n\n## Acceptance criteria\n- Words appear in real-time during recording\n- Final transcript quality matches or exceeds batch\n- Fallback to batch if streaming fails\n- No memory leaks from WebSocket connections",
           "manualSteps": [
             "Open src/services/DeepgramService.ts",
@@ -1260,26 +1260,17 @@
         {
           "id": "transcribe-medical-hipaa",
           "title": "Amazon Transcribe Medical for HIPAA compliance",
-          "status": "pending",
+          "status": "done",
           "complexity": "high",
-          "description": "AWS Transcribe Medical is live in EEG Reporter (PRs #14-20, Apr 1). Chrome extension (neuroscribe) still uses Deepgram Nova-3 Medical (no BAA) for dev/trial. Migrate chrome extension dictation to Lambda-based Transcribe Medical for HIPAA compliance.",
-          "prerequisites": [
-            "Deepgram streaming wired up (to compare quality)",
-            "sevaro-transcribe-staging Lambda deployed"
-          ],
+          "description": "Shipped in PR #505 (feat/web-speech-to-transcribe-medical, Apr 29-30, 2026). DictButton, Amend Note, and NeuroScribe section dictation all migrated from Web Speech API to AWS Transcribe Medical (BAA-eligible). No-Web-Speech regression smoke added and locked. Codex review fixes for race + stuck state applied. disableStreaming: true added for batch dictation path. Extension manifest bumped to v2.0.55.",
+          "prerequisites": [],
           "keyFiles": [
-            "src/services/TranscriptionService.ts",
-            "lambda/sevaro-transcribe-staging/"
+            "chrome-extension/src/services/TranscriptionService.ts",
+            "chrome-extension/src/offscreen/offscreen.ts"
           ],
-          "quickPrompt": "In the sevaro-evidence-engine chrome extension, migrate voice dictation from Deepgram Nova-3 Medical to AWS Transcribe Medical via Lambda. The EEG Reporter fully implemented this pattern in PRs #14-20 (feature-voice-dictation PR #14, buffer-on-stop Lambda compatibility PR #18, Transcribe error logging + chunked audio PR #19, AudioWorklet migration replacing ScriptProcessorNode PR #20, Apr 1). Use the buffer-on-stop pattern (PR #18) for Lambda compatibility and AudioWorklet (PR #20) for audio processing reliability. Reference those PRs in sevaro-eeg-reporter as the implementation model.",
-          "fullPrompt": "## Task: Amazon Transcribe Medical Integration\n\n**Repo:** SevaroNeuro-scribe-chrome\n\n## Context\nDeepgram is not HIPAA-covered without an Enterprise BAA. AWS Transcribe Medical is covered under the existing AWS BAA.\n\n## Build\n1. Create TranscriptionService that uses sevaro-transcribe-staging Lambda\n2. Support both streaming (WebSocket) and batch modes\n3. Compare quality with Deepgram Nova-3 Medical\n4. Make transcription provider configurable\n\n## Acceptance criteria\n- HIPAA-compliant transcription available\n- Quality comparable to Deepgram\n- Provider switchable via config\n- No PHI sent to non-HIPAA services",
-          "manualSteps": [
-            "Review sevaro-transcribe-staging Lambda",
-            "Create TranscriptionService wrapper",
-            "Wire into extension recording flow",
-            "Compare output quality with Deepgram",
-            "Configure as default for production"
-          ]
+          "quickPrompt": "AWS Transcribe Medical migration is DONE (PR #505, v2.0.55, Apr 29-30). DictButton, Amend Note, and NeuroScribe section dictation all use AWS Transcribe Medical. No-Web-Speech regression smoke locked. Milestone complete.",
+          "fullPrompt": "",
+          "manualSteps": []
         }
       ]
     },
