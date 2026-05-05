@@ -368,7 +368,7 @@
             "src/lib/transcribe-streaming.ts",
             "src/app/api/ai/transcribe/"
           ],
-          "quickPrompt": "In the OPSAmple repo, add real-time voice streaming to the main encounter transcription flow. Context (May 4, 2026): The /consult Historian already uses Realtime API (WebRTC) for live voice; this milestone is for the general encounter transcription workflow (non-Historian). Evidence Engine recording durability sprint (PRs #508-512, v2.0.57-61, May 1-3) completed \u2014 SW dictation lifecycle, transcript accumulator, GET_DICTATION_STATE, cross-mode conflict-mutex, and consumer rehydration on mount are all now mature reference implementations in chrome-extension/src/background/. v3 BatchScreen MVP + contract fixes (PRs #499-500) and recording-stop durability (PR #502) are fully shipped. Use AWS Transcribe Medical (HIPAA-eligible, BAA-eligible) for compliance \u2014 same chunked WebM \u2192 chunk-concat Lambda \u2192 Transcribe Medical pattern. Reference: sevaro-evidence-engine chrome-extension/src/services/ and chrome-extension/src/offscreen/ for the full streaming pipeline. Target: words appear within 500ms of being spoken in the encounter view.",
+          "quickPrompt": "In the OPSAmple repo, add real-time voice streaming to the main encounter transcription flow. Context (May 5, 2026): The /consult Historian already uses Realtime API (WebRTC) for live voice; this milestone is for the general encounter transcription workflow (non-Historian). Recording durability sprint (PRs #508-512, v2.0.57-61, May 1-3) and multi-patient rounding v2.1 (PR #523, v2.1.0, May 2026) are both fully shipped \u2014 SW dictation lifecycle, transcript accumulator, GET_DICTATION_STATE, cross-mode conflict-mutex, and consumer rehydration on mount are all mature reference implementations in chrome-extension/src/background/. v3 BatchScreen MVP + contract fixes (PRs #499-500) and recording-stop durability (PR #502) are fully shipped. Use AWS Transcribe Medical (HIPAA-eligible, BAA-eligible) for compliance \u2014 same chunked WebM \u2192 chunk-concat Lambda \u2192 Transcribe Medical pattern. Reference: sevaro-evidence-engine chrome-extension/src/services/ and chrome-extension/src/offscreen/ for the full streaming pipeline. Target: words appear within 500ms of being spoken in the encounter view.",
           "fullPrompt": "## Task: Real-Time Voice Streaming\n\n**Repo:** OPSAmplehtml\n**Key area:** Transcription components\n\n## Context\nOPSAmple has post-recording transcription but no live streaming. Clinicians want to see words appear in real-time during encounters.\n\n## Approach\n1. Add WebSocket connection to streaming transcription service\n2. Display interim results in real-time, replace with finals\n3. Handle microphone permissions and audio capture in browser\n4. Consider AWS Transcribe Medical for HIPAA compliance\n\n## Acceptance criteria\n- Words appear within 500ms of being spoken\n- Final transcription matches post-recording quality\n- Works on Chrome and Safari\n- Graceful fallback if streaming unavailable",
           "manualSteps": [
             "Set up streaming transcription service",
@@ -392,7 +392,7 @@
             "src/data/diagnosis-plans/",
             "scripts/load-plans.ts"
           ],
-          "quickPrompt": "In the OPSAmple repo, complete the remaining diagnosis treatment plans. Current state (May 2, 2026): 98 plans in RDS neuro_plans table, 148 of 166 target diagnoses covered \u2014 18 diagnoses still lack plans. Query `SELECT diagnosis_name FROM diagnoses WHERE id NOT IN (SELECT diagnosis_id FROM neuro_plans)` (adjust to actual schema) to identify which 18 are missing. Draft clinical content for each (treatment options, monitoring parameters, decision points) following the format of existing plans. Use Evidence Engine for clinical guidance on rare diagnoses. Load into RDS via the existing sync pipeline (`npm run sync-plans`). Verify all 166 diagnoses surface plans in the app UI.",
+          "quickPrompt": "In the OPSAmple repo, complete the remaining diagnosis treatment plans. Current state (May 5, 2026): 98 plans in RDS neuro_plans table, 148 of 166 target diagnoses covered \u2014 18 diagnoses still lack plans. No active work on this since May 2. Query `SELECT diagnosis_name FROM diagnoses WHERE id NOT IN (SELECT diagnosis_id FROM neuro_plans)` (adjust to actual schema) to identify which 18 are missing. Draft clinical content for each (treatment options, monitoring parameters, decision points) following the format of existing plans. Use Evidence Engine for clinical guidance on rare diagnoses. Load into RDS via the existing sync pipeline (`npm run sync-plans`). Verify all 166 diagnoses surface plans in the app UI.",
           "fullPrompt": "## Task: Complete Diagnosis Plan Coverage\n\n**Repo:** OPSAmplehtml\n\n## Context\n148 of 166 target diagnoses have treatment plans. Need to identify and create the remaining 18.\n\n## Steps\n1. Query RDS to find which 18 diagnoses are missing\n2. Draft clinical content for each (treatment options, monitoring, decision points)\n3. Follow the same format as existing plans\n4. Load into database\n\n## Acceptance criteria\n- All 166 diagnoses have treatment plans\n- Content follows existing plan format\n- Plans are accessible in the app",
           "manualSteps": [
             "Query database for missing diagnoses",
@@ -1269,6 +1269,41 @@
             "chrome-extension/src/offscreen/offscreen.ts"
           ],
           "quickPrompt": "AWS Transcribe Medical migration is DONE (PR #505, v2.0.55, Apr 29-30). DictButton, Amend Note, and NeuroScribe section dictation all use AWS Transcribe Medical. No-Web-Speech regression smoke locked. Milestone complete.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "recording-durability-sprint",
+          "title": "Recording durability sprint — SW lifecycle, cross-mode mutex, consumer rehydration (PRs #508-512, v2.0.57-61)",
+          "status": "done",
+          "complexity": "high",
+          "description": "Shipped Apr 29 – May 3, 2026 across 5 PRs (v2.0.57-61). PR-A (#508): SW keepalive port held for full recording duration; captured tab non-discardable; tagged silence-detection telemetry. PR-B (#509): DictationSession schema + recordingPulseState helpers; SW derives pulse on session change; drawer pulse wired in v2 + v3. PR-C (#511): SW cross-mode mutex gates START_* handlers; CONFLICT routes consumers to active session via NAVIGATE_TO_ACTIVE_SESSION; side-panel roots listen. PR-D (#510): SW dictation lifecycle + transcript accumulator + GET_DICTATION_STATE; all dictation consumers rehydrate from SW on mount + drop unmount STOPs. PR-E (#512): all four recording consumers (V3Root, V2 SidePanel, BatchScreen, DictButton paths) rehydrate active session on mount; drawer-close-and-reopen survives active recording or dictation. All 4 modes covered by tests.",
+          "prerequisites": [],
+          "keyFiles": [
+            "chrome-extension/src/background/index.ts",
+            "chrome-extension/src/components/V3Root.tsx",
+            "chrome-extension/src/components/EncounterWorkspace.tsx"
+          ],
+          "quickPrompt": "Recording durability sprint DONE (PRs #508-512, v2.0.57-61, Apr 29 – May 3). SW keepalive, dictation lifecycle, cross-mode mutex, consumer rehydration on mount across all 4 modes (V3Root, V2 SidePanel, BatchScreen, DictButton). Drawer-close-and-reopen survives active sessions. Tests cover all modes.",
+          "fullPrompt": "",
+          "manualSteps": []
+        },
+        {
+          "id": "multi-patient-rounding-v2-1",
+          "title": "Multi-patient continuous rounding v2.1 — 4-layer architecture (PR #523, v2.1.0)",
+          "status": "done",
+          "complexity": "high",
+          "description": "Shipped May 2026 (PR #523, v2.1.0). Layer 1: tab-switch PATIENT_TRANSITION detector writes transitions to chrome.storage.local immediately. Layer 2: 'Next patient' button in LiveDictateStep with inline patient-label input. Layer 3: timestamp-anchored transcript splitting in sevaro-auto-split Lambda (mode:'rounding' + transitionTimestampsMs[]). Layer 4: mandatory RoundingReviewScreen with per-segment confidence chips + assignment dropdowns. New routes: POST /api/rounding-sessions, POST/GET /api/encounters/[id]/rounding-split, POST /api/encounters/[id]/confirm-rounding-segments. Full recovery banner if session interrupted. Post-merge: lint fix for badge-color whitelist line numbers; correct 2.1.0 Beta zip deployed to Amplify (May 4).",
+          "prerequisites": [
+            "recording-durability-sprint"
+          ],
+          "keyFiles": [
+            "chrome-extension/src/components/LiveDictateStep.tsx",
+            "chrome-extension/src/components/RoundingReviewScreen.tsx",
+            "src/app/api/encounters/[id]/rounding-split/route.ts",
+            "lambda/sevaro-auto-split/"
+          ],
+          "quickPrompt": "Multi-patient continuous rounding v2.1 is DONE (PR #523, v2.1.0, May 2026). 4-layer architecture: tab-switch detector, Next Patient button, Lambda transcript splitting, RoundingReviewScreen with segment review. All rounding routes live. Recovery banner active. Post-merge clean-up shipped May 4.",
           "fullPrompt": "",
           "manualSteps": []
         }
