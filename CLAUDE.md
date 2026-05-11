@@ -37,7 +37,7 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 
 ## Body of Work
 
-**Status**: Active — verified May 10, 2026
+**Status**: Active — verified May 11, 2026
 
 ### Recent
 - **Codex round 2: chat DTO redaction, approve order, resolve lookup (PR #28, Apr 22)** — Cross-model round 2 review: chat DTO fields scrubbed before Hub renders; approve action ordering corrected; `resolvedBy` lookup hardened to only query when a resolution event is present.
