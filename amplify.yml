@@ -3,7 +3,8 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm install -g pnpm
+        - rm -rf node_modules
+        - npm install -g pnpm@10
         - pnpm install --frozen-lockfile
     build:
       commands:
@@ -24,5 +25,4 @@ frontend:
       - '**/*'
   cache:
     paths:
-      - node_modules/**/*
       - .next/cache/**/*
