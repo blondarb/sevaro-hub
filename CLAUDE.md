@@ -37,15 +37,15 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 
 ## Body of Work
 
-**Status**: Active — verified May 11, 2026
+**Status**: Active — verified May 12, 2026
 
 ### Recent
+- **Amplify: pin pnpm@10 + force clean install (PR #29, May 2026)** — Pinned pnpm@10 and added `--frozen-lockfile` force clean install in amplify.yml to unblock prod deploy; resolves pnpm version drift causing Amplify build failures.
 - **Codex round 2: chat DTO redaction, approve order, resolve lookup (PR #28, Apr 22)** — Cross-model round 2 review: chat DTO fields scrubbed before Hub renders; approve action ordering corrected; `resolvedBy` lookup hardened to only query when a resolution event is present.
 - **Codex Priority 2: PHI redaction + audit integrity (PR #27, Apr 21)** — PHI redaction applied to additional Hub render paths; audit log integrity tightened to prevent gaps in triage history trail.
 - **Remove secrets from next.config.ts env block (PR #26, Apr 21)** — Secrets were leaking into the client bundle via `next.config.ts` `env:` block; moved to server-only access patterns; eliminates client-side secret exposure.
 - **Fix resolvedBy only set when resolving (PR #25, Apr 21)** — `resolvedBy`/`resolvedAt` were being stamped on approval (not resolution); now only written when `reviewStatus` transitions to `resolved`.
 - **Feedback pipeline Phase 1+2: approval state fix + PHI render cleanup (Apr 21)** — approve-proposal now PATCHes `reviewStatus: 'in_progress'` only (not `resolved`); `SessionDetailClient` stopped rendering PHI-bearing annotation fields; 64 tests passing.
-- **Feedback "mark addressed" prompt template includes `x-api-key` (Apr 15)** — `generateClaudeCodePrompt()` now emits a two-step shell command: Secrets Manager fetch + curl with `-H "x-api-key"` chained via `&&`.
 - **Feedback triage system live (Apr 14)** — Human-in-the-loop triage loop end-to-end: DynamoDB triage tables, 6 Lambda routes, Hub API proxy routes, `/feedback/triage` UI with ProposalDetail + RejectModal + keyboard nav, `/feedback/analyze` redesigned as theme rollup. 64 vitest tests.
 
 ### In Progress
