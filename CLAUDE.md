@@ -37,7 +37,7 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 
 ## Body of Work
 
-**Status**: Active — verified May 12, 2026
+**Status**: Active — verified May 13, 2026
 
 ### Recent
 - **Amplify: pin pnpm@10 + force clean install (PR #29, May 2026)** — Pinned pnpm@10 and added `--frozen-lockfile` force clean install in amplify.yml to unblock prod deploy; resolves pnpm version drift causing Amplify build failures.
