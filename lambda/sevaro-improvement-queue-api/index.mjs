@@ -18,12 +18,18 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || 'steve@sevaro.com')
   .map((e) => e.trim().toLowerCase());
 
 const USER_POOL_ID = process.env.COGNITO_USER_POOL_ID || 'us-east-2_9y6XyJnXC';
-const CLIENT_ID = process.env.COGNITO_CLIENT_ID || '2ejoumofnhhd3133gv9e9i6r1h';
+// Accept tokens from any of these app clients (comma-separated). Same user pool.
+// Hub client (2ejou…) + scribe-feedback-board client (21snp…) so the board's
+// id tokens verify and /improvements stops 401ing for live feedback.
+const CLIENT_IDS = (process.env.COGNITO_CLIENT_ID || '2ejoumofnhhd3133gv9e9i6r1h')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
 
 const verifier = CognitoJwtVerifier.create({
   userPoolId: USER_POOL_ID,
   tokenUse: 'id',
-  clientId: CLIENT_ID,
+  clientId: CLIENT_IDS,
 });
 
 const headers = {
