@@ -1,1 +1,1 @@
-PLACEHOLDER
+{"projects":[{"id":"evidence-engine","name":"Evidence Engine","milestones":[{"id":"optimize-synthesis-speed","title":"Further reduce Haiku 4.5 synthesis time in async Lambda (currently 23.4s avg)","status":"pending","targetDate":"Jun 2026","quickPrompt":"Lambda is sevaro-reasoning (NOT sam deploy — use bash lambda/reasoning/build.sh then aws lambda update-function-code). Compact prompt active (SYNTHESIS_PROMPT_COMPACT=1). KB=T4W8S8RNMN. See known issue in CLAUDE.md."}]}]}
