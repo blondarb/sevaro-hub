@@ -1,146 +1,67 @@
-IyBTZXZhcm8gSHViCgpTcGxhc2ggcGFnZSBhbmQgYWRtaW4gZGFzaGJvYXJkIGZvciBTZXZhcm8g
-YXBwcy4gSW5jbHVkZXMgZmVlZGJhY2sgbWFuYWdlbWVudCB3aXRoIENvZ25pdG8gYXV0aCwgcGF0
-dGVybiBhbmFseXNpcyB2aWEgQmVkcm9jaywgYW5kIGVtYWlsIG5vdGlmaWNhdGlvbnMgdmlhIFNF
-Uy4gSG9zdGVkIG9uIEFXUyBBbXBsaWZ5IGF0IGBodWIubmV1cm9wbGFucy5hcHBgLgoKIyMgRGVz
-aWduIFN5c3RlbSAoTUFOREFUT1JZKQotICoqUmVmZXJlbmNlOioqIGB+L2Rldi9yZXBvcy9zZXZh
-cm8tZGVzaWduLXN5c3RlbS9ERVNJR05fU1lTVEVNLm1kYCDigJQgYWxsIGNvbG9ycywgdHlwb2dy
-YXBoeSwgY29tcG9uZW50cwotICoqRmlnbWE6KiogW1NldmFybyBEZXNpZ24gU3lzdGVtXShodHRw
-czovL3d3dy5maWdtYS5jb20vZGVzaWduLzJTdnBNVjRXRTVDRmp4dnN4VFJnMXcvU2V2YXJvLURl
-c2lnbi1TeXN0ZW0pIChmaWxlIGtleTogYDJTdnBNVjRXRTVDRmp4dnN4VFJnMXdgKQotIEFsbCBV
-SSBtdXN0IG1hdGNoIHRoZSBkZXNpZ24gc3lzdGVtIDE6MS4gUmVhZCB0aGUgcmVmZXJlbmNlIGRv
-YyBiZWZvcmUgYnVpbGRpbmcgYW55IFVJIGNvbXBvbmVudC4KCiMjIFRlY2ggU3RhY2sKCi0gKipU
-eXBlKio6IE5leHQuanMgMTUgKEFwcCBSb3V0ZXIsIFNTUikKLSAqKkhvc3RpbmcqKjogQVdTIEFt
-cGxpZnkgKGBkM24zZTl2cjFrbmthbWApCi0gKipEb21haW4qKjogYGh1Yi5uZXVyb3BsYW5zLmFw
-cGAKLSAqKkRlcGxveSoqOiBBdXRvLWRlcGxveXMgb24gcHVzaCB0byBgbWFpbmAKLSAqKkF1dGgq
-KjogQW1hem9uIENvZ25pdG8gKGB1cy1lYXN0LTJfOXk2WHlKblhDYCwgY2xpZW50IGAyZWpvdW1v
-Zm5oaGQzMTMzZ3Y5ZTlpNnIxaGApCi0gKipJQU0gUm9sZSoqOiBgU2V2YXJvSHViLUFtcGxpZnlT
-U1JgIChTRVMsIEJlZHJvY2ssIFNTTSBwZXJtaXNzaW9ucykKLSAqKkVtYWlsKio6IFNFUyBmcm9t
-IGBmZWVkYmFja0BuZXVyb3BsYW5zLmFwcGAgKERLSU0gdmVyaWZpZWQpCi0gKipBSSoqOiBCZWRy
-b2NrIFNvbm5ldCBmb3IgZmVlZGJhY2sgcGF0dGVybiBhbmFseXNpcwotICoqRmVlZGJhY2sgQVBJ
-Kio6IExhbWJkYSBgc2V2YXJvLWZlZWRiYWNrLWFwaWAgdmlhIEFQSSBHYXRld2F5IGA4dWFnejl5
-NWJoYAotICoqV2hhdCdzIE5ldyBBUEkqKjogTGFtYmRhIGBzZXZhcm8td2hhdHMtbmV3LWFwaWAg
-dmlhIEFQSSBHYXRld2F5IGA1MTY4b2ZoaDhrYAogIC0gRHluYW1vREIgdGFibGU6IGBzZXZhcm8t
-d2hhdHMtbmV3YCAoUEs6IGBhcHBJZGAsIFNLOiBgdGltZXN0YW1wYCkKICAtIEpXVCB2ZXJpZmll
-ZCB2aWEgYGF3cy1qd3QtdmVyaWZ5YCAoQ29nbml0byBzaWduYXR1cmUgKyBjbGFpbXMpCiAgLSBQ
-dWJsaWM6IGBHRVQgL3doYXRzLW5ldz9hcHBJZD0uLi4mc2luY2U9Li4uYAogIC0gQWRtaW46IGBH
-RVQgL3doYXRzLW5ldy9hbGxgLCBgUE9TVCAvd2hhdHMtbmV3YCwgYERFTEVURSAvd2hhdHMtbmV3
-YAotICoqSW1wcm92ZW1lbnQgUXVldWUgQVBJKio6IExhbWJkYSBgc2V2YXJvLWltcHJvdmVtZW50
-LXF1ZXVlLWFwaWAgdmlhIEFQSSBHYXRld2F5IGBhZWwwb3J6bXNrYAogIC0gRHluYW1vREIgdGFi
-bGU6IGBzZXZhcm8taW1wcm92ZW1lbnQtcXVldWVgIChQSzogYHJlcG9OYW1lYCwgU0s6IGBwcm9t
-cHRJZGApCiAgLSBKV1QgdmVyaWZpZWQgdmlhIGBhd3Mtand0LXZlcmlmeWAgKENvZ25pdG8gc2ln
-bmF0dXJlICsgY2xhaW1zKQogIC0gQWRtaW46IGBHRVQgL2ltcHJvdmVtZW50c2AsIGBQT1NUIC9p
-bXByb3ZlbWVudHNgLCBgUEFUQ0ggL2ltcHJvdmVtZW50c2AsIGBERUxFVEUgL2ltcHJvdmVtZW50
-c2AKICAtIExhbWJkYSBzb3VyY2U6IGBsYW1iZGEvc2V2YXJvLWltcHJvdmVtZW50LXF1ZXVlLWFw
-aS9gCgojIyBBZG1pbiBBY2Nlc3MKCi0gQ29udHJvbGxlZCBieSBgQURNSU5fRU1BSUxTYCBlbnYg
-dmFyIChkZWZhdWx0OiBgc3RldmVAc2V2YXJvLmNvbWApCi0gSldUIHZlcmlmaWNhdGlvbiB2aWEg
-Q29nbml0byBKV0tTCi0gUHJvdGVjdGVkIHJvdXRlczogYC9mZWVkYmFja2AsIGAvZmVlZGJhY2sv
-YW5hbHl6ZWAsIGAvZmVlZGJhY2svW2lkXWAsIGAvYWRtaW4vd2hhdHMtbmV3YCwgYC9hZG1pbi9p
-bXByb3ZlbWVudHNgCgojIyBCb2R5IG9mIFdvcmsKCioqU3RhdHVzKio6IEFjdGl2ZSDigJQgdmVy
-aWZpZWQgSnVseSA1LCAyMDI2CgojIyMgUmVjZW50Ci0gKipEYWlseSBzeW5jOiByb2FkbWFwIG1p
-bGVzdG9uZXMgYW5kIHByb21wdHMgKEp1bCA1LCAyMDI2KSoqIOKAlCBzZXZhcm8tZXZpZGVuY2Ut
-ZW5naW5lOiBBZGRlZCAyIG5ldyBSZWNlbnQgaXRlbXMgKHJvdW5kaW5nIHNhZmV0eSB0aHJlYWRz
-IDEtMiBQUnMgIzk4My05ODQ7IHRocmVhZHMgNGEvNGIvNGQgKyBncm91bmRpbmcgKyB0ZWxlbWV0
-cnkgZml4ZXMgUFJzICM5ODUtOTg4KTsgcmVtb3ZlZCAyIG9sZGVzdCBpdGVtczsgdmVyaWZpZWQg
-ZGF0ZSDihpIgSnVsIDUuIE9QU0FtcGxlaHRtbCwgU0RORSwgVm9pY2VUcmFuc2NyaWJlciwgY2Fy
-ZGlvLXBsYW5zLXYyLCBuZXVyby1wbGFucy12MiwgbmV1cm9jcml0LWNhcmUtdjIsIHBlcnNvbmFs
-LXRvb2xzLCBwbXItcmVoYWItdjIsIHB1bG0tY3JpdC1jYXJlLXYyLCBzcGluZS1zdXJnZXJ5LXYy
-LCB4ci10ZXN0LWNvbXBhbmlvbiwgc2V2YXJvLW9wczogdmVyaWZpZWQgZGF0ZXMg4oaSIEp1bCA1
-LiBSb2FkbWFwOiBldmlkZW5jZS1vcHRpbWl6ZS1zeW50aGVzaXMtc3BlZWQgKyBldmlkZW5jZS1z
-c28tcGFzc2tleXMgcXVpY2tQcm9tcHRzIHVwZGF0ZWQgd2l0aCBKdWwgNCByb3VuZGluZyBzYWZl
-dHkgdGhyZWFkIGNvbnRleHQgKFBScyAjOTgzLTk4OCk7IHNkbmUgKyBvcHNhbXBsZWh0bWwgbWls
-ZXN0b25lcyByZWZyZXNoZWQgdG8gSnVsIDUuCi0gKipEYWlseSBzeW5jOiByb2FkbWFwIG1pbGVz
-dG9uZXMgYW5kIHByb21wdHMgKEp1biAyOSwgMjAyNikqKiDigJQgT1BTQW1wbGVodG1sOiBhZGRl
-ZCB0cmlhZ2UgY3Jhc2ggZml4ICsgdHJpYWdlIGxhdGVuY3kgcmVkdWN0aW9uIChKdW4gMjYgaXRl
-bXMgbWlzc2luZyBmcm9tIHByaW9yIHN5bmNzKSB0byBSZWNlbnQsIHJlbW92ZWQgMiBvbGRlc3Qg
-aXRlbXM7IHZlcmlmaWVkIOKGkiBKdW4gMjkuIHNldmFyby1ldmlkZW5jZS1lbmdpbmU6IG5vIG5l
-dyBjb2RlIHNpbmNlIEp1biAyNzsgdmVyaWZpZWQg4oaSIEp1biAyOS4gU0RORSwgVm9pY2VUcmFu
-c2NyaWJlciwgY2FyZGlvLXBsYW5zLXYyLCBuZXVyby1wbGFucy12MiwgbmV1cm9jcml0LWNhcmUt
-djIsIHBlcnNvbmFsLXRvb2xzLCBwbXItcmVoYWItdjIsIHB1bG0tY3JpdC1jYXJlLXYyLCBzcGlu
-ZS1zdXJnZXJ5LXYyLCB4ci10ZXN0LWNvbXBhbmlvbiwgc2V2YXJvLW9wczogdmVyaWZpZWQgZGF0
-ZXMg4oaSIEp1biAyOS4gUm9hZG1hcDogZXZpZGVuY2Utb3B0aW1pemUtc3ludGhlc2lzLXNwZWVk
-ICsgZXZpZGVuY2Utc3NvLXBhc3NrZXlzICsgdm9pY2UtdHJhbnNjcmliZXItc3RlZWwtbWFuICsg
-bWFya2V0LWRheS12ci1zb25hbGkgKyBvcHNhbXBsZWh0bWwgbWlsZXN0b25lcyArIDYgY2xpbmlj
-YWwgcGxhbnMgcmVwb3MgcXVpY2tQcm9tcHRzIHVwZGF0ZWQgd2l0aCBKdW4gMjkgY29udGV4dC4K
-LSAqKkRhaWx5IHN5bmM6IHJvYWRtYXAgbWlsZXN0b25lcyBhbmQgcHJvbXB0cyAoSnVuIDI4LCAy
-MDI2KSoqIOKAlCBObyBuZXcgY29kZSBjb21taXRzIHNpbmNlIEp1biAyNy4gT1BTQW1wbGVodG1s
-LCBTRE5FLCBWb2ljZVRyYW5zY3JpYmVyLCBjYXJkaW8tcGxhbnMtdjIsIG5ldXJvLXBsYW5zLXYy
-LCBuZXVyb2NyaXQtY2FyZS12MiwgcGVyc29uYWwtdG9vbHMsIHBtci1yZWhhYi12MiwgcHVsbS1j
-cml0LWNhcmUtdjIsIHNldmFyby1vcHMsIHNwaW5lLXN1cmdlcnktdjIsIHhyLXRlc3QtY29tcGFu
-aW9uLCBzZXZhcm8tZXZpZGVuY2UtZW5naW5lOiB2ZXJpZmllZCBkYXRlcyDihpIgSnVuIDI4LiBS
-b2FkbWFwOiBldmlkZW5jZS1vcHRpbWl6ZS1zeW50aGVzaXMtc3BlZWQgKyBldmlkZW5jZS1zc28t
-cGFzc2tleXMgcXVpY2tQcm9tcHRzIHVwZGF0ZWQgd2l0aCBKdW4gMjggc3RhYmxlLXN0YXRlIGNv
-bnRleHQuCi0gKipEYWlseSBzeW5jOiByb2FkbWFwIG1pbGVzdG9uZXMgYW5kIHByb21wdHMgKEp1
-biAyNywgMjAyNikqKiDigJQgc2V2YXJvLWV2aWRlbmNlLWVuZ2luZTogVHdvIHByb2QgZml4ZXM6
-IHBoeXNpY2lhbkVtYWlsIHN0YW1wIG9uIGNoYXJ0LXByZXAgc3BsaXQgY2hpbGRyZW4gKFBSICM5
-NDgpIOKAlCBwcmV2ZW50cyBjcm9zcy1JZFAgNDAzIGVycm9ycyB3aGVuIEFQUCBwaHlzaWNpYW5z
-IGdlbmVyYXRlIG5vdGVzIGZvciBtdWx0aXBsZSBwYXRpZW50cyBpbiBhIHNpbmdsZSBjaGFydC1w
-cmVwIHNlc3Npb247IGJ1aWxkR2VuZXJhdGVQYXlsb2FkIHJlLWV4cG9ydCByZW1vdmVkIGZyb20g
-cm91dGUudHMgKFBSICM5NDcpIOKAlCB3YXMgY2F1c2luZyBBbXBsaWZ5IHByb2QgYnVpbGQgZmFp
-bHVyZS4gQm9XIFJlY2VudCB1cGRhdGVkIHdpdGggMSBuZXcgaXRlbSAoUFJzICM5NDctOTQ4KTsg
-dmVyaWZpZWQgZGF0ZSDihpIgSnVuIDI3LiBPUFNBbXBsZWh0bWwsIFNETkUsIFZvaWNlVHJhbnNj
-cmliZXIsIGNhcmRpby1wbGFucy12MiwgbmV1cm8tcGxhbnMtdjIsIG5ldXJvY3JpdC1jYXJlLXYy
-LCBwZXJzb25hbC10b29scywgcG1yLXJlaGFiLXYyLCBwdWxtLWNyaXQtY2FyZS12Miwgc2V2YXJv
-LW9wcywgc3BpbmUtc3VyZ2VyeS12MiwgeHItdGVzdC1jb21wYW5pb246IHZlcmlmaWVkIGRhdGVz
-IOKGkiBKdW4gMjcuIFJvYWRtYXA6IGV2aWRlbmNlLW9wdGltaXplLXN5bnRoZXNpcy1zcGVlZCAr
-IGV2aWRlbmNlLXNzby1wYXNza2V5cyBxdWlja1Byb21wdHMgdXBkYXRlZCB3aXRoIEp1biAyNyBj
-b250ZXh0IChQUnMgIzk0Ny05NDgpLgotICoqRGFpbHkgc3luYzogcm9hZG1hcCBtaWxlc3RvbmVz
-IGFuZCBwcm9tcHRzIChKdW4gMjYsIDIwMjYpKiog4oCUIHNldmFyby1ldmlkZW5jZS1lbmdpbmU6
-IFByaW9yLU5vdGUgUmVmZXJlbmNlIE1vZGUgKyBIUEkgcGFyYWdyYXBoIHJlYWRhYmlsaXR5IHNo
-aXBwZWQgZGFyayAoUFIgIzk0MCkg4oCUIFBSSU9SX05PVEVfUkVGRVJFTkNFX01PREVfRU5BQkxF
-RCBzdHJpcHMgcHJpb3Itbm90ZSBwbGFuL2V4YW0gYmVmb3JlIGNvbWJpbmU7IEhQSV9QQVJBR1JB
-UEhfU1RZTEVfRU5BQkxFRCBpbmplY3RzIHBhcmFncmFwaCBkaXJlY3RpdmUgYWNyb3NzIGFsbCBI
-UEkgcHJvbXB0czsgcGF5bG9hZC1idWlsZGVyLnRzIGV4dHJhY3RlZCAoNTIrIHRlc3RzIGdyZWVu
-KTsgcGVyLXNlY3Rpb24gcmVzdHlsZSBwcmV2aWV3ICsgcmV2ZXJ0IHNoaXBwZWQgZGFyayAoUFIg
-Izk0NCkg4oCUIFNUWUxFX1NFQ1RJT05fUFJFVklFV19FTkFCTEVEOyBidWcgZml4ZXM6IGNhdGVn
-b3JpZXMtb25seSBjaGFydCBwcmVwIChQUiAjOTQzKSwgbWFudWFsIG5vdGUgYXJyaXZhbCBmb3Ig
-Uml5YSAoUFIgIzk0MSksIFdpbmRvd3MgNDAzIG93bmVyc2hpcCByYWNlIChQUiAjOTM4KS4gQm9X
-IFJlY2VudCB1cGRhdGVkIHdpdGggMyBuZXcgaXRlbXMsIDMgb2xkZXN0IHJvdGF0ZWQgb3V0OyB2
-ZXJpZmllZCBkYXRlIOKGkiBKdW4gMjYuIE9QU0FtcGxlaHRtbCwgU0RORSwgVm9pY2VUcmFuc2Ny
-aWJlciwgY2FyZGlvLXBsYW5zLXYyLCBuZXVyby1wbGFucy12MiwgbmV1cm9jcml0LWNhcmUtdjIs
-IHBlcnNvbmFsLXRvb2xzLCBwbXItcmVoYWItdjIsIHB1bG0tY3JpdC1jYXJlLXYyLCBzZXZhcm8t
-b3BzLCBzcGluZS1zdXJnZXJ5LXYyLCB4ci10ZXN0LWNvbXBhbmlvbjogdmVyaWZpZWQgZGF0ZXMg
-4oaSIEp1biAyNi4gUm9hZG1hcDogZXZpZGVuY2Utb3B0aW1pemUtc3ludGhlc2lzLXNwZWVkICsg
-ZXZpZGVuY2Utc3NvLXBhc3NrZXlzIHF1aWNrUHJvbXB0cyB1cGRhdGVkIHdpdGggSnVuIDI2IGNv
-bnRleHQgKFBScyAjOTM4LCAjOTQwLTk0MSwgIzk0My05NDQpLgotICoqRGFpbHkgc3luYzogcm9h
-ZG1hcCBtaWxlc3RvbmVzIGFuZCBwcm9tcHRzIChKdW4gMjUsIDIwMjYpKiog4oCUIHNldmFyby1l
-dmlkZW5jZS1lbmdpbmU6IEFzayBib3ggc2VuZHMgbGl2ZSBub3RlIHRleHQgdG8gL2FzayBBUEkg
-KFBScyAjOTM2LTkzNywgSnVuIDI1KSDigJQgcmljaGVyIHJvdXRpbmcgY29udGV4dDsgZXZhbCA1
-LWp1ZGdlIHBhbmVsICsgdmFyaWFuY2UgYmFuZHMgKFBSICM5MjcsIEp1biAyNSkg4oCUIEdQVC01
-ICsgR2VtaW5pIGFkZGVkOyBmbGFnLWdhdGVkIFN1Z2dlc3QgU2NhbGVzIGluIGNoYXJ0IHByZXAg
-KFBScyAjOTI4LTkyOSwgSnVuIDI1KSDigJQgTkVYVF9QVUJMSUNfU1VHR0VTVEVEX1NDQUxFU19F
-TkFCTEVEIGRlZmF1bHQgT0ZGOyByb3V0ZXIgQ29kZXggaGFyZGVuaW5nICsgZmVlZGJhY2sgSURP
-Ui9QSEkgZml4ZXMgKFBScyAjOTI2LCAjOTMwLTkzMSwgSnVuIDI1KS4gQm9XIFJlY2VudCB1cGRh
-dGVkIHdpdGggNCBuZXcgaXRlbXMsIDMgb2xkZXN0IHJvdGF0ZWQgb3V0OyB2ZXJpZmllZCBkYXRl
-IOKGkiBKdW4gMjUuIE9QU0FtcGxlaHRtbCwgU0RORSwgVm9pY2VUcmFuc2NyaWJlciwgY2FyZGlv
-LXBsYW5zLXYyLCBuZXVyby1wbGFucy12MiwgbmV1cm9jcml0LWNhcmUtdjIsIHBlcnNvbmFsLXRv
-b2xzLCBwbXItcmVoYWItdjIsIHB1bG0tY3JpdC1jYXJlLXYyLCBzZXZhcm8tb3BzLCBzcGluZS1z
-dXJnZXJ5LXYyLCB4ci10ZXN0LWNvbXBhbmlvbjogdmVyaWZpZWQgZGF0ZXMg4oaSIEp1biAyNS4g
-Um9hZG1hcDogZXZpZGVuY2Utb3B0aW1pemUtc3ludGhlc2lzLXNwZWVkICsgZXZpZGVuY2Utc3Nv
-LXBhc3NrZXlzIHF1aWNrUHJvbXB0cyB1cGRhdGVkIHdpdGggSnVuIDI1IGNvbnRleHQgKFBScyAj
-OTI2LTkzNykuCi0gKipEYWlseSBzeW5jOiByb2FkbWFwIG1pbGVzdG9uZXMgYW5kIHByb21wdHMg
-KEp1biAyNCwgMjAyNikqKiDigJQgc2V2YXJvLWV2aWRlbmNlLWVuZ2luZTogUml5YSBpbnRlbnQg
-cm91dGVyIHNoaXBwZWQgKFBScyAjOTE3LTkyNSwgSnVuIDIzKSDigJQgQXNrIGJveCB3aXJlZCB0
-byBlbmNvdW50ZXIgVG9vbHMgcGFuZWwsIHJvdXRlcyBieSBpbnRlbnQgdHlwZSAoY2xpbmljYWwv
-ZHJ1Zy9nZW5lcmFsKSwgZmxhZy1nYXRlZCBkYXJrIGJ5IGRlZmF1bHQ7IHByb2QgZml4ZXM6IEVO
-Q09VTlRFUlNfVEFCTEUgcG9pbnRlZCB0byBwcm9kLCBmdWxsIG5vdGUgcm91dGluZyBjb250ZXh0
-LCBkcnVnLWludGVyYWN0aW9uIOKGkiBEUlVHLiBLQiBIWUJSSUQtU0VNQU5USUMgZmFsbGJhY2sg
-KyBzcGFyc2Ugbm90ZSBndWFyZCAoUFJzICM5MjAtOTIxKS4gQm9XIFJlY2VudCB1cGRhdGVkIHdp
-dGggMiBuZXcgaXRlbXMsIDMgb2xkZXN0IHJvdGF0ZWQgb3V0OyB2ZXJpZmllZCBkYXRlIOKGkiBK
-dW4gMjQuIE9QU0FtcGxlaHRtbCwgU0RORSwgVm9pY2VUcmFuc2NyaWJlciwgY2FyZGlvLXBsYW5z
-LXYyLCBuZXVyby1wbGFucy12MiwgbmV1cm9jcml0LWNhcmUtdjIsIHBlcnNvbmFsLXRvb2xzLCBw
-bXItcmVoYWItdjIsIHB1bG0tY3JpdC1jYXJlLXYyLCBzZXZhcm8tb3BzLCBzcGluZS1zdXJnZXJ5
-LXYyLCB4ci10ZXN0LWNvbXBhbmlvbjogdmVyaWZpZWQgZGF0ZXMg4oaSIEp1biAyNC4gUm9hZG1h
-cDogZXZpZGVuY2Utb3B0aW1pemUtc3ludGhlc2lzLXNwZWVkICsgZXZpZGVuY2Utc3NvLXBhc3Nr
-ZXlzIHF1aWNrUHJvbXB0cyB1cGRhdGVkIHdpdGggaW50ZW50IHJvdXRlciArIEtCIGZhbGxiYWNr
-IGNvbnRleHQgKFBScyAjOTE3LTkyNSwgIzkyMC05MjEsIEp1biAyMykuCgojIyMgSW4gUHJvZ3Jl
-c3MKLSBOb25lCgojIyMgUGxhbm5lZAotIEFkbWluIG1hbmFnZW1lbnQgcGFnZSAodmlldy9hZGQv
-cmVtb3ZlIGFkbWluaXN0cmF0b3JzKQotIFJlcXVlc3QgU0VTIHByb2R1Y3Rpb24gYWNjZXNzIChj
-dXJyZW50bHkgc2FuZGJveCDigJQgcmVjaXBpZW50cyBtdXN0IGJlIHZlcmlmaWVkKQoKIyMjIEtu
-b3duIElzc3VlcwotIFNFUyBpbiBzYW5kYm94IG1vZGUg4oCUIGNhbiBvbmx5IHNlbmQgdG8gdmVy
-aWZpZWQgZW1haWwgYWRkcmVzc2VzCgojIyBEb2N1bWVudGF0aW9uIEZpbGVzCgpVcGRhdGUgdGhl
-c2Ugd2hlbiBjb21taXR0aW5nIGNoYW5nZXMgKHBlciBnbG9iYWwgQ29tbWl0IFdvcmtmbG93IHJ1
-bGVzKToKCi0gYENMQVVERS5tZGAg4oCUIHVwZGF0ZSBpZiBhcmNoaXRlY3R1cmUsIGNvbmZpZywg
-b3Igc3RhdHVzIGNoYW5nZWQKLSBgZG9jcy9IQU5ET0ZGX1lZWVktTU0tREQubWRgIOKAlCBjcmVh
-dGUvdXBkYXRlIHdpdGggc2Vzc2lvbiBzdW1tYXJ5IGFuZCBuZXh0IHN0ZXBzCi0gYGRvY3MvcGxh
-bnMvYCDigJQgdXBkYXRlIHJlbGV2YW50IHBsYW4gZmlsZXMgaWYgc2NvcGUgb3IgYXBwcm9hY2gg
-Y2hhbmdlZAo=
+# Sevaro Hub
+
+Splash page and admin dashboard for Sevaro apps. Includes feedback management with Cognito auth, pattern analysis via Bedrock, and email notifications via SES. Hosted on AWS Amplify at `hub.neuroplans.app`.
+
+## Design System (MANDATORY)
+- **Reference:** `~/dev/repos/sevaro-design-system/DESIGN_SYSTEM.md` — all colors, typography, components
+- **Figma:** [Sevaro Design System](https://www.figma.com/design/2SvpMV4WE5CFjxvsxTRg1w/Sevaro-Design-System) (file key: `2SvpMV4WE5CFjxvsxTRg1w`)
+- All UI must match the design system 1:1. Read the reference doc before building any UI component.
+
+## Tech Stack
+
+- **Type**: Next.js 15 (App Router, SSR)
+- **Hosting**: AWS Amplify (`d3n3e9vr1knkam`)
+- **Domain**: `hub.neuroplans.app`
+- **Deploy**: Auto-deploys on push to `main`
+- **Auth**: Amazon Cognito (`us-east-2_9y6XyJnXC`, client `2ejoumofnhhd3133gv9e9i6r1h`)
+- **IAM Role**: `SevaroHub-AmplifySSR` (SES, Bedrock, SSM permissions)
+- **Email**: SES from `feedback@neuroplans.app` (DKIM verified)
+- **AI**: Bedrock Sonnet for feedback pattern analysis
+- **Feedback API**: Lambda `sevaro-feedback-api` via API Gateway `8uagz9y5bh`
+- **What's New API**: Lambda `sevaro-whats-new-api` via API Gateway `5168ofhh8k`
+  - DynamoDB table: `sevaro-whats-new` (PK: `appId`, SK: `timestamp`)
+  - JWT verified via `aws-jwt-verify` (Cognito signature + claims)
+  - Public: `GET /whats-new?appId=...&since=...`
+  - Admin: `GET /whats-new/all`, `POST /whats-new`, `DELETE /whats-new`
+- **Improvement Queue API**: Lambda `sevaro-improvement-queue-api` via API Gateway `ael0orzmsk`
+  - DynamoDB table: `sevaro-improvement-queue` (PK: `repoName`, SK: `promptId`)
+  - JWT verified via `aws-jwt-verify` (Cognito signature + claims)
+  - Admin: `GET /improvements`, `POST /improvements`, `PATCH /improvements`, `DELETE /improvements`
+  - Lambda source: `lambda/sevaro-improvement-queue-api/`
+
+## Admin Access
+
+- Controlled by `ADMIN_EMAILS` env var (default: `steve@sevaro.com`)
+- JWT verification via Cognito JWKS
+- Protected routes: `/feedback`, `/feedback/analyze`, `/feedback/[id]`, `/admin/whats-new`, `/admin/improvements`
+
+## Body of Work
+
+**Status**: Active — verified July 5, 2026
+
+### Recent
+- **Daily sync: roadmap milestones and prompts (Jul 5, 2026)** — sevaro-evidence-engine: Added 2 new Recent items (rounding safety threads 1-2 PRs #983-984; threads 4a/4b/4d + grounding + telemetry fixes PRs #985-988); removed 2 oldest items; verified date → Jul 5. OPSAmplehtml, SDNE, VoiceTranscriber, cardio-plans-v2, neuro-plans-v2, neurocrit-care-v2, personal-tools, pmr-rehab-v2, pulm-crit-care-v2, spine-surgery-v2, xr-test-companion, sevaro-ops: verified dates → Jul 5. Roadmap: evidence-optimize-synthesis-speed + evidence-sso-passkeys quickPrompts updated with Jul 4 rounding safety thread context (PRs #983-988); sdne + opsamplehtml milestones refreshed to Jul 5.
+- **Daily sync: roadmap milestones and prompts (Jun 29, 2026)** — OPSAmplehtml: added triage crash fix + triage latency reduction (Jun 26 items missing from prior syncs) to Recent, removed 2 oldest items; verified → Jun 29. sevaro-evidence-engine: no new code since Jun 27; verified → Jun 29. SDNE, VoiceTranscriber, cardio-plans-v2, neuro-plans-v2, neurocrit-care-v2, personal-tools, pmr-rehab-v2, pulm-crit-care-v2, spine-surgery-v2, xr-test-companion, sevaro-ops: verified dates → Jun 29. Roadmap: evidence-optimize-synthesis-speed + evidence-sso-passkeys + voice-transcriber-steel-man + market-day-vr-sonali + opsamplehtml milestones + 6 clinical plans repos quickPrompts updated with Jun 29 context.
+- **Daily sync: roadmap milestones and prompts (Jun 28, 2026)** — No new code commits since Jun 27. OPSAmplehtml, SDNE, VoiceTranscriber, cardio-plans-v2, neuro-plans-v2, neurocrit-care-v2, personal-tools, pmr-rehab-v2, pulm-crit-care-v2, sevaro-ops, spine-surgery-v2, xr-test-companion, sevaro-evidence-engine: verified dates → Jun 28. Roadmap: evidence-optimize-synthesis-speed + evidence-sso-passkeys quickPrompts updated with Jun 28 stable-state context.
+- **Daily sync: roadmap milestones and prompts (Jun 27, 2026)** — sevaro-evidence-engine: Two prod fixes: physicianEmail stamp on chart-prep split children (PR #948) — prevents cross-IdP 403 errors when APP physicians generate notes for multiple patients in a single chart-prep session; buildGeneratePayload re-export removed from route.ts (PR #947) — was causing Amplify prod build failure. BoW Recent updated with 1 new item (PRs #947-948); verified date → Jun 27. OPSAmplehtml, SDNE, VoiceTranscriber, cardio-plans-v2, neuro-plans-v2, neurocrit-care-v2, personal-tools, pmr-rehab-v2, pulm-crit-care-v2, sevaro-ops, spine-surgery-v2, xr-test-companion: verified dates → Jun 27. Roadmap: evidence-optimize-synthesis-speed + evidence-sso-passkeys quickPrompts updated with Jun 27 context (PRs #947-948).
+- **Daily sync: roadmap milestones and prompts (Jun 26, 2026)** — sevaro-evidence-engine: Prior-Note Reference Mode + HPI paragraph readability shipped dark (PR #940) — PRIOR_NOTE_REFERENCE_MODE_ENABLED strips prior-note plan/exam before combine; HPI_PARAGRAPH_STYLE_ENABLED injects paragraph directive across all HPI prompts; payload-builder.ts extracted (52+ tests green); per-section restyle preview + revert shipped dark (PR #944) — STYLE_SECTION_PREVIEW_ENABLED; bug fixes: categories-only chart prep (PR #943), manual note arrival for Riya (PR #941), Windows 403 ownership race (PR #938). BoW Recent updated with 3 new items, 3 oldest rotated out; verified date → Jun 26. OPSAmplehtml, SDNE, VoiceTranscriber, cardio-plans-v2, neuro-plans-v2, neurocrit-care-v2, personal-tools, pmr-rehab-v2, pulm-crit-care-v2, sevaro-ops, spine-surgery-v2, xr-test-companion: verified dates → Jun 26. Roadmap: evidence-optimize-synthesis-speed + evidence-sso-passkeys quickPrompts updated with Jun 26 context (PRs #938, #940-941, #943-944).
+- **Daily sync: roadmap milestones and prompts (Jun 25, 2026)** — sevaro-evidence-engine: Ask box sends live note text to /ask API (PRs #936-937, Jun 25) — richer routing context; eval 5-judge panel + variance bands (PR #927, Jun 25) — GPT-5 + Gemini added; flag-gated Suggest Scales in chart prep (PRs #928-929, Jun 25) — NEXT_PUBLIC_SUGGESTED_SCALES_ENABLED default OFF; router Codex hardening + feedback IDOR/PHI fixes (PRs #926, #930-931, Jun 25). BoW Recent updated with 4 new items, 3 oldest rotated out; verified date → Jun 25. OPSAmplehtml, SDNE, VoiceTranscriber, cardio-plans-v2, neuro-plans-v2, neurocrit-care-v2, personal-tools, pmr-rehab-v2, pulm-crit-care-v2, sevaro-ops, spine-surgery-v2, xr-test-companion: verified dates → Jun 25. Roadmap: evidence-optimize-synthesis-speed + evidence-sso-passkeys quickPrompts updated with Jun 25 context (PRs #926-937).
+- **Daily sync: roadmap milestones and prompts (Jun 24, 2026)** — sevaro-evidence-engine: Riya intent router shipped (PRs #917-925, Jun 23) — Ask box wired to encounter Tools panel, routes by intent type (clinical/drug/general), flag-gated dark by default; prod fixes: ENCOUNTERS_TABLE pointed to prod, full note routing context, drug-interaction → DRUG. KB HYBRID-SEMANTIC fallback + sparse note guard (PRs #920-921). BoW Recent updated with 2 new items, 3 oldest rotated out; verified date → Jun 24. OPSAmplehtml, SDNE, VoiceTranscriber, cardio-plans-v2, neuro-plans-v2, neurocrit-care-v2, personal-tools, pmr-rehab-v2, pulm-crit-care-v2, sevaro-ops, spine-surgery-v2, xr-test-companion: verified dates → Jun 24. Roadmap: evidence-optimize-synthesis-speed + evidence-sso-passkeys quickPrompts updated with intent router + KB fallback context (PRs #917-925, #920-921, Jun 23).
+
+### In Progress
+- None
+
+### Planned
+- Admin management page (view/add/remove administrators)
+- Request SES production access (currently sandbox — recipients must be verified)
+
+### Known Issues
+- SES in sandbox mode — can only send to verified email addresses
+
+## Documentation Files
+
+Update these when committing changes (per global Commit Workflow rules):
+
+- `CLAUDE.md` — update if architecture, config, or status changed
+- `docs/HANDOFF_YYYY-MM-DD.md` — create/update with session summary and next steps
+- `docs/plans/` — update relevant plan files if scope or approach changed
