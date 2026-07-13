@@ -1,5 +1,7 @@
 # Sevaro Hub
 
+> **MEMORY PROTOCOL:** Read HANDOFF.md first and update it last every session — it is the shared source of truth with ChatGPT/Codex.
+
 Splash page and admin dashboard for Sevaro apps. Includes feedback management with Cognito auth, pattern analysis via Bedrock, and email notifications via SES. Hosted on AWS Amplify at `hub.neuroplans.app`.
 
 ## Design System (MANDATORY)
