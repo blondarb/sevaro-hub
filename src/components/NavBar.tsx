@@ -26,6 +26,7 @@ export function NavBar() {
         </Link>
         {isAdmin && (
           <>
+            <Link href="/admin/portfolio" style={linkStyle}>Portfolio</Link>
             <Link href="/feedback" style={linkStyle}>Feedback</Link>
             <Link href="/feedback/analyze" style={linkStyle}>Analyze</Link>
             <Link href="/admin/whats-new" style={linkStyle}>What&apos;s New</Link>

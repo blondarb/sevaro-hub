@@ -152,7 +152,7 @@ export async function handler(event) {
     const body = parseBody(event);
     if (!body) return response(400, { error: 'Invalid JSON body' });
 
-    const { repoName, promptId, title, priority, status, estimatedScope, planFile, promptFile, promptText } = body;
+    const { repoName, promptId, parentProjectId, title, priority, status, estimatedScope, planFile, promptFile, promptText } = body;
 
     if (!repoName || !promptId || !title || !priority) {
       return response(400, { error: 'repoName, promptId, title, and priority are required' });
@@ -183,6 +183,7 @@ export async function handler(event) {
       createdBy: admin.email,
     };
     if (estimatedScope) item.estimatedScope = estimatedScope;
+    if (parentProjectId) item.parentProjectId = parentProjectId;
     if (planFile) item.planFile = planFile;
     if (promptFile) item.promptFile = promptFile;
     if (promptText) item.promptText = promptText;
@@ -216,7 +217,7 @@ export async function handler(event) {
     }
 
     // Build update expression dynamically
-    const allowedFields = ['title', 'priority', 'status', 'estimatedScope', 'planFile', 'promptFile', 'promptText', 'whatsNewEntry', 'completedAt'];
+    const allowedFields = ['parentProjectId', 'title', 'priority', 'status', 'estimatedScope', 'planFile', 'promptFile', 'promptText', 'whatsNewEntry', 'completedAt'];
     const expressionParts = ['#updatedAt = :updatedAt'];
     const exprNames = { '#updatedAt': 'updatedAt' };
     const exprValues = { ':updatedAt': new Date().toISOString() };

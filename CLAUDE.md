@@ -31,6 +31,14 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
   - Admin: `GET /improvements`, `POST /improvements`, `PATCH /improvements`, `DELETE /improvements`
   - Lambda source: `lambda/sevaro-improvement-queue-api/`
 
+## Portfolio Operating System
+
+- Project source of truth: `src/data/portfolio.json` and `/admin/portfolio`
+- Validation and filtering: `src/lib/portfolio.ts`; run `pnpm validate:portfolio`
+- Improvements remain DynamoDB-backed and may link through optional `parentProjectId`
+- Private people records remain outside this repository in the existing private `memory/people` system
+- Operating and reconciliation docs: `docs/portfolio/`
+
 ## Admin Access
 
 - Controlled by `ADMIN_EMAILS` env var (default: `steve@sevaro.com`)

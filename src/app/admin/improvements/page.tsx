@@ -10,6 +10,10 @@ import {
   updateImprovement,
   deleteImprovement,
 } from '@/lib/improvement-queue-api';
+import portfolioData from '@/data/portfolio.json';
+import { resolveImprovementProject, type PortfolioData } from '@/lib/portfolio';
+
+const portfolio = portfolioData as PortfolioData;
 
 const REPO_OPTIONS = [
   { value: 'sevaro-evidence-engine', label: 'Evidence Engine' },
@@ -69,6 +73,7 @@ export default function ImprovementsAdmin() {
   const [filterRepo, setFilterRepo] = useState('');
   const [filterPriority, setFilterPriority] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
+  const [filterProject, setFilterProject] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -135,11 +140,17 @@ export default function ImprovementsAdmin() {
   if (filterRepo) filtered = filtered.filter((i) => i.repoName === filterRepo);
   if (filterPriority) filtered = filtered.filter((i) => i.priority === filterPriority);
   if (filterStatus) filtered = filtered.filter((i) => i.status === filterStatus);
+  if (filterProject === 'unlinked') {
+    filtered = filtered.filter((item) => !resolveImprovementProject(item, portfolio));
+  } else if (filterProject) {
+    filtered = filtered.filter((item) => resolveImprovementProject(item, portfolio)?.project.id === filterProject);
+  }
 
   const pendingCount = items.filter((i) => i.status === 'pending').length;
   const inProgressCount = items.filter((i) => i.status === 'in-progress').length;
   const completedCount = items.filter((i) => i.status === 'completed').length;
   const repoCount = new Set(items.map((i) => i.repoName)).size;
+  const unlinkedCount = items.filter((item) => !resolveImprovementProject(item, portfolio)).length;
 
   return (
     <>
@@ -173,6 +184,8 @@ export default function ImprovementsAdmin() {
         .iq-stat-value { font-size: 1.4rem; font-weight: 700; color: #d0d8e8; }
         .iq-stat-label { font-size: 0.7rem; color: #5a6580; text-transform: uppercase; letter-spacing: 0.06em; }
         .iq-actions { display: flex; gap: 8px; align-items: center; margin-left: auto; }
+        .iq-project-link { color: #5cb8ff; text-decoration: none; }
+        .iq-project-link:hover { text-decoration: underline; }
       `}</style>
 
       <div className="iq-container">
@@ -210,6 +223,10 @@ export default function ImprovementsAdmin() {
             <div className="iq-stat-value">{repoCount}</div>
             <div className="iq-stat-label">Repos</div>
           </div>
+          <div className="iq-stat">
+            <div className="iq-stat-value" style={{ color: unlinkedCount ? '#fee28a' : '#4ade80' }}>{unlinkedCount}</div>
+            <div className="iq-stat-label">Unlinked</div>
+          </div>
         </div>
 
         {/* Filters */}
@@ -232,6 +249,13 @@ export default function ImprovementsAdmin() {
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
+          <select aria-label="Parent project" className="iq-select" value={filterProject} onChange={(e) => setFilterProject(e.target.value)}>
+            <option value="">All parent projects</option>
+            <option value="unlinked">Unlinked only</option>
+            {portfolio.projects.map((project) => (
+              <option key={project.id} value={project.id}>{project.title}</option>
+            ))}
+          </select>
           <span style={{ fontSize: '0.75rem', color: '#5a6580', marginLeft: 8 }}>
             {filtered.length} of {items.length} shown
           </span>
@@ -250,6 +274,7 @@ export default function ImprovementsAdmin() {
             const sStyle = STATUS_STYLES[item.status] || STATUS_STYLES.pending;
             const scStyle = item.estimatedScope ? SCOPE_STYLES[item.estimatedScope] : null;
             const repoLabel = REPO_OPTIONS.find((o) => o.value === item.repoName)?.label || item.repoName;
+            const projectLink = resolveImprovementProject(item, portfolio);
             const itemKey = `${item.repoName}-${item.promptId}`;
             const isExpanded = expandedId === itemKey;
             const isCopied = copiedId === itemKey;
@@ -273,6 +298,20 @@ export default function ImprovementsAdmin() {
                     <span className="iq-badge" style={{ background: 'rgba(60,160,240,0.15)', color: '#60a5fa' }}>
                       {repoLabel}
                     </span>
+                    {projectLink ? (
+                      <Link
+                        href={`/admin/portfolio?project=${projectLink.project.id}`}
+                        className="iq-badge iq-project-link"
+                        style={{ background: 'rgba(37,112,235,0.12)', border: '1px solid rgba(37,112,235,0.35)' }}
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        Project: {projectLink.project.title}
+                      </Link>
+                    ) : (
+                      <span className="iq-badge" style={{ background: 'rgba(202,154,4,0.16)', color: '#fee28a' }}>
+                        Unlinked
+                      </span>
+                    )}
                     {scStyle && (
                       <span className="iq-badge" style={{ background: scStyle.bg, color: scStyle.text }}>
                         {item.estimatedScope}
@@ -317,6 +356,13 @@ export default function ImprovementsAdmin() {
 
                 {isExpanded && (
                   <div className="iq-expand">
+                    <div style={{ marginBottom: 10, fontSize: '0.78rem', color: '#8e8e93' }}>
+                      Parent project: {projectLink ? (
+                        <Link href={`/admin/portfolio?project=${projectLink.project.id}`} className="iq-project-link">
+                          {projectLink.project.title} ({projectLink.method === 'explicit' ? 'explicit link' : 'repo alias'})
+                        </Link>
+                      ) : 'Not linked — assign a valid parentProjectId'}
+                    </div>
                     {item.promptText ? (
                       <div className="iq-prompt-text">{item.promptText}</div>
                     ) : item.promptFile ? (
