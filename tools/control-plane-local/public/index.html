@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sevaro AI Control Plane — Local status</title>
+    <link rel="stylesheet" href="/dashboard.css" />
+  </head>
+  <body>
+    <main class="shell" aria-labelledby="page-title">
+      <header class="masthead">
+        <p class="eyebrow">Sevaro Hub · Local operator view</p>
+        <div class="title-row"><div><h1 id="page-title">AI Control Plane</h1><p id="summary" class="secondary" aria-live="polite">Checking local readiness…</p></div><span id="readiness" class="badge neutral">Checking</span></div>
+      </header>
+      <noscript><p class="notice blocked">JavaScript is required to display local status.</p></noscript>
+      <section aria-label="Control plane summary" class="metrics">
+        <article class="tile"><p>Mode</p><strong id="mode">—</strong></article>
+        <article class="tile"><p>Partition</p><strong id="partition">—</strong></article>
+        <article class="tile"><p>Permission lease</p><strong id="permission">—</strong></article>
+        <article class="tile"><p>Read-only tools</p><strong id="tool-count">—</strong></article>
+      </section>
+      <section class="card" aria-labelledby="checks-heading"><div class="section-heading"><div><h2 id="checks-heading">Readiness checks</h2><p id="checked-at" class="secondary">—</p></div><strong id="check-count">0 / 15</strong></div><ol id="checks" class="checks" aria-live="polite"></ol></section>
+      <section class="card" aria-labelledby="repositories-heading"><div class="section-heading"><div><h2 id="repositories-heading">Approved repositories</h2><p class="secondary">Metadata only · exact-four pilot</p></div><strong id="repository-count">0 / 4</strong></div><ul id="repositories" class="repository-list" aria-live="polite"></ul></section>
+      <section class="card" aria-labelledby="boundaries-heading"><h2 id="boundaries-heading">Boundaries enforced</h2><ul class="boundary-list" id="boundaries"><li class="badge off">Content OFF</li><li class="badge off">PHI OFF</li><li class="badge off">Source writes OFF</li><li class="badge off">Canonical mutation OFF</li><li class="badge off">Scheduling OFF</li><li class="badge off">Remote MCP OFF</li><li class="badge off">Production OFF</li><li class="badge ready">Audit logging ON</li></ul></section>
+    </main>
+    <script type="module" src="/dashboard.js"></script>
+  </body>
+</html>

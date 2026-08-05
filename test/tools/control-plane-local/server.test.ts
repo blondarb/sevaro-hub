@@ -1,0 +1,103 @@
+import { afterEach, describe, expect, it } from 'vitest';
+import { CHECK_CODES, createLocalDashboardServer, allowlistStatus, listenLocalDashboardServer, loadConfig } from '../../../tools/control-plane-local/server.mjs';
+import { request as httpRequest } from 'node:http';
+
+const upstream = 'http://127.0.0.1:9999/v1/status';
+const config = { uiHost: '127.0.0.1' as const, uiPort: 43123, upstreamUrl: upstream, bearer: 'test-bearer' };
+const approved = ['blondarb/sevaro-agent-memory', 'blondarb/ai-setup-atlas', 'blondarb/project-docs', 'blondarb/sevaro-hub'];
+const status = () => ({ schema_version: '1', mode: 'local_nonproduction', readiness: 'ready', checked_at: '2026-08-05T12:00:00Z', partition: 'product_development', permission_state: 'current', repository_count: 4, repositories: approved.map((full_name) => ({ full_name, retrieved_at: '2026-08-05T11:00:00Z', secret: 'drop' })), tool_count: 6, checks: CHECK_CODES.map((code) => ({ code, passed: true, detail_code: 'passed', internal: 'drop' })), boundaries: { content: false, phi: false, source_writes: false, canonical_data_writes: false, scheduling: false, remote_mcp: false, production: false, audit_logging: true, secret: true }, upstream_secret: 'drop' });
+const servers: import('node:http').Server[] = [];
+
+async function start(options: Parameters<typeof createLocalDashboardServer>[0]) {
+  const server = createLocalDashboardServer(options); servers.push(server); await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const { port } = server.address() as import('node:net').AddressInfo; return `http://127.0.0.1:${port}`;
+}
+async function requestWithHost(url: string, host: string) {
+  return new Promise<number>((resolve, reject) => {
+    const target = new URL(url);
+    const request = httpRequest({ hostname: target.hostname, port: target.port, path: target.pathname, headers: { host } }, (response) => {
+      response.resume(); response.on('end', () => resolve(response.statusCode ?? 0));
+    });
+    request.on('error', reject); request.end();
+  });
+}
+afterEach(async () => { await Promise.all(servers.splice(0).map((server) => new Promise<void>((resolve) => server.close(() => resolve())))); });
+
+describe('local dashboard configuration', () => {
+  const validEnvironment: NodeJS.ProcessEnv = { NODE_ENV: 'test', CONTROL_PLANE_LOCAL_UI_ENABLED: 'true', CONTROL_PLANE_LOCAL_UI_HOST: '127.0.0.1', CONTROL_PLANE_LOCAL_UI_PORT: '43123', CONTROL_PLANE_LOCAL_API_URL: upstream, CONTROL_PLANE_LOCAL_API_BEARER: 'x'.repeat(32) };
+  it('requires explicit fixed loopback UI configuration', () => {
+    expect(loadConfig(validEnvironment)).toMatchObject({ uiHost: '127.0.0.1', uiPort: 43123, upstreamUrl: upstream });
+    expect(() => loadConfig({ NODE_ENV: 'test' })).toThrow('CONTROL_PLANE_LOCAL_UI_ENABLED');
+    expect(() => loadConfig({ ...validEnvironment, NODE_ENV: 'production' })).toThrow('refuses NODE_ENV=production');
+    expect(() => loadConfig({ ...validEnvironment, CONTROL_PLANE_LOCAL_UI_HOST: 'localhost' })).toThrow('exactly 127.0.0.1');
+    expect(() => loadConfig({ ...validEnvironment, CONTROL_PLANE_LOCAL_UI_PORT: '0' })).toThrow('1024 through 65535');
+    expect(() => loadConfig({ ...validEnvironment, CONTROL_PLANE_LOCAL_API_BEARER: 'short' })).toThrow('at least 32 characters');
+  });
+  it('requires a plain fixed loopback status endpoint', () => {
+    for (const CONTROL_PLANE_LOCAL_API_URL of ['https://127.0.0.1:9999/v1/status', 'http://localhost:9999/v1/status', 'http://127.0.0.1:9999/other', 'http://user:pass@127.0.0.1:9999/v1/status', 'http://127.0.0.1:9999/v1/status?x=1', 'http://127.0.0.1:9999/v1/status#fragment']) {
+      expect(() => loadConfig({ ...validEnvironment, CONTROL_PLANE_LOCAL_API_URL })).toThrow('plain HTTP');
+    }
+  });
+  it('listens only on the configured host and port', async () => {
+    const calls: unknown[] = [];
+    const server = { listen: (...args: unknown[]) => { calls.push(args); const callback = args.at(-1); if (typeof callback === 'function') callback(); return server; } };
+    await listenLocalDashboardServer(server, { ...config, uiHost: '127.0.0.1', uiPort: 43123 });
+    expect(calls).toEqual([[43123, '127.0.0.1', expect.any(Function)]]);
+  });
+});
+
+describe('status allowlisting', () => {
+  it('reconstructs only the documented public response', () => {
+    const safe = allowlistStatus(status());
+    expect(safe).toMatchObject({ schema_version: '1', tool_count: 6, repository_count: 4 });
+    expect(JSON.stringify(safe)).not.toContain('secret');
+    expect(JSON.stringify(safe)).not.toContain('test-bearer');
+  });
+  it('rejects unapproved repositories and enabled boundaries', () => {
+    const badRepository = status(); badRepository.repositories[0].full_name = 'unapproved/private';
+    expect(allowlistStatus(badRepository)).toBeNull();
+    const unsafeBoundary = status(); unsafeBoundary.boundaries.source_writes = true;
+    expect(allowlistStatus(unsafeBoundary)).toBeNull();
+  });
+  it('rejects inconsistent readiness and permission states', () => {
+    const blockedWithRows = status(); blockedWithRows.readiness = 'blocked';
+    expect(allowlistStatus(blockedWithRows)).toBeNull();
+    const readyWithFailedCheck = status(); readyWithFailedCheck.checks[0].passed = false;
+    expect(allowlistStatus(readyWithFailedCheck)).toBeNull();
+    const refreshWithPassingChecks = status(); refreshWithPassingChecks.readiness = 'blocked'; refreshWithPassingChecks.permission_state = 'refresh_required'; refreshWithPassingChecks.repository_count = 0; refreshWithPassingChecks.repositories = [];
+    expect(allowlistStatus(refreshWithPassingChecks)).toBeNull();
+    const duplicateChecks = status(); duplicateChecks.checks[1].code = duplicateChecks.checks[0].code;
+    expect(allowlistStatus(duplicateChecks)).toBeNull();
+  });
+});
+
+describe('local HTTP guards', () => {
+  it('allows GET status, but not upstream details', async () => {
+    const received: { url?: string; auth?: string } = {};
+    const base = await start({ config, fetchImpl: async (url, init) => { received.url = String(url); received.auth = new Headers(init?.headers).get('authorization') ?? undefined; return new Response(JSON.stringify(status()), { status: 200 }); } });
+    const response = await fetch(`${base}/api/status`, { headers: { 'x-sevaro-local-status': '1' } }); const body = await response.text();
+    expect(response.status).toBe(200); expect(received.url).toBe(upstream); expect(received.auth).toBe('Bearer test-bearer');
+    expect(response.headers.get('content-security-policy')).toContain("connect-src 'self'");
+    expect(response.headers.get('x-content-type-options')).toBe('nosniff'); expect(response.headers.get('referrer-policy')).toBe('no-referrer'); expect(response.headers.get('x-frame-options')).toBe('DENY');
+    expect(body).not.toContain('test-bearer'); expect(body).not.toContain('upstream_secret');
+  });
+  it('rejects non-GET and non-loopback Host headers', async () => {
+    const base = await start({ config, fetchImpl: async () => new Response(JSON.stringify(status())) });
+    const post = await fetch(`${base}/api/status`, { method: 'POST' }); expect(post.status).toBe(405); expect(post.headers.get('content-security-policy')).toContain("frame-ancestors 'none'");
+    expect(await requestWithHost(`${base}/api/status`, 'evil.example')).toBe(421);
+  });
+  it('rejects cross-origin or unmarked browser requests before the upstream read', async () => {
+    let calls = 0;
+    const base = await start({ config, fetchImpl: async () => { calls += 1; return new Response(JSON.stringify(status())); } });
+    const unmarked = await fetch(`${base}/api/status`);
+    const crossSite = await fetch(`${base}/api/status`, { headers: { 'x-sevaro-local-status': '1', 'sec-fetch-site': 'cross-site' } });
+    const foreignOrigin = await fetch(`${base}/api/status`, { headers: { 'x-sevaro-local-status': '1', origin: 'https://evil.example' } });
+    expect(unmarked.status).toBe(403); expect(crossSite.status).toBe(403); expect(foreignOrigin.status).toBe(403); expect(calls).toBe(0);
+  });
+  it('returns generic upstream failures', async () => {
+    const base = await start({ config, fetchImpl: async () => { throw new Error('private failure'); } });
+    const response = await fetch(`${base}/api/status`, { headers: { 'x-sevaro-local-status': '1' } }); const body = await response.text();
+    expect(response.status).toBe(502); expect(body).toBe('{"error":"control_plane_status_unavailable"}');
+    expect(body).not.toContain('private failure');
+  });
+});
