@@ -8,10 +8,10 @@ only). No secrets._
 - Status: Active — verified July 5, 2026; most recent hub-specific work (PR #31) let the improvement-queue Lambda accept multiple Cognito app clients.
 - Driver this week: Planned work is an admin management page (view/add/remove administrators) and requesting SES production access (currently sandbox-only).
 - Lives in: https://github.com/blondarb/sevaro-hub.git
-- Local-alpha status dashboard is complete on `agent/local-alpha-dashboard`. It is a separate loopback-only tool outside Next/Amplify, passes 114 tests, and has independent security/data-integrity GO. It is not deployed.
+- Local-alpha status dashboard draft PR [#35](https://github.com/blondarb/sevaro-hub/pull/35) is complete. It is a separate loopback-only tool outside Next/Amplify, passes 114 tests, and has independent security/data-integrity GO. It is not deployed. Companion backend draft PR: [#30](https://github.com/blondarb/sevaro-agent-memory/pull/30).
 
 ## Open threads / next actions
-- [ ] Review the local-alpha dashboard draft branch. Do not merge it to auto-deploying `main` without a separate production decision.
+- [ ] Review local-alpha dashboard draft PR [#35](https://github.com/blondarb/sevaro-hub/pull/35). Do not merge it to auto-deploying `main` without a separate production decision.
 - [ ] The unchanged `src/app/page.tsx` milestone-data typing error still blocks the baseline production build; this branch adds no TypeScript error.
 
 ## Decisions log (append-only, newest first)
