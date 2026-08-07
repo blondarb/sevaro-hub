@@ -33,6 +33,7 @@ export const CHECK_CODES = Object.freeze([
   'protected_mutation',
   'schema_contract',
   'exact_four',
+  'exact_asana_scope',
   'readable_exact_four',
   'deferred_repository_hidden',
 ]);
@@ -41,6 +42,20 @@ const STATIC_FILES = new Map([
   ['/index.html', ['index.html', 'text/html; charset=utf-8']],
   ['/dashboard.css', ['dashboard.css', 'text/css; charset=utf-8']],
   ['/dashboard.js', ['dashboard.js', 'application/javascript; charset=utf-8']],
+]);
+
+const STATUS_KEYS = Object.freeze([
+  'schema_version', 'mode', 'readiness', 'checked_at', 'partition',
+  'permission_state', 'asana_permission_state', 'repository_count',
+  'repositories', 'asana_project_count', 'asana_projects', 'tool_count',
+  'checks', 'boundaries',
+]);
+const REPOSITORY_KEYS = Object.freeze(['full_name', 'retrieved_at']);
+const ASANA_PROJECT_KEYS = Object.freeze(['name', 'status', 'retrieved_at']);
+const CHECK_KEYS = Object.freeze(['code', 'passed', 'detail_code']);
+const BOUNDARY_KEYS = Object.freeze([
+  'content', 'phi', 'source_writes', 'canonical_data_writes', 'scheduling',
+  'remote_mcp', 'production', 'audit_logging',
 ]);
 
 function requestHostIsLoopback(host = '') {
@@ -54,6 +69,17 @@ function isIsoTimestamp(value) {
 
 function isSafeCode(value) {
   return typeof value === 'string' && /^[a-z0-9_.-]{1,100}$/i.test(value);
+}
+
+function hasExactKeys(value, keys) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const actual = Object.keys(value).sort();
+  const expected = [...keys].sort();
+  return actual.length === expected.length && actual.every((key, index) => key === expected[index]);
+}
+
+function isSafeMetadataText(value) {
+  return typeof value === 'string' && value.length > 0 && value.length <= 250 && !/[\u0000-\u001f\u007f]/.test(value);
 }
 
 export function loadConfig(env = process.env) {
@@ -96,29 +122,33 @@ export function loadConfig(env = process.env) {
 
 /** Return only the documented public status shape; unknown upstream fields vanish. */
 export function allowlistStatus(payload) {
-  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return null;
+  if (!hasExactKeys(payload, STATUS_KEYS)) return null;
   const {
     schema_version, mode, readiness, checked_at, partition, permission_state,
-    repository_count, repositories, tool_count, checks, boundaries,
+    asana_permission_state, repository_count, repositories,
+    asana_project_count, asana_projects, tool_count, checks, boundaries,
   } = payload;
   if (
-    schema_version !== '1' ||
+    schema_version !== '2' ||
     mode !== 'local_nonproduction' ||
     !['ready', 'blocked'].includes(readiness) ||
     !isIsoTimestamp(checked_at) ||
     partition !== 'product_development' ||
     !['current', 'refresh_required'].includes(permission_state) ||
+    !['current', 'refresh_required'].includes(asana_permission_state) ||
     ![0, 4].includes(repository_count) ||
-    tool_count !== 6 ||
+    !Number.isInteger(asana_project_count) || asana_project_count < 0 || asana_project_count > 100 ||
+    tool_count !== 8 ||
     !Array.isArray(repositories) ||
+    !Array.isArray(asana_projects) ||
     !Array.isArray(checks) ||
-    checks.length !== 15 ||
+    checks.length !== CHECK_CODES.length ||
     !boundaries || typeof boundaries !== 'object' || Array.isArray(boundaries)
   ) return null;
 
   if (repositories.length !== repository_count) return null;
   const safeRepositories = repositories.map((repository) => {
-    if (!repository || typeof repository !== 'object' ||
+    if (!hasExactKeys(repository, REPOSITORY_KEYS) ||
       !APPROVED_REPOSITORIES.has(repository.full_name) ||
       !isIsoTimestamp(repository.retrieved_at)) return null;
     return { full_name: repository.full_name, retrieved_at: repository.retrieved_at };
@@ -126,8 +156,17 @@ export function allowlistStatus(payload) {
   if (safeRepositories.includes(null)) return null;
   if (repository_count === 4 && new Set(safeRepositories.map((item) => item.full_name)).size !== 4) return null;
 
+  if (asana_projects.length !== asana_project_count) return null;
+  const safeAsanaProjects = asana_projects.map((project) => {
+    if (!hasExactKeys(project, ASANA_PROJECT_KEYS) ||
+      !isSafeMetadataText(project.name) || !isSafeMetadataText(project.status) ||
+      !isIsoTimestamp(project.retrieved_at)) return null;
+    return { name: project.name, status: project.status, retrieved_at: project.retrieved_at };
+  });
+  if (safeAsanaProjects.includes(null)) return null;
+
   const safeChecks = checks.map((check, index) => {
-    if (!check || typeof check !== 'object' || check.code !== CHECK_CODES[index] ||
+    if (!hasExactKeys(check, CHECK_KEYS) || check.code !== CHECK_CODES[index] ||
       typeof check.passed !== 'boolean' || !isSafeCode(check.detail_code)) return null;
     return { code: check.code, passed: check.passed, detail_code: check.detail_code };
   });
@@ -135,17 +174,24 @@ export function allowlistStatus(payload) {
 
   const allChecksPassed = safeChecks.every((check) => check.passed);
   if (readiness === 'ready' &&
-    (permission_state !== 'current' || repository_count !== 4 || !allChecksPassed)) return null;
-  if (readiness === 'blocked' && repository_count !== 0) return null;
-  if (permission_state === 'refresh_required' && allChecksPassed) return null;
+    (permission_state !== 'current' || asana_permission_state !== 'current' ||
+      repository_count !== 4 || asana_project_count < 1 || !allChecksPassed)) return null;
+  if (readiness === 'blocked' &&
+    (repository_count !== 0 || safeRepositories.length !== 0 ||
+      asana_project_count !== 0 || safeAsanaProjects.length !== 0)) return null;
+  if (readiness === 'blocked' && allChecksPassed &&
+    permission_state === 'current' && asana_permission_state === 'current') return null;
 
   const expectedBoundaryKeys = ['content', 'phi', 'source_writes', 'canonical_data_writes', 'scheduling', 'remote_mcp', 'production'];
+  if (!hasExactKeys(boundaries, BOUNDARY_KEYS)) return null;
   if (expectedBoundaryKeys.some((key) => boundaries[key] !== false)) return null;
   if (boundaries.audit_logging !== true) return null;
   return {
-    schema_version: '1', mode: 'local_nonproduction', readiness, checked_at,
-    partition: 'product_development', permission_state, repository_count,
-    repositories: safeRepositories, tool_count: 6, checks: safeChecks,
+    schema_version: '2', mode: 'local_nonproduction', readiness, checked_at,
+    partition: 'product_development', permission_state, asana_permission_state,
+    repository_count, repositories: safeRepositories,
+    asana_project_count, asana_projects: safeAsanaProjects,
+    tool_count: 8, checks: safeChecks,
     boundaries: { ...Object.fromEntries(expectedBoundaryKeys.map((key) => [key, false])), audit_logging: true },
   };
 }

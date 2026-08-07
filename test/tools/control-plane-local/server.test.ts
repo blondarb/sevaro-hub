@@ -5,7 +5,7 @@ import { request as httpRequest } from 'node:http';
 const upstream = 'http://127.0.0.1:9999/v1/status';
 const config = { uiHost: '127.0.0.1' as const, uiPort: 43123, upstreamUrl: upstream, bearer: 'test-bearer' };
 const approved = ['blondarb/sevaro-agent-memory', 'blondarb/ai-setup-atlas', 'blondarb/project-docs', 'blondarb/sevaro-hub'];
-const status = () => ({ schema_version: '1', mode: 'local_nonproduction', readiness: 'ready', checked_at: '2026-08-05T12:00:00Z', partition: 'product_development', permission_state: 'current', repository_count: 4, repositories: approved.map((full_name) => ({ full_name, retrieved_at: '2026-08-05T11:00:00Z', secret: 'drop' })), tool_count: 6, checks: CHECK_CODES.map((code) => ({ code, passed: true, detail_code: 'passed', internal: 'drop' })), boundaries: { content: false, phi: false, source_writes: false, canonical_data_writes: false, scheduling: false, remote_mcp: false, production: false, audit_logging: true, secret: true }, upstream_secret: 'drop' });
+const status = () => ({ schema_version: '2', mode: 'local_nonproduction', readiness: 'ready', checked_at: '2026-08-06T12:00:00Z', partition: 'product_development', permission_state: 'current', asana_permission_state: 'current', repository_count: 4, repositories: approved.map((full_name) => ({ full_name, retrieved_at: '2026-08-06T11:00:00Z' })), asana_project_count: 2, asana_projects: [{ name: 'Portfolio', status: 'on_track', retrieved_at: '2026-08-06T11:00:00Z' }, { name: 'Team Ops', status: 'at_risk', retrieved_at: '2026-08-06T11:00:00Z' }], tool_count: 8, checks: CHECK_CODES.map((code) => ({ code, passed: true, detail_code: 'passed' })), boundaries: { content: false, phi: false, source_writes: false, canonical_data_writes: false, scheduling: false, remote_mcp: false, production: false, audit_logging: true } });
 const servers: import('node:http').Server[] = [];
 
 async function start(options: Parameters<typeof createLocalDashboardServer>[0]) {
@@ -49,7 +49,7 @@ describe('local dashboard configuration', () => {
 describe('status allowlisting', () => {
   it('reconstructs only the documented public response', () => {
     const safe = allowlistStatus(status());
-    expect(safe).toMatchObject({ schema_version: '1', tool_count: 6, repository_count: 4 });
+    expect(safe).toMatchObject({ schema_version: '2', tool_count: 8, repository_count: 4, asana_project_count: 2 });
     expect(JSON.stringify(safe)).not.toContain('secret');
     expect(JSON.stringify(safe)).not.toContain('test-bearer');
   });
@@ -59,15 +59,33 @@ describe('status allowlisting', () => {
     const unsafeBoundary = status(); unsafeBoundary.boundaries.source_writes = true;
     expect(allowlistStatus(unsafeBoundary)).toBeNull();
   });
-  it('rejects inconsistent readiness and permission states', () => {
+  it('rejects inconsistent readiness, Asana, and permission states', () => {
     const blockedWithRows = status(); blockedWithRows.readiness = 'blocked';
     expect(allowlistStatus(blockedWithRows)).toBeNull();
     const readyWithFailedCheck = status(); readyWithFailedCheck.checks[0].passed = false;
     expect(allowlistStatus(readyWithFailedCheck)).toBeNull();
-    const refreshWithPassingChecks = status(); refreshWithPassingChecks.readiness = 'blocked'; refreshWithPassingChecks.permission_state = 'refresh_required'; refreshWithPassingChecks.repository_count = 0; refreshWithPassingChecks.repositories = [];
-    expect(allowlistStatus(refreshWithPassingChecks)).toBeNull();
+    const refreshWithPassingChecks = status(); refreshWithPassingChecks.readiness = 'blocked'; refreshWithPassingChecks.permission_state = 'refresh_required'; refreshWithPassingChecks.repository_count = 0; refreshWithPassingChecks.repositories = []; refreshWithPassingChecks.asana_project_count = 0; refreshWithPassingChecks.asana_projects = [];
+    expect(allowlistStatus(refreshWithPassingChecks)).not.toBeNull();
+    const readyWithStaleAsana = status(); readyWithStaleAsana.asana_permission_state = 'refresh_required';
+    expect(allowlistStatus(readyWithStaleAsana)).toBeNull();
     const duplicateChecks = status(); duplicateChecks.checks[1].code = duplicateChecks.checks[0].code;
     expect(allowlistStatus(duplicateChecks)).toBeNull();
+  });
+  it('rejects extra or malformed fields at every published layer', () => {
+    const extraTopLevel = { ...status(), unexpected: 'source-detail' };
+    expect(allowlistStatus(extraTopLevel)).toBeNull();
+    const extraRepository: any = status(); extraRepository.repositories[0].unexpected = 'source-detail';
+    expect(allowlistStatus(extraRepository)).toBeNull();
+    const extraProject: any = status(); extraProject.asana_projects[0].description = 'excluded content';
+    expect(allowlistStatus(extraProject)).toBeNull();
+    const extraCheck: any = status(); extraCheck.checks[0].internal = 'private';
+    expect(allowlistStatus(extraCheck)).toBeNull();
+    const extraBoundary: any = status(); extraBoundary.boundaries.unexpected = false;
+    expect(allowlistStatus(extraBoundary)).toBeNull();
+    const invalidProjectCount = status(); invalidProjectCount.asana_project_count = 3;
+    expect(allowlistStatus(invalidProjectCount)).toBeNull();
+    const excessiveProjectCount = status(); excessiveProjectCount.asana_project_count = 101;
+    expect(allowlistStatus(excessiveProjectCount)).toBeNull();
   });
 });
 
