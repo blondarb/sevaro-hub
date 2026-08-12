@@ -5,7 +5,7 @@ import { request as httpRequest } from 'node:http';
 const upstream = 'http://127.0.0.1:9999/v1/status';
 const config = { uiHost: '127.0.0.1' as const, uiPort: 43123, upstreamUrl: upstream, bearer: 'test-bearer' };
 const approved = ['blondarb/sevaro-agent-memory', 'blondarb/ai-setup-atlas', 'blondarb/project-docs', 'blondarb/sevaro-hub'];
-const status = () => ({ schema_version: '2', mode: 'local_nonproduction', readiness: 'ready', checked_at: '2026-08-06T12:00:00Z', partition: 'product_development', permission_state: 'current', asana_permission_state: 'current', repository_count: 4, repositories: approved.map((full_name) => ({ full_name, retrieved_at: '2026-08-06T11:00:00Z' })), asana_project_count: 2, asana_projects: [{ name: 'Portfolio', status: 'on_track', retrieved_at: '2026-08-06T11:00:00Z' }, { name: 'Team Ops', status: 'at_risk', retrieved_at: '2026-08-06T11:00:00Z' }], tool_count: 10, checks: CHECK_CODES.map((code) => ({ code, passed: true, detail_code: 'passed' })), boundaries: { content: false, phi: false, source_writes: false, canonical_data_writes: false, scheduling: false, remote_mcp: false, production: false, audit_logging: true } });
+const status = () => ({ schema_version: '2', mode: 'local_nonproduction', readiness: 'ready', checked_at: '2026-08-06T12:00:00Z', partition: 'product_development', permission_state: 'current', asana_permission_state: 'current', repository_count: 4, repositories: approved.map((full_name) => ({ full_name, retrieved_at: '2026-08-06T11:00:00Z' })), asana_project_count: 2, asana_projects: [{ name: 'Portfolio', status: 'on_track', retrieved_at: '2026-08-06T11:00:00Z' }, { name: 'Team Ops', status: 'at_risk', retrieved_at: '2026-08-06T11:00:00Z' }], tool_count: 11, checks: CHECK_CODES.map((code) => ({ code, passed: true, detail_code: 'passed' })), boundaries: { content: false, phi: false, source_writes: false, canonical_data_writes: false, scheduling: false, remote_mcp: false, production: false, audit_logging: true } });
 const servers: import('node:http').Server[] = [];
 
 async function start(options: Parameters<typeof createLocalDashboardServer>[0]) {
@@ -49,7 +49,7 @@ describe('local dashboard configuration', () => {
 describe('status allowlisting', () => {
   it('reconstructs only the documented public response', () => {
     const safe = allowlistStatus(status());
-    expect(safe).toMatchObject({ schema_version: '2', tool_count: 10, repository_count: 4, asana_project_count: 2 });
+    expect(safe).toMatchObject({ schema_version: '2', tool_count: 11, repository_count: 4, asana_project_count: 2 });
     expect(JSON.stringify(safe)).not.toContain('secret');
     expect(JSON.stringify(safe)).not.toContain('test-bearer');
   });
@@ -58,8 +58,10 @@ describe('status allowlisting', () => {
     expect(allowlistStatus(badRepository)).toBeNull();
     const unsafeBoundary = status(); unsafeBoundary.boundaries.source_writes = true;
     expect(allowlistStatus(unsafeBoundary)).toBeNull();
-    const staleToolCount = status(); staleToolCount.tool_count = 8;
-    expect(allowlistStatus(staleToolCount)).toBeNull();
+    for (const tool_count of [8, 10, 12]) {
+      const driftedToolCount = status(); driftedToolCount.tool_count = tool_count;
+      expect(allowlistStatus(driftedToolCount)).toBeNull();
+    }
   });
   it('rejects inconsistent readiness, Asana, and permission states', () => {
     const blockedWithRows = status(); blockedWithRows.readiness = 'blocked';

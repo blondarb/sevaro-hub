@@ -13,7 +13,10 @@ import path from 'node:path';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(HERE, 'public');
 const TIMEOUT_MS = 5_000;
-const EXACT_TOOL_COUNT = 10;
+// The upstream status contract exposes exactly six repository tools, four Asana
+// tools, and get_project_context_pack. The dashboard intentionally receives
+// only this count, never tool names, arguments, or source content.
+const EXACT_TOOL_COUNT = 11;
 const APPROVED_REPOSITORIES = new Set([
   'blondarb/sevaro-agent-memory',
   'blondarb/ai-setup-atlas',
