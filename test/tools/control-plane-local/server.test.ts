@@ -50,6 +50,7 @@ describe('status allowlisting', () => {
   it('reconstructs only the documented public response', () => {
     const safe = allowlistStatus(status());
     expect(safe).toMatchObject({ schema_version: '2', tool_count: 11, repository_count: 4, asana_project_count: 2 });
+    expect(safe?.checks).toHaveLength(18);
     expect(JSON.stringify(safe)).not.toContain('secret');
     expect(JSON.stringify(safe)).not.toContain('test-bearer');
   });
@@ -62,6 +63,8 @@ describe('status allowlisting', () => {
       const driftedToolCount = status(); driftedToolCount.tool_count = tool_count;
       expect(allowlistStatus(driftedToolCount)).toBeNull();
     }
+    const legacyCheckSet = status(); legacyCheckSet.checks = legacyCheckSet.checks.slice(0, 16);
+    expect(allowlistStatus(legacyCheckSet)).toBeNull();
   });
   it('rejects inconsistent readiness, Asana, and permission states', () => {
     const blockedWithRows = status(); blockedWithRows.readiness = 'blocked';

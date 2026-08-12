@@ -40,6 +40,8 @@ export const CHECK_CODES = Object.freeze([
   'exact_asana_scope',
   'readable_exact_four',
   'deferred_repository_hidden',
+  'context_pack_contract',
+  'exact_project_link',
 ]);
 const STATIC_FILES = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],

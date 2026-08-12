@@ -18,8 +18,8 @@ only). No secrets._
 
 ## Session log (append-only, newest first)
 ### 2026-08-12 · ChatGPT · Exact-eleven local dashboard contract
-- Did: updated the separate loopback dashboard/proxy to accept only the merged backend's exact-eleven read-only tool count (six repository tools, four Asana tools, and `get_project_context_pack`); focused tests explicitly reject legacy ten and other count drift.
-- Files/links touched: `tools/control-plane-local/server.mjs`; `test/tools/control-plane-local/server.test.ts`; this handoff.
+- Did: updated the separate loopback dashboard/proxy to accept only the merged backend's exact-eleven read-only tool count (six repository tools, four Asana tools, and `get_project_context_pack`) and exact ordered 18-check preflight; focused tests explicitly reject legacy ten-tool, 16-check, and other contract drift.
+- Files/links touched: `tools/control-plane-local/server.mjs`; `tools/control-plane-local/public/index.html`; `test/tools/control-plane-local/server.test.ts`; this handoff.
 - Decisions: This remains a local nonproduction operator tool outside Next/Amplify; it neither contacts sources nor enables PHI, content, writes, scheduling, remote MCP, or production.
 - Open questions / needs Claude: None.
 - Next: Review the narrowly updated local-dashboard draft; do not merge to auto-deploying `main` without a separate production decision.
