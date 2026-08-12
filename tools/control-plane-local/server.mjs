@@ -13,6 +13,7 @@ import path from 'node:path';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(HERE, 'public');
 const TIMEOUT_MS = 5_000;
+const EXACT_TOOL_COUNT = 10;
 const APPROVED_REPOSITORIES = new Set([
   'blondarb/sevaro-agent-memory',
   'blondarb/ai-setup-atlas',
@@ -138,7 +139,7 @@ export function allowlistStatus(payload) {
     !['current', 'refresh_required'].includes(asana_permission_state) ||
     ![0, 4].includes(repository_count) ||
     !Number.isInteger(asana_project_count) || asana_project_count < 0 || asana_project_count > 100 ||
-    tool_count !== 8 ||
+    tool_count !== EXACT_TOOL_COUNT ||
     !Array.isArray(repositories) ||
     !Array.isArray(asana_projects) ||
     !Array.isArray(checks) ||
@@ -191,7 +192,7 @@ export function allowlistStatus(payload) {
     partition: 'product_development', permission_state, asana_permission_state,
     repository_count, repositories: safeRepositories,
     asana_project_count, asana_projects: safeAsanaProjects,
-    tool_count: 8, checks: safeChecks,
+    tool_count: EXACT_TOOL_COUNT, checks: safeChecks,
     boundaries: { ...Object.fromEntries(expectedBoundaryKeys.map((key) => [key, false])), audit_logging: true },
   };
 }

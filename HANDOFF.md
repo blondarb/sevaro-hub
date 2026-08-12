@@ -17,6 +17,13 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log (append-only, newest first)
+### 2026-08-12 · ChatGPT · Exact-ten local dashboard contract
+- Did: updated the separate loopback dashboard/proxy to accept and display the backend's exact-ten read-only tool contract; retained its exact 16 readiness checks, exact-four repository allowlist, and all prohibited boundaries OFF.
+- Files/links touched: `tools/control-plane-local/server.mjs`; `test/tools/control-plane-local/server.test.ts`; this handoff.
+- Decisions: This remains a local nonproduction operator tool outside Next/Amplify; it neither contacts sources nor enables PHI, content, writes, scheduling, remote MCP, or production.
+- Open questions / needs Claude: None.
+- Next: Review the narrowly updated local-dashboard draft; do not merge to auto-deploying `main` without a separate production decision.
+
 ### 2026-08-06 · ChatGPT · Exact-eight local dashboard accepted
 - Did: updated the separate local dashboard/proxy to the exact 16-check, exact-eight backend contract; added exact schema reconstruction and mixed active/archived project coverage; ran all 115 tests; and accepted the final loopback dashboard in a real browser against clean backend runtime `af5f12e`.
 - Files/links touched: draft Hub PR [#35](https://github.com/blondarb/sevaro-hub/pull/35); `tools/control-plane-local/`; `test/tools/control-plane-local/`; companion backend draft PR [#33](https://github.com/blondarb/sevaro-agent-memory/pull/33); and this handoff.
