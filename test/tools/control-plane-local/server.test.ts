@@ -6,6 +6,7 @@ const upstream = 'http://127.0.0.1:9999/v1/status';
 const config = { uiHost: '127.0.0.1' as const, uiPort: 43123, upstreamUrl: upstream, bearer: 'test-bearer' };
 const approved = ['blondarb/sevaro-agent-memory', 'blondarb/ai-setup-atlas', 'blondarb/project-docs', 'blondarb/sevaro-hub'];
 const status = () => ({ schema_version: '2', mode: 'local_nonproduction', readiness: 'ready', checked_at: '2026-08-06T12:00:00Z', partition: 'product_development', permission_state: 'current', asana_permission_state: 'current', repository_count: 4, repositories: approved.map((full_name) => ({ full_name, retrieved_at: '2026-08-06T11:00:00Z' })), asana_project_count: 2, asana_projects: [{ name: 'Portfolio', status: 'on_track', retrieved_at: '2026-08-06T11:00:00Z' }, { name: 'Team Ops', status: 'at_risk', retrieved_at: '2026-08-06T11:00:00Z' }], tool_count: 11, checks: CHECK_CODES.map((code) => ({ code, passed: true, detail_code: 'passed' })), boundaries: { content: false, phi: false, source_writes: false, canonical_data_writes: false, scheduling: false, remote_mcp: false, production: false, audit_logging: true } });
+const broadStatus = () => ({ ...status(), schema_version: '3', tool_count: 16, active_project_count: 2, stale_project_count: 1, projects_without_owner_count: 0 });
 const servers: import('node:http').Server[] = [];
 
 async function start(options: Parameters<typeof createLocalDashboardServer>[0]) {
@@ -54,12 +55,26 @@ describe('status allowlisting', () => {
     expect(JSON.stringify(safe)).not.toContain('secret');
     expect(JSON.stringify(safe)).not.toContain('test-bearer');
   });
+  it('accepts only the exact schema-v3/project-intelligence contract', () => {
+    const safe = allowlistStatus(broadStatus());
+    expect(safe).toMatchObject({ schema_version: '3', tool_count: 16, active_project_count: 2, stale_project_count: 1, projects_without_owner_count: 0 });
+    expect(Object.keys(safe ?? {}).sort()).toEqual(Object.keys(broadStatus()).sort());
+
+    const v3WrongToolCount = broadStatus(); v3WrongToolCount.tool_count = 11;
+    expect(allowlistStatus(v3WrongToolCount)).toBeNull();
+    const v2UnexpectedAggregate = { ...status(), active_project_count: 1 };
+    expect(allowlistStatus(v2UnexpectedAggregate)).toBeNull();
+    const excessiveAggregate = broadStatus(); excessiveAggregate.stale_project_count = 3;
+    expect(allowlistStatus(excessiveAggregate)).toBeNull();
+    const blockedWithAggregate = broadStatus(); blockedWithAggregate.readiness = 'blocked'; blockedWithAggregate.permission_state = 'refresh_required'; blockedWithAggregate.asana_permission_state = 'refresh_required'; blockedWithAggregate.repository_count = 0; blockedWithAggregate.repositories = []; blockedWithAggregate.asana_project_count = 0; blockedWithAggregate.asana_projects = [];
+    expect(allowlistStatus(blockedWithAggregate)).toBeNull();
+  });
   it('rejects unapproved repositories and enabled boundaries', () => {
     const badRepository = status(); badRepository.repositories[0].full_name = 'unapproved/private';
     expect(allowlistStatus(badRepository)).toBeNull();
     const unsafeBoundary = status(); unsafeBoundary.boundaries.source_writes = true;
     expect(allowlistStatus(unsafeBoundary)).toBeNull();
-    for (const tool_count of [8, 10, 12]) {
+    for (const tool_count of [8, 10, 12, 16]) {
       const driftedToolCount = status(); driftedToolCount.tool_count = tool_count;
       expect(allowlistStatus(driftedToolCount)).toBeNull();
     }

@@ -13,10 +13,12 @@ import path from 'node:path';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(HERE, 'public');
 const TIMEOUT_MS = 5_000;
-// The upstream status contract exposes exactly six repository tools, four Asana
-// tools, and get_project_context_pack. The dashboard intentionally receives
-// only this count, never tool names, arguments, or source content.
-const EXACT_TOOL_COUNT = 11;
+// Schema v2 exposes exactly six repository tools, four Asana tools, and
+// get_project_context_pack. Schema v3 adds five durable project-intelligence
+// tools. The dashboard intentionally receives only counts, never tool names,
+// arguments, or source content.
+const EXACT_V2_TOOL_COUNT = 11;
+const EXACT_V3_TOOL_COUNT = 16;
 const APPROVED_REPOSITORIES = new Set([
   'blondarb/sevaro-agent-memory',
   'blondarb/ai-setup-atlas',
@@ -50,11 +52,15 @@ const STATIC_FILES = new Map([
   ['/dashboard.js', ['dashboard.js', 'application/javascript; charset=utf-8']],
 ]);
 
-const STATUS_KEYS = Object.freeze([
+const STATUS_V2_KEYS = Object.freeze([
   'schema_version', 'mode', 'readiness', 'checked_at', 'partition',
   'permission_state', 'asana_permission_state', 'repository_count',
   'repositories', 'asana_project_count', 'asana_projects', 'tool_count',
   'checks', 'boundaries',
+]);
+const STATUS_V3_KEYS = Object.freeze([
+  ...STATUS_V2_KEYS,
+  'active_project_count', 'stale_project_count', 'projects_without_owner_count',
 ]);
 const REPOSITORY_KEYS = Object.freeze(['full_name', 'retrieved_at']);
 const ASANA_PROJECT_KEYS = Object.freeze(['name', 'status', 'retrieved_at']);
@@ -128,14 +134,24 @@ export function loadConfig(env = process.env) {
 
 /** Return only the documented public status shape; unknown upstream fields vanish. */
 export function allowlistStatus(payload) {
-  if (!hasExactKeys(payload, STATUS_KEYS)) return null;
+  const isV2 = payload?.schema_version === '2';
+  const isV3 = payload?.schema_version === '3';
+  if ((!isV2 && !isV3) || !hasExactKeys(payload, isV3 ? STATUS_V3_KEYS : STATUS_V2_KEYS)) return null;
   const {
     schema_version, mode, readiness, checked_at, partition, permission_state,
     asana_permission_state, repository_count, repositories,
     asana_project_count, asana_projects, tool_count, checks, boundaries,
   } = payload;
+  const projectIntelligence = isV3
+    ? {
+      active_project_count: payload.active_project_count,
+      stale_project_count: payload.stale_project_count,
+      projects_without_owner_count: payload.projects_without_owner_count,
+    }
+    : null;
   if (
-    schema_version !== '2' ||
+    (isV2 && tool_count !== EXACT_V2_TOOL_COUNT) ||
+    (isV3 && tool_count !== EXACT_V3_TOOL_COUNT) ||
     mode !== 'local_nonproduction' ||
     !['ready', 'blocked'].includes(readiness) ||
     !isIsoTimestamp(checked_at) ||
@@ -144,13 +160,19 @@ export function allowlistStatus(payload) {
     !['current', 'refresh_required'].includes(asana_permission_state) ||
     ![0, 4].includes(repository_count) ||
     !Number.isInteger(asana_project_count) || asana_project_count < 0 || asana_project_count > 100 ||
-    tool_count !== EXACT_TOOL_COUNT ||
     !Array.isArray(repositories) ||
     !Array.isArray(asana_projects) ||
     !Array.isArray(checks) ||
     checks.length !== CHECK_CODES.length ||
     !boundaries || typeof boundaries !== 'object' || Array.isArray(boundaries)
   ) return null;
+
+  if (projectIntelligence && (
+    !Object.values(projectIntelligence).every((value) => Number.isInteger(value) && value >= 0 && value <= 100) ||
+    projectIntelligence.active_project_count > asana_project_count ||
+    projectIntelligence.stale_project_count > projectIntelligence.active_project_count ||
+    projectIntelligence.projects_without_owner_count > projectIntelligence.active_project_count
+  )) return null;
 
   if (repositories.length !== repository_count) return null;
   const safeRepositories = repositories.map((repository) => {
@@ -184,7 +206,8 @@ export function allowlistStatus(payload) {
       repository_count !== 4 || asana_project_count < 1 || !allChecksPassed)) return null;
   if (readiness === 'blocked' &&
     (repository_count !== 0 || safeRepositories.length !== 0 ||
-      asana_project_count !== 0 || safeAsanaProjects.length !== 0)) return null;
+      asana_project_count !== 0 || safeAsanaProjects.length !== 0 ||
+      (projectIntelligence && Object.values(projectIntelligence).some((value) => value !== 0)))) return null;
   if (readiness === 'blocked' && allChecksPassed &&
     permission_state === 'current' && asana_permission_state === 'current') return null;
 
@@ -193,12 +216,13 @@ export function allowlistStatus(payload) {
   if (expectedBoundaryKeys.some((key) => boundaries[key] !== false)) return null;
   if (boundaries.audit_logging !== true) return null;
   return {
-    schema_version: '2', mode: 'local_nonproduction', readiness, checked_at,
+    schema_version, mode: 'local_nonproduction', readiness, checked_at,
     partition: 'product_development', permission_state, asana_permission_state,
     repository_count, repositories: safeRepositories,
     asana_project_count, asana_projects: safeAsanaProjects,
-    tool_count: EXACT_TOOL_COUNT, checks: safeChecks,
+    tool_count, checks: safeChecks,
     boundaries: { ...Object.fromEntries(expectedBoundaryKeys.map((key) => [key, false])), audit_logging: true },
+    ...(projectIntelligence ?? {}),
   };
 }
 

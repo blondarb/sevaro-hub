@@ -17,6 +17,15 @@ function render(status) {
   const repositories = document.getElementById('repositories'); repositories.replaceChildren(...status.repositories.map((repository) => { const item = document.createElement('li'); item.className = 'repository'; item.append(document.createTextNode(repository.full_name)); const time = document.createElement('time'); time.dateTime = repository.retrieved_at; time.textContent = `Retrieved ${formatTime(repository.retrieved_at)}`; item.append(time); return item; }));
   text('asana-project-count', String(status.asana_project_count));
   const projects = document.getElementById('asana-projects'); projects.replaceChildren(...status.asana_projects.map((project) => { const item = document.createElement('li'); item.className = 'repository'; const details = document.createElement('span'); details.textContent = `${project.name} · ${project.status}`; item.append(details); const time = document.createElement('time'); time.dateTime = project.retrieved_at; time.textContent = `Retrieved ${formatTime(project.retrieved_at)}`; item.append(time); return item; }));
+  const projectIntelligenceEnabled = status.schema_version === '3';
+  const projectMetrics = document.getElementById('project-intelligence-metrics');
+  projectMetrics.hidden = !projectIntelligenceEnabled;
+  text('project-intelligence-summary', projectIntelligenceEnabled ? 'Metadata-only aggregates from the durable local project index.' : 'Not enabled in this local profile.');
+  if (projectIntelligenceEnabled) {
+    text('active-project-count', String(status.active_project_count));
+    text('stale-project-count', String(status.stale_project_count));
+    text('projects-without-owner-count', String(status.projects_without_owner_count));
+  }
 }
 
 async function load() {
