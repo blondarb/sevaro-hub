@@ -19,12 +19,7 @@ const TIMEOUT_MS = 5_000;
 // arguments, or source content.
 const EXACT_V2_TOOL_COUNT = 11;
 const EXACT_V3_TOOL_COUNT = 16;
-const APPROVED_REPOSITORIES = new Set([
-  'blondarb/sevaro-agent-memory',
-  'blondarb/ai-setup-atlas',
-  'blondarb/project-docs',
-  'blondarb/sevaro-hub',
-]);
+const MAX_AUTHORIZED_REPOSITORIES = 500;
 export const CHECK_CODES = Object.freeze([
   'postgres_version',
   'read_only',
@@ -94,6 +89,17 @@ function isSafeMetadataText(value) {
   return typeof value === 'string' && value.length > 0 && value.length <= 250 && !/[\u0000-\u001f\u007f]/.test(value);
 }
 
+/**
+ * GitHub owner/repository names are the only repository metadata this local
+ * dashboard may publish. The upstream status service remains responsible for
+ * determining authorization; this guard prevents content-shaped or malformed
+ * values from crossing the local proxy.
+ */
+function isSafeGitHubFullName(value) {
+  return typeof value === 'string' &&
+    /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?\/[A-Za-z0-9._-]{1,100}$/.test(value);
+}
+
 export function loadConfig(env = process.env) {
   if (env.NODE_ENV === 'production') {
     throw new Error('The local control-plane dashboard refuses NODE_ENV=production.');
@@ -158,7 +164,7 @@ export function allowlistStatus(payload) {
     partition !== 'product_development' ||
     !['current', 'refresh_required'].includes(permission_state) ||
     !['current', 'refresh_required'].includes(asana_permission_state) ||
-    ![0, 4].includes(repository_count) ||
+    !Number.isInteger(repository_count) || repository_count < 0 || repository_count > MAX_AUTHORIZED_REPOSITORIES ||
     !Number.isInteger(asana_project_count) || asana_project_count < 0 || asana_project_count > 100 ||
     !Array.isArray(repositories) ||
     !Array.isArray(asana_projects) ||
@@ -177,12 +183,12 @@ export function allowlistStatus(payload) {
   if (repositories.length !== repository_count) return null;
   const safeRepositories = repositories.map((repository) => {
     if (!hasExactKeys(repository, REPOSITORY_KEYS) ||
-      !APPROVED_REPOSITORIES.has(repository.full_name) ||
+      !isSafeGitHubFullName(repository.full_name) ||
       !isIsoTimestamp(repository.retrieved_at)) return null;
     return { full_name: repository.full_name, retrieved_at: repository.retrieved_at };
   });
   if (safeRepositories.includes(null)) return null;
-  if (repository_count === 4 && new Set(safeRepositories.map((item) => item.full_name)).size !== 4) return null;
+  if (new Set(safeRepositories.map((item) => item.full_name)).size !== repository_count) return null;
 
   if (asana_projects.length !== asana_project_count) return null;
   const safeAsanaProjects = asana_projects.map((project) => {
@@ -203,7 +209,7 @@ export function allowlistStatus(payload) {
   const allChecksPassed = safeChecks.every((check) => check.passed);
   if (readiness === 'ready' &&
     (permission_state !== 'current' || asana_permission_state !== 'current' ||
-      repository_count !== 4 || asana_project_count < 1 || !allChecksPassed)) return null;
+      repository_count < 1 || asana_project_count < 1 || !allChecksPassed)) return null;
   if (readiness === 'blocked' &&
     (repository_count !== 0 || safeRepositories.length !== 0 ||
       asana_project_count !== 0 || safeAsanaProjects.length !== 0 ||

@@ -69,9 +69,15 @@ describe('status allowlisting', () => {
     const blockedWithAggregate = broadStatus(); blockedWithAggregate.readiness = 'blocked'; blockedWithAggregate.permission_state = 'refresh_required'; blockedWithAggregate.asana_permission_state = 'refresh_required'; blockedWithAggregate.repository_count = 0; blockedWithAggregate.repositories = []; blockedWithAggregate.asana_project_count = 0; blockedWithAggregate.asana_projects = [];
     expect(allowlistStatus(blockedWithAggregate)).toBeNull();
   });
-  it('rejects unapproved repositories and enabled boundaries', () => {
-    const badRepository = status(); badRepository.repositories[0].full_name = 'unapproved/private';
+  it('accepts bounded, metadata-only authorized repository estates and rejects malformed entries', () => {
+    const estate = status(); estate.repository_count = 5; estate.repositories = [...estate.repositories, { full_name: 'sevaro-labs/control-plane', retrieved_at: '2026-08-06T11:00:00Z' }];
+    expect(allowlistStatus(estate)).toMatchObject({ repository_count: 5 });
+    const duplicateRepository = status(); duplicateRepository.repositories[3].full_name = duplicateRepository.repositories[0].full_name;
+    expect(allowlistStatus(duplicateRepository)).toBeNull();
+    const badRepository = status(); badRepository.repositories[0].full_name = 'unapproved/private/content';
     expect(allowlistStatus(badRepository)).toBeNull();
+    const excessiveRepositoryCount = status(); excessiveRepositoryCount.repository_count = 501;
+    expect(allowlistStatus(excessiveRepositoryCount)).toBeNull();
     const unsafeBoundary = status(); unsafeBoundary.boundaries.source_writes = true;
     expect(allowlistStatus(unsafeBoundary)).toBeNull();
     for (const tool_count of [8, 10, 12, 16]) {

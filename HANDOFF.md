@@ -8,7 +8,7 @@ only). No secrets._
 - Status: Active — verified July 5, 2026; most recent hub-specific work (PR #31) let the improvement-queue Lambda accept multiple Cognito app clients.
 - Driver this week: Planned work is an admin management page (view/add/remove administrators) and requesting SES production access (currently sandbox-only).
 - Lives in: https://github.com/blondarb/sevaro-hub.git
-- Local-alpha status dashboard draft PR [#35](https://github.com/blondarb/sevaro-hub/pull/35) is complete. It is a separate loopback-only tool outside Next/Amplify, passes 115 tests, and has independent security/data-integrity GO. A real browser accepted Ready, 16/16 checks, 4/4 repositories, 5 Asana projects, every prohibited capability OFF, audit ON, and no console warnings/errors. It is not deployed. Companion backend draft PR: [#33](https://github.com/blondarb/sevaro-agent-memory/pull/33).
+- Local-alpha status dashboard remains a separate loopback-only tool outside Next/Amplify. Its local allowlist now accepts a bounded, dynamically counted authorized GitHub metadata estate (including organization namespaces) while rejecting malformed or duplicate names; it still carries no source content, credential, write path, scheduler, remote transport, PHI path, or production activation. It is not deployed.
 
 ## Open threads / next actions
 - [ ] Review local-alpha dashboard draft PR [#35](https://github.com/blondarb/sevaro-hub/pull/35). Do not merge it to auto-deploying `main` without a separate production decision.
@@ -17,6 +17,13 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log (append-only, newest first)
+### 2026-09-04 · ChatGPT · Dynamic authorized GitHub estate display
+- Did: removed the local dashboard's legacy exact-four repository label and denominator; it now displays the current authorized metadata-only GitHub count and neutralizes stale exact-four check labels. The loopback proxy now validates a bounded (0–500), unique `owner/repository` metadata set rather than a fixed four-name list. All 14 focused dashboard/proxy tests pass with loopback access enabled for the test.
+- Files/links touched: `tools/control-plane-local/server.mjs`; `tools/control-plane-local/public/index.html`; `tools/control-plane-local/public/dashboard.js`; focused dashboard/proxy tests; this handoff.
+- Decisions: Hub production remains OFF. This is a presentation/proxy contract for an already-authorized backend scope; it does not itself enumerate GitHub, activate organization repositories, or alter credentials/access.
+- Open questions / needs Claude: backend source/schema support and credential visibility still determine which organization-owned repositories can appear.
+- Next: review this narrow local-alpha change with the companion backend estate-scope work; do not merge/deploy to auto-deploying `main` without its separate production decision.
+
 ### 2026-08-12 · ChatGPT · Exact-eleven local dashboard contract
 - Did: updated the separate loopback dashboard/proxy to accept only the merged backend's exact-eleven read-only tool count (six repository tools, four Asana tools, and `get_project_context_pack`) and exact ordered 18-check preflight; focused tests explicitly reject legacy ten-tool, 16-check, and other contract drift.
 - Files/links touched: `tools/control-plane-local/server.mjs`; `tools/control-plane-local/public/index.html`; `test/tools/control-plane-local/server.test.ts`; this handoff.
