@@ -14,11 +14,12 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(HERE, 'public');
 const TIMEOUT_MS = 5_000;
 // Schema v2 exposes exactly six repository tools, four Asana tools, and
-// get_project_context_pack. Schema v3 adds five durable project-intelligence
-// tools. The dashboard intentionally receives only counts, never tool names,
+// get_project_context_pack. Schema v3 adds the eleven durable
+// project-intelligence tools in the Production v1 local read-only profile.
+// The dashboard intentionally receives only counts, never tool names,
 // arguments, or source content.
 const EXACT_V2_TOOL_COUNT = 11;
-const EXACT_V3_TOOL_COUNT = 16;
+const EXACT_V3_TOOL_COUNT = 22;
 const MAX_AUTHORIZED_REPOSITORIES = 500;
 export const CHECK_CODES = Object.freeze([
   'postgres_version',

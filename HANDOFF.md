@@ -8,7 +8,7 @@ only). No secrets._
 - Status: Active — verified July 5, 2026; most recent hub-specific work (PR #31) let the improvement-queue Lambda accept multiple Cognito app clients.
 - Driver this week: Planned work is an admin management page (view/add/remove administrators) and requesting SES production access (currently sandbox-only).
 - Lives in: https://github.com/blondarb/sevaro-hub.git
-- Local-alpha status dashboard remains a separate loopback-only tool outside Next/Amplify. Its local allowlist now accepts a bounded, dynamically counted authorized GitHub metadata estate (including organization namespaces) while rejecting malformed or duplicate names; it still carries no source content, credential, write path, scheduler, remote transport, PHI path, or production activation. It is not deployed.
+- Local-alpha status dashboard remains a separate loopback-only tool outside Next/Amplify. Its local allowlist now accepts the backend's exact-22 schema-v3 profile and a bounded, dynamically counted authorized GitHub metadata estate (including organization namespaces) while rejecting contract drift, malformed or duplicate names; it still carries no source content, credential, write path, scheduler, remote transport, PHI path, or production activation. It is not deployed.
 
 ## Open threads / next actions
 - [ ] Review local-alpha dashboard draft PR [#35](https://github.com/blondarb/sevaro-hub/pull/35). Do not merge it to auto-deploying `main` without a separate production decision.
@@ -17,6 +17,13 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log (append-only, newest first)
+### 2026-09-04 · ChatGPT · Exact-22 local dashboard contract
+- Did: aligned the loopback status proxy with the backend's exact-22 schema-v3 read-only profile after live acceptance exposed its stale exact-sixteen allowlist; retained the exact-eleven schema-v2 contract and explicit rejection of both prior and unrecognized counts.
+- Files/links touched: `tools/control-plane-local/server.mjs`; focused proxy tests; this handoff.
+- Decisions: local nonproduction only; PR #35 remains draft and production remains OFF.
+- Open questions / needs Claude: None for local exact-22 acceptance.
+- Next: run focused tests, restart the bounded local broker from the same merged backend runtime, and complete the dashboard status acceptance. Do not merge or deploy PR #35 without a separate production decision.
+
 ### 2026-09-04 · ChatGPT · Dynamic authorized GitHub estate display
 - Did: removed the local dashboard's legacy exact-four repository label and denominator; it now displays the current authorized metadata-only GitHub count and neutralizes stale exact-four check labels. The loopback proxy now validates a bounded (0–500), unique `owner/repository` metadata set rather than a fixed four-name list. All 14 focused dashboard/proxy tests pass with loopback access enabled for the test.
 - Files/links touched: `tools/control-plane-local/server.mjs`; `tools/control-plane-local/public/index.html`; `tools/control-plane-local/public/dashboard.js`; focused dashboard/proxy tests; this handoff.
