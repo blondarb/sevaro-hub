@@ -5,8 +5,8 @@ import { request as httpRequest } from 'node:http';
 const upstream = 'http://127.0.0.1:9999/v1/status';
 const config = { uiHost: '127.0.0.1' as const, uiPort: 43123, upstreamUrl: upstream, bearer: 'test-bearer' };
 const approved = ['blondarb/sevaro-agent-memory', 'blondarb/ai-setup-atlas', 'blondarb/project-docs', 'blondarb/sevaro-hub'];
-const status = () => ({ schema_version: '2', mode: 'local_nonproduction', readiness: 'ready', checked_at: '2026-08-06T12:00:00Z', partition: 'product_development', permission_state: 'current', asana_permission_state: 'current', repository_count: 4, repositories: approved.map((full_name) => ({ full_name, retrieved_at: '2026-08-06T11:00:00Z' })), asana_project_count: 2, asana_projects: [{ name: 'Portfolio', status: 'on_track', retrieved_at: '2026-08-06T11:00:00Z' }, { name: 'Team Ops', status: 'at_risk', retrieved_at: '2026-08-06T11:00:00Z' }], tool_count: 11, checks: CHECK_CODES.map((code) => ({ code, passed: true, detail_code: 'passed' })), boundaries: { content: false, phi: false, source_writes: false, canonical_data_writes: false, scheduling: false, remote_mcp: false, production: false, audit_logging: true } });
-const broadStatus = () => ({ ...status(), schema_version: '3', tool_count: 22, active_project_count: 2, stale_project_count: 1, projects_without_owner_count: 0 });
+const status = () => ({ schema_version: '2', mode: 'local_nonproduction', readiness: 'ready', checked_at: '2026-08-06T12:00:00Z', partition: 'product_development', github_scope: 'exact_four', permission_state: 'current', asana_permission_state: 'current', repository_count: 4, repositories: approved.map((full_name) => ({ full_name, retrieved_at: '2026-08-06T11:00:00Z' })), asana_project_count: 2, asana_projects: [{ name: 'Portfolio', status: 'on_track', retrieved_at: '2026-08-06T11:00:00Z' }, { name: 'Team Ops', status: 'at_risk', retrieved_at: '2026-08-06T11:00:00Z' }], tool_count: 11, checks: CHECK_CODES.map((code) => ({ code, passed: true, detail_code: 'passed' })), boundaries: { content: false, phi: false, source_writes: false, canonical_data_writes: false, scheduling: false, remote_mcp: false, production: false, audit_logging: true } });
+const broadStatus = () => ({ ...status(), schema_version: '3', github_scope: 'blondarb_estate', tool_count: 22, active_project_count: 2, stale_project_count: 1, projects_without_owner_count: 0 });
 const servers: import('node:http').Server[] = [];
 
 async function start(options: Parameters<typeof createLocalDashboardServer>[0]) {
@@ -50,14 +50,14 @@ describe('local dashboard configuration', () => {
 describe('status allowlisting', () => {
   it('reconstructs only the documented public response', () => {
     const safe = allowlistStatus(status());
-    expect(safe).toMatchObject({ schema_version: '2', tool_count: 11, repository_count: 4, asana_project_count: 2 });
+    expect(safe).toMatchObject({ schema_version: '2', github_scope: 'exact_four', tool_count: 11, repository_count: 4, asana_project_count: 2 });
     expect(safe?.checks).toHaveLength(18);
     expect(JSON.stringify(safe)).not.toContain('secret');
     expect(JSON.stringify(safe)).not.toContain('test-bearer');
   });
   it('accepts only the exact schema-v3/project-intelligence contract', () => {
     const safe = allowlistStatus(broadStatus());
-    expect(safe).toMatchObject({ schema_version: '3', tool_count: 22, active_project_count: 2, stale_project_count: 1, projects_without_owner_count: 0 });
+    expect(safe).toMatchObject({ schema_version: '3', github_scope: 'blondarb_estate', tool_count: 22, active_project_count: 2, stale_project_count: 1, projects_without_owner_count: 0 });
     expect(Object.keys(safe ?? {}).sort()).toEqual(Object.keys(broadStatus()).sort());
 
     const v3WrongToolCount = broadStatus(); v3WrongToolCount.tool_count = 16;
@@ -70,8 +70,10 @@ describe('status allowlisting', () => {
     expect(allowlistStatus(blockedWithAggregate)).toBeNull();
   });
   it('accepts bounded, metadata-only authorized repository estates and rejects malformed entries', () => {
-    const estate = status(); estate.repository_count = 5; estate.repositories = [...estate.repositories, { full_name: 'sevaro-labs/control-plane', retrieved_at: '2026-08-06T11:00:00Z' }];
+    const estate = status(); estate.github_scope = 'blondarb_estate'; estate.repository_count = 5; estate.repositories = [...estate.repositories, { full_name: 'sevaro-labs/control-plane', retrieved_at: '2026-08-06T11:00:00Z' }];
     expect(allowlistStatus(estate)).toMatchObject({ repository_count: 5 });
+    const wrongExactScope = status(); wrongExactScope.github_scope = 'exact_four'; wrongExactScope.repository_count = 5; wrongExactScope.repositories = estate.repositories;
+    expect(allowlistStatus(wrongExactScope)).toBeNull();
     const duplicateRepository = status(); duplicateRepository.repositories[3].full_name = duplicateRepository.repositories[0].full_name;
     expect(allowlistStatus(duplicateRepository)).toBeNull();
     const badRepository = status(); badRepository.repositories[0].full_name = 'unapproved/private/content';

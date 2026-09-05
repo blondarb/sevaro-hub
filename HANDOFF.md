@@ -18,11 +18,11 @@ only). No secrets._
 
 ## Session log (append-only, newest first)
 ### 2026-09-04 · ChatGPT · Exact-22 local dashboard contract
-- Did: aligned the loopback status proxy with the backend's exact-22 schema-v3 read-only profile after live acceptance exposed its stale exact-sixteen allowlist; retained the exact-eleven schema-v2 contract and explicit rejection of both prior and unrecognized counts.
+- Did: aligned the loopback status proxy with the backend's exact-22 schema-v3 read-only profile and explicit GitHub scope field after live acceptance exposed its stale exact-sixteen/key allowlist; retained the exact-eleven schema-v2 contract and explicit rejection of prior counts, unknown scope, and exact-four count drift. Fourteen focused tests passed, and the live loopback dashboard then returned Ready for the metadata-only 67-repository estate with 18/18 checks and every prohibited boundary OFF.
 - Files/links touched: `tools/control-plane-local/server.mjs`; focused proxy tests; this handoff.
 - Decisions: local nonproduction only; PR #35 remains draft and production remains OFF.
 - Open questions / needs Claude: None for local exact-22 acceptance.
-- Next: run focused tests, restart the bounded local broker from the same merged backend runtime, and complete the dashboard status acceptance. Do not merge or deploy PR #35 without a separate production decision.
+- Next: update draft PR #35 for review only. Do not merge or deploy it without a separate production decision.
 
 ### 2026-09-04 · ChatGPT · Dynamic authorized GitHub estate display
 - Did: removed the local dashboard's legacy exact-four repository label and denominator; it now displays the current authorized metadata-only GitHub count and neutralizes stale exact-four check labels. The loopback proxy now validates a bounded (0–500), unique `owner/repository` metadata set rather than a fixed four-name list. All 14 focused dashboard/proxy tests pass with loopback access enabled for the test.

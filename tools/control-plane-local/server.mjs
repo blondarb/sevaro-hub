@@ -50,7 +50,7 @@ const STATIC_FILES = new Map([
 
 const STATUS_V2_KEYS = Object.freeze([
   'schema_version', 'mode', 'readiness', 'checked_at', 'partition',
-  'permission_state', 'asana_permission_state', 'repository_count',
+  'github_scope', 'permission_state', 'asana_permission_state', 'repository_count',
   'repositories', 'asana_project_count', 'asana_projects', 'tool_count',
   'checks', 'boundaries',
 ]);
@@ -145,7 +145,7 @@ export function allowlistStatus(payload) {
   const isV3 = payload?.schema_version === '3';
   if ((!isV2 && !isV3) || !hasExactKeys(payload, isV3 ? STATUS_V3_KEYS : STATUS_V2_KEYS)) return null;
   const {
-    schema_version, mode, readiness, checked_at, partition, permission_state,
+    schema_version, mode, readiness, checked_at, partition, github_scope, permission_state,
     asana_permission_state, repository_count, repositories,
     asana_project_count, asana_projects, tool_count, checks, boundaries,
   } = payload;
@@ -160,6 +160,7 @@ export function allowlistStatus(payload) {
     (isV2 && tool_count !== EXACT_V2_TOOL_COUNT) ||
     (isV3 && tool_count !== EXACT_V3_TOOL_COUNT) ||
     mode !== 'local_nonproduction' ||
+    !['exact_four', 'blondarb_estate'].includes(github_scope) ||
     !['ready', 'blocked'].includes(readiness) ||
     !isIsoTimestamp(checked_at) ||
     partition !== 'product_development' ||
@@ -210,7 +211,8 @@ export function allowlistStatus(payload) {
   const allChecksPassed = safeChecks.every((check) => check.passed);
   if (readiness === 'ready' &&
     (permission_state !== 'current' || asana_permission_state !== 'current' ||
-      repository_count < 1 || asana_project_count < 1 || !allChecksPassed)) return null;
+      repository_count < 1 || asana_project_count < 1 || !allChecksPassed ||
+      (github_scope === 'exact_four' && repository_count !== 4))) return null;
   if (readiness === 'blocked' &&
     (repository_count !== 0 || safeRepositories.length !== 0 ||
       asana_project_count !== 0 || safeAsanaProjects.length !== 0 ||
@@ -224,6 +226,7 @@ export function allowlistStatus(payload) {
   if (boundaries.audit_logging !== true) return null;
   return {
     schema_version, mode: 'local_nonproduction', readiness, checked_at,
+    github_scope,
     partition: 'product_development', permission_state, asana_permission_state,
     repository_count, repositories: safeRepositories,
     asana_project_count, asana_projects: safeAsanaProjects,
