@@ -7,6 +7,7 @@
  */
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
+import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -20,6 +21,7 @@ const TIMEOUT_MS = 5_000;
 // arguments, or source content.
 const EXACT_V2_TOOL_COUNT = 11;
 const EXACT_V3_TOOL_COUNT = 22;
+const EXACT_V4_TOOL_COUNT = 31;
 const MAX_AUTHORIZED_REPOSITORIES = 500;
 export const CHECK_CODES = Object.freeze([
   'postgres_version',
@@ -58,12 +60,25 @@ const STATUS_V3_KEYS = Object.freeze([
   ...STATUS_V2_KEYS,
   'active_project_count', 'stale_project_count', 'projects_without_owner_count',
 ]);
+const STATUS_V4_KEYS = Object.freeze([...STATUS_V3_KEYS, 'capabilities']);
+const CAPABILITY_KEYS = Object.freeze([
+  'profile', 'base_read_tools', 'repository_text', 'shared_handoffs',
+  'asana_actions', 'github_actions', 'automatic_metadata_refresh',
+  'microsoft_graph', 'secret_delivery', 'phi', 'remote_mcp', 'production',
+]);
 const REPOSITORY_KEYS = Object.freeze(['full_name', 'retrieved_at']);
 const ASANA_PROJECT_KEYS = Object.freeze(['name', 'status', 'retrieved_at']);
 const CHECK_KEYS = Object.freeze(['code', 'passed', 'detail_code']);
 const BOUNDARY_KEYS = Object.freeze([
   'content', 'phi', 'source_writes', 'canonical_data_writes', 'scheduling',
   'remote_mcp', 'production', 'audit_logging',
+]);
+const ACTION_PREVIEW_KEYS = Object.freeze([
+  'consumer', 'preview_id', 'action', 'action_sha256', 'expires_at',
+  'requires_explicit_user_confirmation', 'source_write_performed',
+]);
+const ACTION_RESULT_KEYS = Object.freeze([
+  'operation_id', 'action', 'outcome', 'source_object_gid', 'source_write_performed',
 ]);
 
 function requestHostIsLoopback(host = '') {
@@ -88,6 +103,42 @@ function hasExactKeys(value, keys) {
 
 function isSafeMetadataText(value) {
   return typeof value === 'string' && value.length > 0 && value.length <= 250 && !/[\u0000-\u001f\u007f]/.test(value);
+}
+
+function isUuid(value) {
+  return typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
+function isNumericGid(value) {
+  return typeof value === 'string' && /^[0-9]{1,32}$/.test(value);
+}
+
+function hasOnlyKeys(value, allowed) {
+  return value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).every((key) => allowed.includes(key));
+}
+
+function isSafeAction(action) {
+  if (!action || typeof action !== 'object' || Array.isArray(action) || !isNumericGid(action.workspace_gid)) return false;
+  const common = ['action', 'workspace_gid'];
+  const contentText = (value, maximum) => isSafeMetadataText(value) && value.length <= maximum;
+  if (action.action === 'create_task') return hasOnlyKeys(action, [...common, 'project_gid', 'name', 'assignee_gid', 'due_on', 'due_at', 'content_attested_phi_free']) && isNumericGid(action.project_gid) && contentText(action.name, 500) && action.content_attested_phi_free === true && (action.assignee_gid === undefined || isNumericGid(action.assignee_gid)) && (action.due_on === undefined || typeof action.due_on === 'string') && (action.due_at === undefined || isIsoTimestamp(action.due_at));
+  if (action.action === 'update_task') return hasOnlyKeys(action, [...common, 'task_gid', 'name', 'due_on', 'due_at', 'content_attested_phi_free']) && isNumericGid(action.task_gid) && action.content_attested_phi_free === true && (action.name === undefined || contentText(action.name, 500)) && (action.due_on !== undefined || action.due_at !== undefined || action.name !== undefined) && (action.due_on === undefined || typeof action.due_on === 'string') && (action.due_at === undefined || isIsoTimestamp(action.due_at));
+  if (action.action === 'complete_task') return hasExactKeys(action, [...common, 'task_gid']) && isNumericGid(action.task_gid);
+  if (action.action === 'comment_task') return hasExactKeys(action, [...common, 'task_gid', 'text', 'content_attested_phi_free']) && isNumericGid(action.task_gid) && contentText(action.text, 2000) && action.content_attested_phi_free === true;
+  if (action.action === 'assign_task') return hasExactKeys(action, [...common, 'task_gid', 'assignee_gid']) && isNumericGid(action.task_gid) && isNumericGid(action.assignee_gid);
+  return false;
+}
+
+function safeCapabilities(value) {
+  const expected = {
+    profile: 'local_product_v1', base_read_tools: 22,
+    repository_text: 'on_demand_permission_checked', shared_handoffs: 'canonical_postgresql',
+    asana_actions: 'preview_then_local_confirmation', github_actions: 'not_implemented',
+    automatic_metadata_refresh: 'foreground_session_only', microsoft_graph: 'not_connected',
+    secret_delivery: 'broker_memory_only', phi: false, remote_mcp: false, production: false,
+  };
+  if (!hasExactKeys(value, CAPABILITY_KEYS)) return null;
+  return CAPABILITY_KEYS.every((key) => value[key] === expected[key]) ? expected : null;
 }
 
 /**
@@ -143,13 +194,14 @@ export function loadConfig(env = process.env) {
 export function allowlistStatus(payload) {
   const isV2 = payload?.schema_version === '2';
   const isV3 = payload?.schema_version === '3';
-  if ((!isV2 && !isV3) || !hasExactKeys(payload, isV3 ? STATUS_V3_KEYS : STATUS_V2_KEYS)) return null;
+  const isV4 = payload?.schema_version === '4';
+  if ((!isV2 && !isV3 && !isV4) || !hasExactKeys(payload, isV4 ? STATUS_V4_KEYS : isV3 ? STATUS_V3_KEYS : STATUS_V2_KEYS)) return null;
   const {
     schema_version, mode, readiness, checked_at, partition, github_scope, permission_state,
     asana_permission_state, repository_count, repositories,
     asana_project_count, asana_projects, tool_count, checks, boundaries,
   } = payload;
-  const projectIntelligence = isV3
+  const projectIntelligence = (isV3 || isV4)
     ? {
       active_project_count: payload.active_project_count,
       stale_project_count: payload.stale_project_count,
@@ -159,6 +211,7 @@ export function allowlistStatus(payload) {
   if (
     (isV2 && tool_count !== EXACT_V2_TOOL_COUNT) ||
     (isV3 && tool_count !== EXACT_V3_TOOL_COUNT) ||
+    (isV4 && tool_count !== EXACT_V4_TOOL_COUNT) ||
     mode !== 'local_nonproduction' ||
     !['exact_four', 'blondarb_estate'].includes(github_scope) ||
     !['ready', 'blocked'].includes(readiness) ||
@@ -222,8 +275,13 @@ export function allowlistStatus(payload) {
 
   const expectedBoundaryKeys = ['content', 'phi', 'source_writes', 'canonical_data_writes', 'scheduling', 'remote_mcp', 'production'];
   if (!hasExactKeys(boundaries, BOUNDARY_KEYS)) return null;
-  if (expectedBoundaryKeys.some((key) => boundaries[key] !== false)) return null;
+  const expectedBoundaries = isV4
+    ? { content: true, phi: false, source_writes: true, canonical_data_writes: true, scheduling: true, remote_mcp: false, production: false }
+    : Object.fromEntries(expectedBoundaryKeys.map((key) => [key, false]));
+  if (expectedBoundaryKeys.some((key) => boundaries[key] !== expectedBoundaries[key])) return null;
   if (boundaries.audit_logging !== true) return null;
+  const capabilities = isV4 ? safeCapabilities(payload.capabilities) : null;
+  if (isV4 && !capabilities) return null;
   return {
     schema_version, mode: 'local_nonproduction', readiness, checked_at,
     github_scope,
@@ -231,8 +289,9 @@ export function allowlistStatus(payload) {
     repository_count, repositories: safeRepositories,
     asana_project_count, asana_projects: safeAsanaProjects,
     tool_count, checks: safeChecks,
-    boundaries: { ...Object.fromEntries(expectedBoundaryKeys.map((key) => [key, false])), audit_logging: true },
+    boundaries: { ...expectedBoundaries, audit_logging: true },
     ...(projectIntelligence ?? {}),
+    ...(capabilities ? { capabilities } : {}),
   };
 }
 
@@ -243,6 +302,48 @@ function sameOriginStatusRequest(request) {
   const origin = request.headers.origin;
   if (origin && origin !== `http://${request.headers.host}`) return false;
   return true;
+}
+
+function sameOriginActionRequest(request, { requireOrigin = false } = {}) {
+  if (request.headers['x-sevaro-local-actions'] !== '1') return false;
+  const fetchSite = request.headers['sec-fetch-site'];
+  if (fetchSite && fetchSite !== 'same-origin') return false;
+  const origin = request.headers.origin;
+  if (requireOrigin && origin !== `http://${request.headers.host}`) return false;
+  if (!requireOrigin && origin && origin !== `http://${request.headers.host}`) return false;
+  return true;
+}
+
+function actionUrl(config) {
+  const upstream = new URL(config.upstreamUrl);
+  upstream.pathname = '/v1/actions';
+  return upstream.toString();
+}
+
+function allowlistActions(payload) {
+  if (!hasExactKeys(payload, ['previews']) || !Array.isArray(payload.previews) || payload.previews.length > 50) return null;
+  const previews = payload.previews.map((preview) => {
+    if (!hasExactKeys(preview, ACTION_PREVIEW_KEYS) ||
+      !['codex', 'claude_code'].includes(preview.consumer) || !isUuid(preview.preview_id) ||
+      !isSafeAction(preview.action) || !isSafeCode(preview.action_sha256) ||
+      !/^[0-9a-f]{64}$/.test(preview.action_sha256) || !isIsoTimestamp(preview.expires_at) ||
+      preview.requires_explicit_user_confirmation !== true || preview.source_write_performed !== false) return null;
+    return { consumer: preview.consumer, preview_id: preview.preview_id, action: preview.action, action_sha256: preview.action_sha256, expires_at: preview.expires_at, requires_explicit_user_confirmation: true, source_write_performed: false };
+  });
+  return previews.includes(null) ? null : { previews };
+}
+
+function allowlistActionResult(payload) {
+  if (!hasExactKeys(payload, ACTION_RESULT_KEYS) || !isUuid(payload.operation_id) ||
+    !['create_task', 'update_task', 'complete_task', 'comment_task', 'assign_task'].includes(payload.action) ||
+    payload.outcome !== 'succeeded' || !isNumericGid(payload.source_object_gid) ||
+    payload.source_write_performed !== true) return null;
+  return { operation_id: payload.operation_id, action: payload.action, outcome: 'succeeded', source_object_gid: payload.source_object_gid, source_write_performed: true };
+}
+
+function validCsrfNonce(candidate, nonce) {
+  if (typeof candidate !== 'string' || candidate.length !== nonce.length) return false;
+  return timingSafeEqual(Buffer.from(candidate), Buffer.from(nonce));
 }
 
 function respond(response, statusCode, body, contentType = 'application/json; charset=utf-8') {
@@ -279,17 +380,80 @@ async function fetchStatus(config, fetchImpl = fetch) {
   }
 }
 
+async function fetchActions(config, fetchImpl = fetch) {
+  try {
+    const upstream = await fetchImpl(actionUrl(config), {
+      method: 'GET', headers: { authorization: `Bearer ${config.bearer}`, accept: 'application/json' },
+    });
+    if (!upstream.ok) return null;
+    return allowlistActions(await upstream.json());
+  } catch {
+    return null;
+  }
+}
+
+async function confirmAction(config, consumer, previewId, fetchImpl = fetch) {
+  try {
+    const upstream = await fetchImpl(`${actionUrl(config)}/${consumer}/${previewId}/confirm`, {
+      method: 'POST', headers: { authorization: `Bearer ${config.bearer}`, accept: 'application/json', 'content-length': '0' },
+    });
+    if (!upstream.ok) {
+      const body = await upstream.json().catch(() => null);
+      return body?.detail === 'action_outcome_uncertain' || body?.error === 'action_outcome_uncertain'
+        ? { uncertain: true } : null;
+    }
+    const result = allowlistActionResult(await upstream.json());
+    return result ? { result } : null;
+  } catch {
+    return null;
+  }
+}
+
 export function createLocalDashboardServer({ config = loadConfig(), fetchImpl = fetch } = {}) {
+  const csrfNonce = randomBytes(32).toString('base64url');
   return createServer(async (request, response) => {
     if (!requestHostIsLoopback(request.headers.host)) {
       respond(response, 421, JSON.stringify({ error: 'loopback_host_required' }));
+      return;
+    }
+    const pathname = new URL(request.url || '/', 'http://127.0.0.1').pathname;
+    if (request.method === 'GET' && pathname === '/api/actions') {
+      if (!sameOriginActionRequest(request)) {
+        respond(response, 403, JSON.stringify({ error: 'same_origin_required' }));
+        return;
+      }
+      const actions = await fetchActions(config, fetchImpl);
+      if (!actions) return genericFailure(response);
+      respond(response, 200, JSON.stringify({ ...actions, csrf_nonce: csrfNonce }));
+      return;
+    }
+    const confirmMatch = request.method === 'POST' && /^\/api\/actions\/(codex|claude_code)\/([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})\/confirm$/i.exec(pathname);
+    if (confirmMatch) {
+      if (!sameOriginActionRequest(request, { requireOrigin: true }) || !validCsrfNonce(request.headers['x-control-plane-confirmation'], csrfNonce)) {
+        respond(response, 403, JSON.stringify({ error: 'confirmation_denied' }));
+        return;
+      }
+      let requestBytes = 0;
+      for await (const chunk of request) {
+        requestBytes += chunk.length;
+        if (requestBytes > 0) {
+          respond(response, 413, JSON.stringify({ error: 'confirmation_body_forbidden' }));
+          return;
+        }
+      }
+      const confirmed = await confirmAction(config, confirmMatch[1], confirmMatch[2], fetchImpl);
+      if (confirmed?.uncertain) {
+        respond(response, 409, JSON.stringify({ error: 'action_outcome_uncertain' }));
+        return;
+      }
+      if (!confirmed?.result) return genericFailure(response);
+      respond(response, 200, JSON.stringify(confirmed.result));
       return;
     }
     if (request.method !== 'GET') {
       respond(response, 405, JSON.stringify({ error: 'get_only' }));
       return;
     }
-    const pathname = new URL(request.url || '/', 'http://127.0.0.1').pathname;
     if (pathname === '/api/status') {
       if (!sameOriginStatusRequest(request)) {
         respond(response, 403, JSON.stringify({ error: 'same_origin_required' }));

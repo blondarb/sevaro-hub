@@ -7,6 +7,8 @@ const config = { uiHost: '127.0.0.1' as const, uiPort: 43123, upstreamUrl: upstr
 const approved = ['blondarb/sevaro-agent-memory', 'blondarb/ai-setup-atlas', 'blondarb/project-docs', 'blondarb/sevaro-hub'];
 const status = () => ({ schema_version: '2', mode: 'local_nonproduction', readiness: 'ready', checked_at: '2026-08-06T12:00:00Z', partition: 'product_development', github_scope: 'exact_four', permission_state: 'current', asana_permission_state: 'current', repository_count: 4, repositories: approved.map((full_name) => ({ full_name, retrieved_at: '2026-08-06T11:00:00Z' })), asana_project_count: 2, asana_projects: [{ name: 'Portfolio', status: 'on_track', retrieved_at: '2026-08-06T11:00:00Z' }, { name: 'Team Ops', status: 'at_risk', retrieved_at: '2026-08-06T11:00:00Z' }], tool_count: 11, checks: CHECK_CODES.map((code) => ({ code, passed: true, detail_code: 'passed' })), boundaries: { content: false, phi: false, source_writes: false, canonical_data_writes: false, scheduling: false, remote_mcp: false, production: false, audit_logging: true } });
 const broadStatus = () => ({ ...status(), schema_version: '3', github_scope: 'blondarb_estate', tool_count: 22, active_project_count: 2, stale_project_count: 1, projects_without_owner_count: 0 });
+const productStatus = () => ({ ...broadStatus(), schema_version: '4', tool_count: 31, boundaries: { content: true, phi: false, source_writes: true, canonical_data_writes: true, scheduling: true, remote_mcp: false, production: false, audit_logging: true }, capabilities: { profile: 'local_product_v1', base_read_tools: 22, repository_text: 'on_demand_permission_checked', shared_handoffs: 'canonical_postgresql', asana_actions: 'preview_then_local_confirmation', github_actions: 'not_implemented', automatic_metadata_refresh: 'foreground_session_only', microsoft_graph: 'not_connected', secret_delivery: 'broker_memory_only', phi: false, remote_mcp: false, production: false } });
+const actionPreview = { consumer: 'codex', preview_id: '123e4567-e89b-42d3-a456-426614174000', action: { action: 'complete_task', workspace_gid: '1202528578803653', task_gid: '55' }, action_sha256: 'a'.repeat(64), expires_at: '2026-09-04T12:05:00Z', requires_explicit_user_confirmation: true, source_write_performed: false };
 const servers: import('node:http').Server[] = [];
 
 async function start(options: Parameters<typeof createLocalDashboardServer>[0]) {
@@ -69,6 +71,12 @@ describe('status allowlisting', () => {
     const blockedWithAggregate = broadStatus(); blockedWithAggregate.readiness = 'blocked'; blockedWithAggregate.permission_state = 'refresh_required'; blockedWithAggregate.asana_permission_state = 'refresh_required'; blockedWithAggregate.repository_count = 0; blockedWithAggregate.repositories = []; blockedWithAggregate.asana_project_count = 0; blockedWithAggregate.asana_projects = [];
     expect(allowlistStatus(blockedWithAggregate)).toBeNull();
   });
+  it('accepts schema-v4 only with exact local-product capabilities and boundaries', () => {
+    expect(allowlistStatus(productStatus())).toMatchObject({ schema_version: '4', tool_count: 31, capabilities: { asana_actions: 'preview_then_local_confirmation' }, boundaries: { source_writes: true, phi: false } });
+    const wrongCapabilities = productStatus(); wrongCapabilities.capabilities.github_actions = 'enabled'; expect(allowlistStatus(wrongCapabilities)).toBeNull();
+    const wrongBoundary = productStatus(); wrongBoundary.boundaries.scheduling = false; expect(allowlistStatus(wrongBoundary)).toBeNull();
+    const wrongCount = productStatus(); wrongCount.tool_count = 22; expect(allowlistStatus(wrongCount)).toBeNull();
+  });
   it('accepts bounded, metadata-only authorized repository estates and rejects malformed entries', () => {
     const estate = status(); estate.github_scope = 'blondarb_estate'; estate.repository_count = 5; estate.repositories = [...estate.repositories, { full_name: 'sevaro-labs/control-plane', retrieved_at: '2026-08-06T11:00:00Z' }];
     expect(allowlistStatus(estate)).toMatchObject({ repository_count: 5 });
@@ -120,6 +128,21 @@ describe('status allowlisting', () => {
 });
 
 describe('local HTTP guards', () => {
+  it('preserves FastAPI uncertain outcomes without retrying the upstream write', async () => {
+    let writes = 0;
+    const base = await start({ config, fetchImpl: async (url) => {
+      if (String(url).endsWith('/v1/actions')) return new Response(JSON.stringify({ previews: [actionPreview] }));
+      writes += 1;
+      return new Response(JSON.stringify({ detail: 'action_outcome_uncertain' }), { status: 409 });
+    } });
+    const payload = await (await fetch(`${base}/api/actions`, { headers: { 'x-sevaro-local-actions': '1' } })).json();
+    const result = await fetch(`${base}/api/actions/codex/${actionPreview.preview_id}/confirm`, {
+      method: 'POST', headers: { 'x-sevaro-local-actions': '1', origin: base, 'x-control-plane-confirmation': payload.csrf_nonce },
+    });
+    expect(result.status).toBe(409);
+    expect(await result.json()).toEqual({ error: 'action_outcome_uncertain' });
+    expect(writes).toBe(1);
+  });
   it('allows GET status, but not upstream details', async () => {
     const received: { url?: string; auth?: string } = {};
     const base = await start({ config, fetchImpl: async (url, init) => { received.url = String(url); received.auth = new Headers(init?.headers).get('authorization') ?? undefined; return new Response(JSON.stringify(status()), { status: 200 }); } });
@@ -147,5 +170,19 @@ describe('local HTTP guards', () => {
     const response = await fetch(`${base}/api/status`, { headers: { 'x-sevaro-local-status': '1' } }); const body = await response.text();
     expect(response.status).toBe(502); expect(body).toBe('{"error":"control_plane_status_unavailable"}');
     expect(body).not.toContain('private failure');
+  });
+  it('proxies only safe action previews and requires same-origin nonce confirmation', async () => {
+    const calls: Array<{ url: string; init: RequestInit | undefined }> = [];
+    const base = await start({ config, fetchImpl: async (url, init) => { calls.push({ url: String(url), init }); if (String(url).endsWith('/v1/actions')) return new Response(JSON.stringify({ previews: [actionPreview] })); return new Response(JSON.stringify({ operation_id: '123e4567-e89b-42d3-a456-426614174001', action: 'complete_task', outcome: 'succeeded', source_object_gid: '55', source_write_performed: true })); } });
+    const actions = await fetch(`${base}/api/actions`, { headers: { 'x-sevaro-local-actions': '1' } }); const payload = await actions.json();
+    expect(actions.status).toBe(200); expect(payload.previews[0]).not.toHaveProperty('confirmation_token'); expect(payload.csrf_nonce).toHaveLength(43); expect(calls[0].url).toBe('http://127.0.0.1:9999/v1/actions');
+    const denied = await fetch(`${base}/api/actions/codex/${actionPreview.preview_id}/confirm`, { method: 'POST', headers: { 'x-sevaro-local-actions': '1', origin: base } }); expect(denied.status).toBe(403);
+    const confirmed = await fetch(`${base}/api/actions/codex/${actionPreview.preview_id}/confirm`, { method: 'POST', headers: { 'x-sevaro-local-actions': '1', origin: base, 'x-control-plane-confirmation': payload.csrf_nonce } }); expect(confirmed.status).toBe(200); expect(calls[1].url).toBe(`http://127.0.0.1:9999/v1/actions/codex/${actionPreview.preview_id}/confirm`); expect(new Headers(calls[1].init?.headers).get('authorization')).toBe('Bearer test-bearer'); expect(JSON.stringify(await confirmed.json())).not.toContain('test-bearer');
+  });
+  it('rejects action injection, foreign origins, bodies, and redacts upstream errors', async () => {
+    let calls = 0; const base = await start({ config, fetchImpl: async () => { calls += 1; return new Response(JSON.stringify({ previews: [{ ...actionPreview, action: { ...actionPreview.action, unexpected: '<img>' } }] })); } });
+    const foreign = await fetch(`${base}/api/actions`, { headers: { 'x-sevaro-local-actions': '1', origin: 'https://evil.example' } }); expect(foreign.status).toBe(403);
+    const malformed = await fetch(`${base}/api/actions`, { headers: { 'x-sevaro-local-actions': '1' } }); expect(malformed.status).toBe(502); expect(await malformed.text()).not.toContain('img');
+    expect(calls).toBe(1);
   });
 });
