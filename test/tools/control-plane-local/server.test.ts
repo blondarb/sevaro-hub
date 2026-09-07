@@ -179,6 +179,19 @@ describe('local HTTP guards', () => {
     const denied = await fetch(`${base}/api/actions/${actionPreview.preview_id}/confirm`, { method: 'POST', headers: { 'x-sevaro-local-actions': '1', origin: base } }); expect(denied.status).toBe(403);
     const confirmed = await fetch(`${base}/api/actions/${actionPreview.preview_id}/confirm`, { method: 'POST', headers: { 'x-sevaro-local-actions': '1', origin: base, 'x-control-plane-confirmation': payload.csrf_nonce } }); expect(confirmed.status).toBe(200); expect(calls[1].url).toBe(`http://127.0.0.1:9999/v1/actions/${actionPreview.preview_id}/confirm`); expect(new Headers(calls[1].init?.headers).get('authorization')).toBe('Bearer test-bearer'); expect(JSON.stringify(await confirmed.json())).not.toContain('test-bearer');
   });
+  it('accepts the full bounded comment contract rather than the metadata label limit', async () => {
+    const commentPreview = {
+      ...actionPreview,
+      action: {
+        action: 'comment_task', workspace_gid: '1202528578803653', task_gid: '55',
+        text: 'x'.repeat(2000), content_attested_phi_free: true,
+      },
+    };
+    const base = await start({ config, fetchImpl: async () => new Response(JSON.stringify({ previews: [commentPreview] })) });
+    const accepted = await fetch(`${base}/api/actions`, { headers: { 'x-sevaro-local-actions': '1' } });
+    expect(accepted.status).toBe(200);
+    expect((await accepted.json()).previews[0].action.text).toHaveLength(2000);
+  });
   it('rejects action injection, foreign origins, bodies, and redacts upstream errors', async () => {
     let calls = 0; const base = await start({ config, fetchImpl: async () => { calls += 1; return new Response(JSON.stringify({ previews: [{ ...actionPreview, action: { ...actionPreview.action, unexpected: '<img>' } }] })); } });
     const foreign = await fetch(`${base}/api/actions`, { headers: { 'x-sevaro-local-actions': '1', origin: 'https://evil.example' } }); expect(foreign.status).toBe(403);

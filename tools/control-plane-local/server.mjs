@@ -120,7 +120,8 @@ function hasOnlyKeys(value, allowed) {
 function isSafeAction(action) {
   if (!action || typeof action !== 'object' || Array.isArray(action) || !isNumericGid(action.workspace_gid)) return false;
   const common = ['action', 'workspace_gid'];
-  const contentText = (value, maximum) => isSafeMetadataText(value) && value.length <= maximum;
+  const contentText = (value, maximum) => typeof value === 'string' && value.length > 0 &&
+    value.length <= maximum && !/[\u0000-\u001f\u007f]/.test(value);
   if (action.action === 'create_task') return hasOnlyKeys(action, [...common, 'project_gid', 'name', 'assignee_gid', 'due_on', 'due_at', 'content_attested_phi_free']) && isNumericGid(action.project_gid) && contentText(action.name, 500) && action.content_attested_phi_free === true && (action.assignee_gid === undefined || isNumericGid(action.assignee_gid)) && (action.due_on === undefined || typeof action.due_on === 'string') && (action.due_at === undefined || isIsoTimestamp(action.due_at));
   if (action.action === 'update_task') return hasOnlyKeys(action, [...common, 'task_gid', 'name', 'due_on', 'due_at', 'content_attested_phi_free']) && isNumericGid(action.task_gid) && action.content_attested_phi_free === true && (action.name === undefined || contentText(action.name, 500)) && (action.due_on !== undefined || action.due_at !== undefined || action.name !== undefined) && (action.due_on === undefined || typeof action.due_on === 'string') && (action.due_at === undefined || isIsoTimestamp(action.due_at));
   if (action.action === 'complete_task') return hasExactKeys(action, [...common, 'task_gid']) && isNumericGid(action.task_gid);
