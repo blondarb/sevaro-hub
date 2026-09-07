@@ -38,7 +38,7 @@ async function loadActions() {
       const node = document.createElement('li');
       node.className = 'repository';
       const detail = document.createElement('span');
-      detail.textContent = `${preview.consumer} · ${preview.action.action} · expires ${formatTime(preview.expires_at)}`;
+      detail.textContent = `${preview.proposer_consumers.join(' + ')} · ${preview.action.action} · expires ${formatTime(preview.expires_at)} · SHA-256 ${preview.action_sha256}`;
       const exactChange = document.createElement('pre');
       exactChange.textContent = JSON.stringify(preview.action, null, 2);
       const button = document.createElement('button');
@@ -67,7 +67,7 @@ async function loadActions() {
         button.disabled = true;
         text('action-message', 'Confirming this one proposed action…');
         try {
-          const confirmed = await fetch(`/api/actions/${preview.consumer}/${preview.preview_id}/confirm`, {
+          const confirmed = await fetch(`/api/actions/${preview.preview_id}/confirm`, {
             method: 'POST',
             headers: { 'x-sevaro-local-actions': '1', 'x-control-plane-confirmation': actions.csrf_nonce },
           });

@@ -74,7 +74,7 @@ const BOUNDARY_KEYS = Object.freeze([
   'remote_mcp', 'production', 'audit_logging',
 ]);
 const ACTION_PREVIEW_KEYS = Object.freeze([
-  'consumer', 'preview_id', 'action', 'action_sha256', 'expires_at',
+  'preview_id', 'action', 'action_sha256', 'expires_at', 'proposer_consumers',
   'requires_explicit_user_confirmation', 'source_write_performed',
 ]);
 const ACTION_RESULT_KEYS = Object.freeze([
@@ -324,11 +324,14 @@ function allowlistActions(payload) {
   if (!hasExactKeys(payload, ['previews']) || !Array.isArray(payload.previews) || payload.previews.length > 50) return null;
   const previews = payload.previews.map((preview) => {
     if (!hasExactKeys(preview, ACTION_PREVIEW_KEYS) ||
-      !['codex', 'claude_code'].includes(preview.consumer) || !isUuid(preview.preview_id) ||
+      !isUuid(preview.preview_id) || !Array.isArray(preview.proposer_consumers) ||
+      preview.proposer_consumers.length < 1 || preview.proposer_consumers.length > 2 ||
+      new Set(preview.proposer_consumers).size !== preview.proposer_consumers.length ||
+      !preview.proposer_consumers.every((consumer) => ['codex', 'claude_code'].includes(consumer)) ||
       !isSafeAction(preview.action) || !isSafeCode(preview.action_sha256) ||
       !/^[0-9a-f]{64}$/.test(preview.action_sha256) || !isIsoTimestamp(preview.expires_at) ||
       preview.requires_explicit_user_confirmation !== true || preview.source_write_performed !== false) return null;
-    return { consumer: preview.consumer, preview_id: preview.preview_id, action: preview.action, action_sha256: preview.action_sha256, expires_at: preview.expires_at, requires_explicit_user_confirmation: true, source_write_performed: false };
+    return { preview_id: preview.preview_id, action: preview.action, action_sha256: preview.action_sha256, expires_at: preview.expires_at, proposer_consumers: preview.proposer_consumers, requires_explicit_user_confirmation: true, source_write_performed: false };
   });
   return previews.includes(null) ? null : { previews };
 }
@@ -392,9 +395,9 @@ async function fetchActions(config, fetchImpl = fetch) {
   }
 }
 
-async function confirmAction(config, consumer, previewId, fetchImpl = fetch) {
+async function confirmAction(config, previewId, fetchImpl = fetch) {
   try {
-    const upstream = await fetchImpl(`${actionUrl(config)}/${consumer}/${previewId}/confirm`, {
+    const upstream = await fetchImpl(`${actionUrl(config)}/${previewId}/confirm`, {
       method: 'POST', headers: { authorization: `Bearer ${config.bearer}`, accept: 'application/json', 'content-length': '0' },
     });
     if (!upstream.ok) {
@@ -427,7 +430,7 @@ export function createLocalDashboardServer({ config = loadConfig(), fetchImpl = 
       respond(response, 200, JSON.stringify({ ...actions, csrf_nonce: csrfNonce }));
       return;
     }
-    const confirmMatch = request.method === 'POST' && /^\/api\/actions\/(codex|claude_code)\/([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})\/confirm$/i.exec(pathname);
+    const confirmMatch = request.method === 'POST' && /^\/api\/actions\/([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})\/confirm$/i.exec(pathname);
     if (confirmMatch) {
       if (!sameOriginActionRequest(request, { requireOrigin: true }) || !validCsrfNonce(request.headers['x-control-plane-confirmation'], csrfNonce)) {
         respond(response, 403, JSON.stringify({ error: 'confirmation_denied' }));
@@ -441,7 +444,7 @@ export function createLocalDashboardServer({ config = loadConfig(), fetchImpl = 
           return;
         }
       }
-      const confirmed = await confirmAction(config, confirmMatch[1], confirmMatch[2], fetchImpl);
+      const confirmed = await confirmAction(config, confirmMatch[1], fetchImpl);
       if (confirmed?.uncertain) {
         respond(response, 409, JSON.stringify({ error: 'action_outcome_uncertain' }));
         return;

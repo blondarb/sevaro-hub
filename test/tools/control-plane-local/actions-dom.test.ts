@@ -14,7 +14,8 @@ it('shows exact target and inert payload, requires attestation and never re-enab
       return { status: 409, ok: false, json: async () => ({ error: 'action_outcome_uncertain' }) };
     }
     return { ok: true, json: async () => ({ csrf_nonce: 'synthetic-csrf', previews: [{
-      consumer: 'codex', preview_id: '123e4567-e89b-42d3-a456-426614174000',
+      proposer_consumers: ['codex', 'claude_code'], preview_id: '123e4567-e89b-42d3-a456-426614174000',
+      action_sha256: 'a'.repeat(64),
       expires_at: '2030-01-01T00:00:00Z', action: { action: 'comment_task', task_gid: '12345', text: hostile },
     }] }) };
   }));
