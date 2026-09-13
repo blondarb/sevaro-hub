@@ -79,7 +79,7 @@ export default {
       const reason = ['snapshot_expired','approval_expired','review_required','real_data_disabled','approval_required','release_not_approved','digest_mismatch','context_unavailable'].includes(error?.code) ? error.code : 'invalid_context';
       if (url.pathname === '/api/status' && !url.search) return response({state:'unavailable',reason},409);
       if (url.pathname === '/' && !url.search) {
-        const shell = page.replace('__SNAPSHOT_ID__', 'unavailable').replace('__VIEW_ID__', 'unavailable').replace('__CLASSIFICATION__', 'unavailable');
+        const shell = page.replace('__SNAPSHOT_ID__', 'unavailable').replace('__VIEW_ID__', 'unavailable').replace('__CLASSIFICATION__', 'unavailable').replace('</head>', '<meta name="context-failure" content="'+reason+'"></head>');
         return response(shell, 200, 'text/html; charset=utf-8', {'X-Context-State':'unavailable'});
       }
       return response({ error: 'context_unavailable_or_reference_invalid' }, 409);
