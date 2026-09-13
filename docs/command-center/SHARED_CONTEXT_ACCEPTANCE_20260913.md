@@ -12,8 +12,12 @@ Both private deployments succeeded. Their content-derived snapshot/view IDs matc
 what the browser displayed and its authenticated read tools returned. Item two was
 Harbor dependency in each. Calling the old pinned tool after B was deployed refused;
 reloading acquired B and returned its updated fictional context. No real input was
-uploaded. Revision 4 removes the temporary runtime test snapshots and returns the
-new source to the original immutable synthetic proof, preserving owner binding.
+uploaded. Revision 4 removed the temporary runtime settings, but version 2 then returned
+409 instead of its fixed fallback. The exact runtime representation of removed
+settings is unconfirmed. Saved version 1 was redeployed successfully at 20:41 UTC
+and visibly restored all three original items. Owner binding was preserved.
+A local correction accepts absent/null/empty pairs only; partial releases remain
+closed. Seventeen affected tests pass. This correction has not been published.
 
 Hosted negative checks from the signed-in browser deliberately omitted cookies:
 normal and forged-identity requests both returned HTTP 401 without context. A third

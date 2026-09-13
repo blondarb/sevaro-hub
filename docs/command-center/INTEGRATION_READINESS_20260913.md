@@ -10,7 +10,7 @@ This is narrower than proving every ChatGPT web/mobile Voice client supports it.
 The next source candidate adds host-side Asana/GitHub metadata adapters, a strict
 Claude export reader, repaired sync-health ingestion, one expiring immutable Today
 snapshot, runtime delivery checks and source-linked numbered read tools. It is not
-a larger dashboard. Saved version 2 is now privately deployed. Protected synthetic A→B delivery passed; the deployment is returned to the original fixed synthetic snapshot after testing.
+a larger dashboard. Saved version 2 was privately deployed and passed protected synthetic A→B delivery. Clearing the test settings then produced a hosted 409. Saved version 1 has been restored and visibly verified working. The version-2 fallback correction is local/tested but not yet published; the exact hosted missing-setting representation remains unconfirmed.
 
 Local metadata reads from Asana and GitHub succeeded and produced a private pending
 proposal. No real proposal was uploaded to Sites or committed to Git. Claude exports
@@ -20,7 +20,7 @@ Historical portfolio JSON is not used as a live feed.
 The independent review found and this candidate fixes hidden Today records in tool
 responses, premature review labels, unsafe private-file placement, empty source
 allowlists, invalid derived views, arbitrary build overwrites and item 100 handling.
-Twenty-six synthetic checks pass, including those regressions. Hosted access and
+Twenty-six synthetic checks passed before deployment. After the hosted rollback finding, seventeen affected checks passed, including one new regression for null/empty removed settings; unchanged adapter/file checks retain their earlier evidence. Hosted access and
 transport receipts below are separate from these local tests.
 
 ## Remaining acceptance gates

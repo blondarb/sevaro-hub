@@ -87,3 +87,12 @@ test('one hundred visible items resolve, but aggregate overflow and bidi text ar
   await assert.rejects(assemble([source({items}),source({source_id:'asana:second',items:[row({source_id:'asana:second',item_id:'asana:second:1'})]})],{...options,expectedSources:['asana:portfolio','asana:second']}),/too_many_items/);
   await assert.rejects(assemble([source({items:[row({context:'Hidden \u202e text'})]})],options),/invalid_text/);
 });
+
+test('removed setting representations restore the fixed proof; partial releases remain closed',async()=>{
+  for(const empty of [undefined,null,'']) {
+    const env={PROOF_OWNER_SITE_USER_ID:'owner',CONTEXT_SNAPSHOT:empty,CONTEXT_RELEASE_SHA256:empty};
+    assert.equal((await worker.fetch(request('/'),env)).status,200);
+  }
+  for(const incomplete of [{CONTEXT_SNAPSHOT:'{}'},{CONTEXT_RELEASE_SHA256:'digest'}])
+    assert.equal((await worker.fetch(request('/'),{PROOF_OWNER_SITE_USER_ID:'owner',...incomplete})).status,409);
+});

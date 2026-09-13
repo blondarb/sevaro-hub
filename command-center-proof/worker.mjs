@@ -38,7 +38,10 @@ export default {
       return response({ site_user_id: viewer, binding_configured: true });
     // No body parsing, upload, action endpoint, request logging or external fetch.
     try {
-      const current = env.CONTEXT_SNAPSHOT === undefined ? snapshot : await loadRuntimeSnapshot(env);
+      // Hosting adapters may represent removed settings as null or empty strings.
+      // Fall back only when BOTH runtime fields are absent; partial/corrupt releases fail closed.
+      const absent = value => value === undefined || value === null || value === '';
+      const current = absent(env.CONTEXT_SNAPSHOT) && absent(env.CONTEXT_RELEASE_SHA256) ? snapshot : await loadRuntimeSnapshot(env);
       const pinnedRead = (snapshotId, viewId) => current === snapshot ? readContext(snapshotId, viewId) : readSnapshot(current, {snapshot_id:snapshotId,view_id:viewId});
       if (url.pathname === '/') {
         pinnedRead(current.snapshot_id, current.view_id);
