@@ -49,3 +49,11 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 ## Gotchas
 
 - SES in sandbox mode — can only send to verified email addresses
+
+## Private Command Center integration
+
+- `command-center/` owns read-only adapters, pending snapshot preparation and approval validation; `command-center-proof/` supplies the existing private Site.
+- Asana remains authoritative for initiative/task/decision state. Claude retains authorized Outlook, meeting, Slack and document workflows; exports are reviewed executive metadata only.
+- See `HANDOFF.md` and `docs/command-center/INTEGRATION_READINESS_20260913.md` for actual deployment/receipt status. No automatic source writes, new scheduler or Site renewal authority.
+- Host tests: `node --test command-center/test/*.test.mjs`; proof tests: `node --test command-center-proof/context.test.mjs`.
+- The older July portfolio implementation remains on `codex/portfolio-operating-system`; it is outside this Command Center PR.

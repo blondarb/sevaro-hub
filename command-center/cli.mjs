@@ -1,0 +1,34 @@
+#!/usr/bin/env node
+// Offline preparation only. No automatic approval, publication or source write command.
+import { writeFile, mkdir, rename, lstat } from 'node:fs/promises';
+import { resolve, dirname } from 'node:path';
+import { homedir } from 'node:os';
+import { privateJson, collectSources } from './collector.mjs';
+import { assemble, ContextError, requireThat } from './context.mjs';
+import { privatePaths } from './private-paths.mjs';
+import { prepareRelease, LINK_HOSTS } from './release.mjs';
+async function main() {
+  const [command, inputPath, outputPath, ...flags] = process.argv.slice(2);
+  requireThat(flags.every(f=>["--review-hours=2","--include-portfolio"].includes(f)) && new Set(flags).size===flags.length, "invalid_review_options");
+  const reviewOption=flags.includes("--review-hours=2");
+  requireThat(['prepare','collect'].includes(command) && inputPath && outputPath, 'usage_prepare_private_input_private_output');
+  const {root:privateRoot,input:canonicalInput,destination}=await privatePaths(resolve(homedir(),'ClaudeSync/handoffs/command-center'),inputPath,outputPath);
+  const config = await privateJson(canonicalInput);
+  const input = command === 'collect' ? await collectSources(config) : config;
+  requireThat(input && Object.keys(input).sort().join(',') === 'expected_sources,feeds', 'unexpected_fields');
+  const snapshot = await assemble(input.feeds, {expectedSources:input.expected_sources, allowedHosts:LINK_HOSTS, classification:'executive-pending-review', ttlMs:reviewOption ? 7200_000 : 900_000, includePortfolio:flags.includes("--include-portfolio")});
+  const release = await prepareRelease(snapshot);
+  await mkdir(dirname(destination), {recursive:true,mode:0o700});
+  // Fixed current/prior slots; reject existing unsafe paths before bounded rotation.
+  const prior = resolve(privateRoot, 'proposed-prior-context.json');
+  for (const path of [destination, prior]) {
+    try { const info = await lstat(path); requireThat(info.isFile() && !info.isSymbolicLink() && info.uid === process.getuid() && (info.mode & 0o077) === 0, 'private_file_required'); }
+    catch (error) { if (error.code !== 'ENOENT') throw error; }
+  }
+  const temporary = resolve(privateRoot, '.proposed-context.tmp');
+  await writeFile(temporary, release.payload+'\n', {mode:0o600,flag:'wx'});
+  try { await rename(destination, prior); } catch (error) { if (error.code !== 'ENOENT') throw error; }
+  await rename(temporary, destination);
+  process.stdout.write(JSON.stringify({status:'review_required',digest:release.digest,expires_at:release.expires_at,item_count:snapshot.items.length})+'\n');
+}
+main().catch(error=>{ process.stderr.write(JSON.stringify({error:error instanceof ContextError ? error.code : 'preparation_failed'})+'\n');process.exitCode=1; });

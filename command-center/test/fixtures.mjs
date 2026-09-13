@@ -1,0 +1,5 @@
+export const NOW = Date.parse('2026-09-13T20:00:00Z');
+export function row(overrides = {}) { return {item_id:'asana:portfolio:101',source_id:'asana:portfolio',source_revision:'2026-09-13T19:59:00Z',source_url:'https://app.asana.com/0/100/101',spoken_name:'Cedar review',kind:'decision',status:'Validate',context:'Fictional design review needs a decision.',recommendation:null,requires_steve:true,due:null,next_event:null,action_state:'awaiting_approval',...overrides}; }
+export function source(overrides = {}) { return {schema_version:1,source_id:'asana:portfolio',system:'asana',observed_at:'2026-09-13T19:59:00Z',expires_at:'2026-09-13T20:59:00Z',status:'available',failure_code:null,items:[row()],...overrides}; }
+export const options = {expectedSources:['asana:portfolio','claude:coordination'],allowedHosts:['app.asana.com'],now:NOW};
+export function entry(overrides = {}) { return {target:'101',spoken_name:'Cedar review',kind:'decision',context:'Fictional review.',recommendation:null,requires_steve:true,next_event:null,action_state:'awaiting_approval',...overrides}; }
