@@ -55,12 +55,12 @@ function validHealth(receipt, now) {
     if (![null, ...SAFE_FAILURES].includes(receipt.last_failure_code) || ![null, ...SAFE_FAILURES].includes(receipt.failure_code)) throw new ContextError('invalid_context');
     if (receipt.candidate_digest !== null && !/^[a-f0-9]{64}$/.test(receipt.candidate_digest)) throw new ContextError('invalid_context');
     if (![null, 'executive-pending-review'].includes(receipt.candidate_classification) || !['fresh','degraded','expired','missing','retained_previous'].includes(receipt.freshness_state) || !['none','used_prior','replaced_invalid_current','missing'].includes(receipt.recovery_state)) throw new ContextError('invalid_context');
-    exact(receipt.source_counts, ['available','unavailable','stale']);
+    exact(receipt.source_counts, ['available','partial','unavailable','stale']);
     if (!Object.values(receipt.source_counts).every(value => Number.isSafeInteger(value) && value >= 0) || !Array.isArray(receipt.sources)) throw new ContextError('invalid_context');
     const ids = new Set();
     for (const source of receipt.sources) {
       exact(source, ['source_id','state','failure_code']); identifier(source.source_id);
-      if (ids.has(source.source_id) || !['available','unavailable','stale'].includes(source.state) || ![null, ...SOURCE_FAILURES].includes(source.failure_code)) throw new ContextError('invalid_context');
+      if (ids.has(source.source_id) || !['available','partial','unavailable','stale'].includes(source.state) || ![null, ...SOURCE_FAILURES].includes(source.failure_code)) throw new ContextError('invalid_context');
       ids.add(source.source_id);
     }
     if (receipt.sources.length > 50 || Object.keys(receipt.source_counts).some(state => receipt.source_counts[state] !== receipt.sources.filter(s => s.state === state).length)) throw new ContextError('invalid_context');
@@ -137,7 +137,7 @@ export function compareCandidates(previous, next) {
 
 function sourceReceipt(snapshot) {
   const sources = (snapshot?.health ?? []).map(({ source_id, state, failure_code }) => ({ source_id, state, failure_code }));
-  const counts = { available: 0, unavailable: 0, stale: 0 };
+  const counts = { available: 0, partial: 0, unavailable: 0, stale: 0 };
   for (const source of sources) counts[source.state]++;
   return { sources, counts };
 }
@@ -170,7 +170,7 @@ export async function refreshOnce({ root, plan, collect = collectSources, now = 
       if (!collected || !Array.isArray(collected.expected_sources) || !Array.isArray(collected.feeds)) throw new ContextError('source_unavailable');
       const next = await assemble(collected.feeds, { expectedSources: collected.expected_sources, allowedHosts: LINK_HOSTS, now, ttlMs, classification: 'executive-pending-review', includePortfolio });
       validatedCollection = next;
-      if(!next.health.some(h=>h.state==='available'))throw new ContextError('source_unavailable');
+      if(!next.health.some(h=>['available','partial'].includes(h.state)))throw new ContextError('source_unavailable');
       const prepared = await prepareRelease(next, now);
       comparison = compareCandidates(previous, next);
 
@@ -190,7 +190,7 @@ export async function refreshOnce({ root, plan, collect = collectSources, now = 
     const receipt = sourceReceipt(validatedCollection ?? candidate);
     if(failure_code && !validatedCollection) {
       receipt.sources=receipt.sources.map(s=>({...s,state:'unavailable',failure_code}));
-      receipt.counts={available:0,unavailable:receipt.sources.length,stale:0};
+      receipt.counts={available:0,partial:0,unavailable:receipt.sources.length,stale:0};
     }
     const health = {
       schema_version: 1,

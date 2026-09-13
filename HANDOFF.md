@@ -20,6 +20,13 @@ only). No secrets._
 
 ## Session log (append-only, newest first)
 
+### 2026-09-13 · ChatGPT · Command Center partial reviewed coverage
+- Did: Added the closed `partial` source and health state for reviewed Claude exports. Fresh partial items can enter the same pending/shared snapshot with an explicit Site health warning; expiry hides them, and failed/unavailable sources still add no items. `claude:replies` has an effective two-hour cap from original observation so late exports cannot revive old reply obligations. Added the one documented Outlook event webLink route without relaxing general query-string rejection.
+- Files/links touched: `command-center/`, `command-center-proof/browser.mjs`, Claude export adoption/readiness docs, shared-context acceptance notes, and focused synthetic tests.
+- Decisions: Partial coverage is never relabeled available or complete. Existing digest, expiry, pending-publication and Steve approval gates are unchanged; no source reads, Site publication, scheduler, merge or source write occurred.
+- Open questions / needs Claude: Provide reviewed exports and actual run receipts under the existing exact allowlist; reconcile any incomplete coverage before treating a feed as complete.
+- Next: Review the isolated Command Center commit, then adopt a reviewed export only within the existing approval and expiry scope.
+
 ### 2026-09-13 · ChatGPT · Owner filter published and Claude reconciliation reviewed
 - Did: Verified Dhruv's exact Asana assignment across 34 approved targets; excluded 15 in the host projection and existing private Site. Retained 20 items, original evidence times/expiry and identical page/Voice context. Added owner reassignment, unassigned and missing-owner checks; 13 affected tests pass. Claude Code completed a supplied-record reconciliation; primary review corrected unsupported implications and retained only actionable evidence gaps.
 - Files/links touched: Host adapter/config contract/tests; private filter/reconciliation receipts; existing Site saved version 9 reused with environment revision 12. Shared artifact handoff points to reviewed reconciliation. Command Center PR isolated from the July portfolio changes while preserving that branch and current main's org rules.

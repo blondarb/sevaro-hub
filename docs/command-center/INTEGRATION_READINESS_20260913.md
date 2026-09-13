@@ -42,10 +42,11 @@ notification service or automatic Site publication was installed.
 
 A real subscription-authenticated Claude Code run reviewed the first bounded module
 export. Its packet validates, with original source observation and expiry preserved,
-but coverage is explicitly partial. The current Site schema cannot express partial
-coverage, so that packet stays private for reconciliation and is NOT imported as an
-available feed. A successful complete export must cover its exact configured source
-allowlist; a checksum is not a signature, PHI detector or publication approval.
+and imports as an explicit partial source state. Fresh reviewed items may appear in a
+pending or approved snapshot with a partial-coverage warning; the source never becomes
+available/complete by that path, and expired partial evidence is hidden. A successful
+complete export must cover its exact configured source allowlist; a checksum is not a
+signature, PHI detector or publication approval.
 The existing DONE decision remains the one review item until this evidence is reconciled.
 
 The installed Labs routine reads the existing artifact HANDOFF; that handoff now

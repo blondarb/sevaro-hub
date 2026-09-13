@@ -75,12 +75,19 @@ review completion. A later export/review run may review older evidence; its obse
 time may precede that run's start and must retain its original expiry. This is a
 review/assembly receipt, not a claim that the export run re-observed the sources.
 
-The current Site schema cannot display partial coverage reliably. Therefore partial
-packets are preserved privately but excluded from snapshot items and reported as an
-unavailable source. The validator explicitly returns importable=false. Only complete
-reviewed coverage can supply available items. This prevents the bounded module review
-from appearing to be a complete Cowork feed; it also avoids adding a duplicate DONE
-follow-up beside the existing Asana decision before reconciliation.
+Partial packets import as the closed `partial` source state. Their reviewed items may
+appear while fresh, but the snapshot health and private Site state remain explicitly
+partial; they never become `available` or complete coverage. Expired partial feeds
+become stale and contribute no items. Failed or unavailable feeds contribute no items.
+This keeps a bounded module review useful without presenting it as a complete Cowork
+feed or adding a duplicate DONE follow-up beside the existing Asana decision before
+reconciliation.
+
+For `claude:replies` only, the effective snapshot expiry is the earlier of the
+reviewed producer expiry and two hours after the original `observed_at`. This derived
+cap is applied only after the envelope digest is verified; it does not modify the
+original packet or receipt. The CLI reports both `source_expires_at` and
+`effective_expires_at`, and freshness uses the effective value.
 
 ## Validate and prepare — no external writes
 
@@ -93,8 +100,11 @@ node command-center/claude-export-cli.mjs "$HOME/ClaudeSync/handoffs/command-cen
 node command-center/refresh-cli.mjs "$HOME/ClaudeSync/handoffs/command-center/refresh-plan.json" --include-portfolio --review-hours=2
 ```
 
-Only invoke the second command after validation passes with importable=true, or when preparing
-an explicit unavailable-state update. It performs allowlisted Asana/GitHub reads and
+Only invoke the second command after validation passes with importable=true. Its
+`source_state` may be `partial`, which must remain visible in the prepared health
+receipt and review context. Check `fresh` / `usable_for_snapshot`: validation preserves
+the feed's original observation and expiry and does not make expired evidence usable.
+It performs allowlisted Asana/GitHub reads and
 imports reviewed local feeds. It never contacts Outlook or Slack itself, approves a
 snapshot, publishes to Sites, changes Asana, sends replies or creates a schedule.
 

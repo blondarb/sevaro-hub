@@ -20,14 +20,20 @@ Claude/Cowork/Code retain their existing Outlook, Fyxer, Slack and document rout
   actual run/coverage receipt, containing source-linked decisions, replies,
   delegated work or meeting preparation. There is deliberately no raw mail, Slack,
   transcript, calendar or document parser here. Codex does not connect to Slack.
-  Partial runs remain private reconciliation evidence; the current Site schema cannot
-  carry their coverage and therefore the collector marks them unavailable.
+  Partial runs enter only the explicit `partial` source state: fresh reviewed items
+  can appear with a partial-coverage warning, never as available/complete coverage.
+  Expired, failed and unavailable feeds contribute no items.
 - Sync health reads the repaired writer's actionable count and original observation
   time. An old incompatible monitor file is unavailable, never silently interpreted
   as the 43 historical entries being failed writes. Upgrade remains cutover-gated.
 - Assembly refuses duplicate/conflicting IDs, unknown fields, unapproved hosts,
   future observations, stale-source items and invalid dates. By default it excludes quiet records before creating one
   deterministic item-number map with a content-derived snapshot and view ID.
+- Source URLs are HTTPS navigation links only. Query strings are refused except for
+  the Microsoft Graph-documented event `webLink` route on
+  `outlook.office365.com/owa/` with exactly `itemid`, `exvsurl=1`, and
+  `path=/calendar/item`. The reviewed source must provide that exact link; never
+  synthesize a calendar URL or add redirect, token, or return parameters.
 - Site runtime accepts one protected snapshot or protected transport chunks, plus its exact approved digest.
   Real-data mode is disabled unless separately enabled after the acceptance gates.
   All reads use the exact displayed pins; deployment of a new snapshot makes old

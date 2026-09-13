@@ -1,3 +1,4 @@
+import {isAllowedSourceUrl} from './source-links.mjs';
 // Shared, transport-independent executive projection. Never an authority for source state.
 export const SYSTEMS = Object.freeze(['asana', 'github', 'claude', 'asana_sync']);
 export const KINDS = Object.freeze(['decision', 'response', 'deadline', 'blocker', 'waiting', 'project', 'agent', 'meeting']);
@@ -38,10 +39,7 @@ export async function sha256(value) {
   return [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(x => x.toString(16).padStart(2, '0')).join('');
 }
 function freeze(value) { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
-function url(value, allowedHosts) {
-  let parsed; try { parsed = new URL(value); } catch { throw new ContextError('invalid_link'); }
-  requireThat(parsed.protocol === 'https:' && !parsed.username && !parsed.password && !parsed.search && !parsed.hash && allowedHosts.includes(parsed.hostname), 'invalid_link');
-}
+function url(value, allowedHosts) { requireThat(isAllowedSourceUrl(value, allowedHosts), 'invalid_link'); }
 export function validateItem(item, allowedHosts) {
   exact(item, ['item_id', 'source_id', 'source_revision', 'source_url', 'spoken_name', 'kind', 'status', 'context', 'recommendation', 'requires_steve', 'due', 'next_event', 'action_state']);
   identifier(item.item_id); identifier(item.source_id); label(item.source_revision, 100); url(item.source_url, allowedHosts);
@@ -58,10 +56,10 @@ export function validateFeed(feed, allowedHosts, now = Date.now()) {
   requireThat(feed.schema_version === 1 && SYSTEMS.includes(feed.system)); identifier(feed.source_id);
   const observed = instant(feed.observed_at), expires = instant(feed.expires_at);
   requireThat(observed <= now + 60_000 && expires > observed && expires - observed <= 24 * 3600_000, 'invalid_freshness');
-  requireThat(['available', 'unavailable'].includes(feed.status));
+  requireThat(['available', 'partial', 'unavailable'].includes(feed.status));
   requireThat(feed.failure_code === null || ['source_unavailable', 'permission_required', 'rate_limited', 'source_conflict', 'run_failed'].includes(feed.failure_code));
   requireThat(Array.isArray(feed.items) && feed.items.length <= MAX_ITEMS);
-  requireThat(feed.status === 'available' ? feed.failure_code === null : feed.items.length === 0 && feed.failure_code !== null);
+  requireThat(feed.status === 'unavailable' ? feed.items.length === 0 && feed.failure_code !== null : feed.failure_code === null);
   const seen = new Set();
   for (const item of feed.items) {
     validateItem(item, allowedHosts);
@@ -88,9 +86,9 @@ export async function assemble(feeds, { expectedSources, allowedHosts, now = Dat
   let expiry = now + ttlMs;
   for (const sourceId of [...expectedSources].sort()) {
     const feed = bySource.get(sourceId);
-    const state = !feed ? 'unavailable' : feed.status === 'unavailable' ? 'unavailable' : instant(feed.expires_at) <= now ? 'stale' : 'available';
-    health.push({ source_id: sourceId, state, observed_at: feed?.observed_at ?? null, failure_code: feed?.failure_code ?? (state === 'available' ? null : state === 'stale' ? 'source_stale' : 'source_unavailable') });
-    if (state !== 'available') continue;
+    const state = !feed ? 'unavailable' : feed.status === 'unavailable' ? 'unavailable' : instant(feed.expires_at) <= now ? 'stale' : feed.status;
+    health.push({ source_id: sourceId, state, observed_at: feed?.observed_at ?? null, failure_code: feed?.failure_code ?? (['available','partial'].includes(state) ? null : state === 'stale' ? 'source_stale' : 'source_unavailable') });
+    if (!['available', 'partial'].includes(state)) continue;
     expiry = Math.min(expiry, instant(feed.expires_at));
     for (const item of feed.items) {
       requireThat(!byItem.has(item.item_id), 'conflicting_item'); byItem.set(item.item_id, structuredClone(item));

@@ -17,12 +17,21 @@ export async function reviewedClaudeExport(packet,{allowedHosts,now=Date.now()})
   requireThat(feed.status!=='available' || run.outcome!=='failed' && run.coverage!=='unavailable','invalid_run_receipt');
   requireThat(run.outcome!=='failed' || feed.status==='unavailable','invalid_run_receipt');
   requireThat(({succeeded:'complete-allowlist',partial:'reviewed-sources-only',failed:'unavailable'})[run.outcome]===run.coverage,'invalid_run_receipt');
+  requireThat(run.outcome !== 'succeeded' || feed.status === 'available','invalid_run_receipt');
+  requireThat(run.outcome !== 'partial' || feed.status === 'available','invalid_run_receipt');
   // Preserve actual source observation/expiry, never replace it with export or file mtime.
   return {feed,receipt:{source_id:feed.source_id,...structuredClone(run),reviewed_at:review.reviewed_at,feed_digest:review.feed_digest}};
 }
-// The current Site schema cannot represent partial coverage. Keep that reviewed
-// packet for reconciliation; never flatten it into a complete available source.
 export function importableClaudeFeed({feed,receipt}) {
-  requireThat(feed.status==='unavailable' || receipt.outcome==='succeeded' && receipt.coverage==='complete-allowlist','incomplete_claude_coverage');
-  return feed;
+  if (feed.status === 'unavailable') return feed;
+  // A later review must not make an old communication obligation current. This
+  // only tightens a verified producer expiry; the original envelope stays intact.
+  const normalized = feed.source_id === 'claude:replies'
+    ? {...feed, expires_at:new Date(Math.min(instant(feed.expires_at),instant(feed.observed_at)+2*3600_000)).toISOString()}
+    : feed;
+  if (receipt.outcome === 'succeeded' && receipt.coverage === 'complete-allowlist') return normalized;
+  requireThat(receipt.outcome === 'partial' && receipt.coverage === 'reviewed-sources-only','incomplete_claude_coverage');
+  // Coverage is a closed run-receipt enum. Preserve it as a distinct source
+  // state so reviewed items never imply that the full allowlist was covered.
+  return {...normalized, status:'partial'};
 }

@@ -10,7 +10,7 @@ import {privateJson,githubHost,collectSources} from '../collector.mjs';
 import {source,row} from './fixtures.mjs';
 import {sha256} from '../context.mjs';
 const exec=promisify(execFile);
-test('collector imports complete reviewed Claude scope and fails closed for partial scope',async()=>{
+test('collector imports complete and explicitly partial reviewed Claude scopes',async()=>{
  const root=await realpath(await mkdtemp(join(tmpdir(),'context-claude-'))),path=join(root,'export.json');
  try {
   const feed=source({source_id:'claude:example',system:'claude',observed_at:new Date().toISOString(),expires_at:new Date(Date.now()+3600_000).toISOString(),items:[row({source_id:'claude:example',item_id:'claude:example:item'})]});
@@ -20,7 +20,10 @@ test('collector imports complete reviewed Claude scope and fails closed for part
   assert.equal((await collectSources(plan)).feeds[0].items.length,1);
   packet.run.outcome='partial';packet.run.coverage='reviewed-sources-only';
   await writeFile(path,JSON.stringify(packet),{mode:0o600});
-  const held=(await collectSources(plan)).feeds[0];assert.equal(held.status,'unavailable');assert.deepEqual(held.items,[]);
+  const partial=(await collectSources(plan)).feeds[0];assert.equal(partial.status,'partial');assert.equal(partial.items.length,1);
+  packet.run.outcome='failed';packet.run.coverage='unavailable';
+  await writeFile(path,JSON.stringify(packet),{mode:0o600});
+  const rejected=(await collectSources(plan)).feeds[0];assert.equal(rejected.status,'unavailable');assert.deepEqual(rejected.items,[]);
  } finally {await rm(root,{recursive:true,force:true});}
 });
 test('private inputs reject repository paths, symlink parents and public file permissions',async()=>{
