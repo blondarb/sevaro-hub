@@ -1,11 +1,28 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { assemble, readSnapshot, resolveReference, sha256 } from '../context.mjs';
-import { prepareRelease, loadRuntimeSnapshot, validateSnapshot } from '../release.mjs';
+import { prepareRelease, loadRuntimeSnapshot, validateSnapshot, snapshotBindings } from '../release.mjs';
 import worker from '../../command-center-proof/worker.mjs';
 import { NOW, row, source, options } from './fixtures.mjs';
 const pins = s => ({snapshot_id:s.snapshot_id,view_id:s.view_id});
 const request = (path, who='owner', method='GET') => new Request('https://synthetic.example'+path,{method,headers:who?{'oai-authenticated-user-id':who}:{}});
+test('protected transport chunks preserve exact approved Unicode snapshot and reject incomplete or mixed payloads',async()=>{
+  const s=await assemble([source({items:Array.from({length:35},(_,i)=>row({item_id:'asana:portfolio:'+i,context:'Fictional 🧪 measurement review.'}))})],{...options,classification:'executive-reviewed'});
+  const r=await prepareRelease(s,NOW), chunks=snapshotBindings(r.payload);
+  assert.ok(Number(chunks.CONTEXT_SNAPSHOT_CHUNK_COUNT)>1);
+  for(const [k,v] of Object.entries(chunks))if(k!=='CONTEXT_SNAPSHOT_CHUNK_COUNT')assert.ok(Buffer.byteLength(v)<=4096);
+  const receipt={digest:r.digest,approved_by:'Steve',approved_at:s.generated_at,expires_at:s.expires_at,scope:'owner-only-read-only-site'};
+  const env={...chunks,CONTEXT_RELEASE_SHA256:r.digest,CONTEXT_REAL_DATA_ENABLED:'approved',CONTEXT_APPROVAL_RECEIPT:JSON.stringify(receipt)};
+  assert.deepEqual(await loadRuntimeSnapshot(env,NOW),s);
+  for(const change of [{CONTEXT_SNAPSHOT_CHUNK_0:undefined},{CONTEXT_SNAPSHOT_CHUNK_15:'extra'},{CONTEXT_SNAPSHOT_CHUNK_COUNT:'0'},{CONTEXT_SNAPSHOT_CHUNK_COUNT:'17'},{CONTEXT_SNAPSHOT:r.payload},{CONTEXT_SNAPSHOT_CHUNK_0:'x'.repeat(4097)}])await assert.rejects(loadRuntimeSnapshot({...env,...change},NOW),/context_unavailable/);
+  await assert.rejects(loadRuntimeSnapshot({...env,CONTEXT_SNAPSHOT_CHUNK_0:env.CONTEXT_SNAPSHOT_CHUNK_0.replace('Fictional','Modified')},NOW),/digest_mismatch/);
+  await assert.rejects(loadRuntimeSnapshot({...env,CONTEXT_APPROVAL_RECEIPT:undefined},NOW),/approval_required/);
+  assert.throws(()=>snapshotBindings('x'.repeat(65537)),/release_too_large/);
+});
+test('partial chunk configuration without runtime mode cannot silently fall back to synthetic context',async()=>{
+  const r=await worker.fetch(request('/api/status'),{PROOF_OWNER_SITE_USER_ID:'owner',CONTEXT_SNAPSHOT_CHUNK_0:'partial'});
+  assert.equal(r.status,409);
+});
 test('deduplication rejects conflicting records and source bundles rather than choosing status',async()=>{
   await assert.rejects(assemble([source(),source()],options),/duplicate_or_unexpected_source/);
   await assert.rejects(assemble([source({items:[row(),row({status:'Graduate'})]})],options),/duplicate_or_wrong_source/);

@@ -47,7 +47,7 @@ export default {
       let current;
       if (mode === 'synthetic') current = snapshot;
       else if (mode === 'runtime') current = await loadRuntimeSnapshot(env);
-      else if (mode === undefined && absent(env.CONTEXT_SNAPSHOT) && absent(env.CONTEXT_RELEASE_SHA256)) current = snapshot;
+      else if (mode === undefined && absent(env.CONTEXT_SNAPSHOT) && absent(env.CONTEXT_RELEASE_SHA256) && !Object.keys(env).some(k => k.startsWith('CONTEXT_SNAPSHOT_CHUNK_') && !absent(env[k]))) current = snapshot;
       else throw new Error('invalid_context_mode');
       if (url.pathname === '/api/status' && !url.search) return response({state:'ready',expires_at:current.expires_at});
       const pinnedRead = (snapshotId, viewId) => current === snapshot ? readContext(snapshotId, viewId) : readSnapshot(current, {snapshot_id:snapshotId,view_id:viewId});

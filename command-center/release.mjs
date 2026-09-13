@@ -1,5 +1,37 @@
 import { exact, requireThat, instant, validateItem, sha256, canonical, identifier, ContextError, isTodayItem } from './context.mjs';
 export const MAX_RELEASE_BYTES = 65536;
+const CHUNK_BYTES = 4096;
+const MAX_CHUNKS = 16;
+const present = value => value !== undefined && value !== null && value !== '';
+// Sites limits each binding to about 5 KiB. Chunk only the protected transport;
+// the canonical payload, approval digest and immutable snapshot remain identical.
+export function snapshotBindings(payload) {
+  requireThat(typeof payload === 'string' && new TextEncoder().encode(payload).byteLength <= MAX_RELEASE_BYTES, 'release_too_large');
+  const chunks = []; let chunk = '', size = 0;
+  for (const point of payload) {
+    const bytes = new TextEncoder().encode(point).byteLength;
+    if (size + bytes > CHUNK_BYTES) { chunks.push(chunk); chunk = ''; size = 0; }
+    chunk += point; size += bytes;
+  }
+  if (chunk) chunks.push(chunk);
+  requireThat(chunks.length > 0 && chunks.length <= MAX_CHUNKS, 'release_too_large');
+  return { CONTEXT_SNAPSHOT_CHUNK_COUNT: String(chunks.length), ...Object.fromEntries(chunks.map((v,i) => ['CONTEXT_SNAPSHOT_CHUNK_'+i,v])) };
+}
+function runtimePayload(env) {
+  const keys = Object.keys(env).filter(k => k.startsWith('CONTEXT_SNAPSHOT_CHUNK_') && k !== 'CONTEXT_SNAPSHOT_CHUNK_COUNT' && present(env[k]));
+  if (!present(env.CONTEXT_SNAPSHOT_CHUNK_COUNT)) {
+    requireThat(keys.length === 0 && typeof env.CONTEXT_SNAPSHOT === 'string', 'context_unavailable');
+    return env.CONTEXT_SNAPSHOT;
+  }
+  requireThat(!present(env.CONTEXT_SNAPSHOT) && /^(?:[1-9]|1[0-6])$/.test(env.CONTEXT_SNAPSHOT_CHUNK_COUNT), 'context_unavailable');
+  const count = Number(env.CONTEXT_SNAPSHOT_CHUNK_COUNT);
+  requireThat(keys.length === count && keys.every(k => Array.from({length:count},(_,i) => 'CONTEXT_SNAPSHOT_CHUNK_'+i).includes(k)), 'context_unavailable');
+  return Array.from({length:count},(_,i) => {
+    const value = env['CONTEXT_SNAPSHOT_CHUNK_'+i];
+    requireThat(typeof value === 'string' && value.length > 0 && new TextEncoder().encode(value).byteLength <= CHUNK_BYTES, 'context_unavailable');
+    return value;
+  }).join('');
+}
 export const LINK_HOSTS = Object.freeze(['app.asana.com', 'github.com', 'outlook.office.com', 'drive.google.com']);
 /** This validates a previously reviewed projection, never classifies raw content as PHI-free. */
 export async function validateSnapshot(snapshot, now = Date.now()) {
@@ -36,9 +68,10 @@ export async function prepareRelease(snapshot, now = Date.now()) {
   return { payload, digest: await sha256(snapshot), expires_at: snapshot.expires_at };
 }
 export async function loadRuntimeSnapshot(env, now = Date.now()) {
-  requireThat(typeof env.CONTEXT_SNAPSHOT === 'string' && typeof env.CONTEXT_RELEASE_SHA256 === 'string', 'context_unavailable');
-  requireThat(new TextEncoder().encode(env.CONTEXT_SNAPSHOT).byteLength <= MAX_RELEASE_BYTES, 'release_too_large');
-  let snapshot; try { snapshot = JSON.parse(env.CONTEXT_SNAPSHOT); } catch { throw new ContextError('invalid_context'); }
+  requireThat(typeof env.CONTEXT_RELEASE_SHA256 === 'string', 'context_unavailable');
+  const payload = runtimePayload(env);
+  requireThat(new TextEncoder().encode(payload).byteLength <= MAX_RELEASE_BYTES, 'release_too_large');
+  let snapshot; try { snapshot = JSON.parse(payload); } catch { throw new ContextError('invalid_context'); }
   await validateSnapshot(snapshot, now);
   requireThat(await sha256(snapshot) === env.CONTEXT_RELEASE_SHA256, 'release_not_approved');
   requireThat(snapshot.classification !== 'executive-pending-review', 'review_required');
