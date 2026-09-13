@@ -5,7 +5,7 @@ ChatGPT/Codex read this FIRST and update it LAST. Plain language. No PHI (initia
 only). No secrets._
 
 ## Snapshot (keep current)
-- Status: Portfolio source is committed and pushed at `227f41e` on `codex/portfolio-operating-system`; the July data is a historical snapshot, not current project authority. September 13 architecture evaluation selects private Sites + native Voice with this repo as integration home; see `docs/command-center/SITES_VOICE_ARCHITECTURE.md`. The bounded synthetic Site is privately published with verified owner binding and authenticated shared retrieval during native Codex Voice. Host adapters and a gated runtime snapshot candidate are implemented locally; hosted negative-auth/transport gates remain open. No real data or larger UI is enabled. See `docs/command-center/INTEGRATION_READINESS_20260913.md`.
+- Status: Portfolio source is committed and pushed at `227f41e` on `codex/portfolio-operating-system`; the July data is a historical snapshot, not current project authority. September 13 architecture evaluation selects private Sites + native Voice with this repo as integration home; see `docs/command-center/SITES_VOICE_ARCHITECTURE.md`. The bounded synthetic Site is privately published with verified owner binding and authenticated shared retrieval during native Codex Voice. Host adapters are implemented and gated runtime source version 2 is privately published. Synthetic A→B and hosted anonymous/forged-owner denial pass; different-account and platform-retention checks remain open. No real data or larger UI is enabled. See `docs/command-center/INTEGRATION_READINESS_20260913.md`.
 - Driver this week: Review the validated `/admin/portfolio` change, reconcile the unavailable original idea-dump email, and confirm the private `memory/people` location before assigning owners.
 - Lives in: https://github.com/blondarb/sevaro-hub.git
 
@@ -18,6 +18,13 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log (append-only, newest first)
+
+### 2026-09-13 · ChatGPT · Published integration runtime and verified protected refresh
+- Did: Used Steve's separately approved one-time upload exception to save/publish version 2. Delivered synthetic A and B through protected runtime settings; page and authenticated tools agreed, old pinned references refused. Cookie-free requests with no identity, fake identity and the exact owner identity returned 401 without context. Sampled logs contained no test payload.
+- Files/links touched: Existing Steve Shared Context Proof Site; acceptance and readiness receipts. Integration PR remains draft and unmerged.
+- Decisions: Clear temporary runtime snapshots and retain original fixed synthetic demo. Real-data switch and approval receipt remain absent. No permissions weakened or live source writes enabled.
+- Open questions / needs Claude: Reviewed export adoption; genuinely different signed-in account acceptance; platform setting-retention/purge; fresh exact executive-content approval.
+- Next: Complete these remaining real-data gates before loading executive context. Keep the existing Asana cutover sequence.
 
 ### 2026-09-13 · ChatGPT · Shared owner retrieval and read-only integration candidate
 - Did: Bound the verified owner and redeployed original synthetic version; authenticated Site tools returned the same snapshot and Harbor dependency during native Codex Voice. Added narrow host metadata adapters, reviewed-export contract, expiring Today context and approval-bound runtime loader; fixed independent review findings. Twenty-six synthetic tests pass.

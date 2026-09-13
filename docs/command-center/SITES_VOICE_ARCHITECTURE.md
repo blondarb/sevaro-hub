@@ -8,7 +8,7 @@ context first; do not create another portfolio database or custom speech stack.
 
 Follow-up: the bounded synthetic proof is now implemented in `command-center-proof/`.
 [Acceptance receipt](SHARED_CONTEXT_ACCEPTANCE_20260913.md): local browser/WebMCP
-shared retrieval passed, private publication and owner binding succeeded, and authenticated tools returned the hosted snapshot during native Codex Voice. Hosted negative-auth and new runtime-delivery acceptance remain incomplete. The sections below retain the initial audit
+shared retrieval passed, private publication and owner binding succeeded, and authenticated tools returned the hosted snapshot during native Codex Voice. Hosted anonymous/forged-owner denial and synthetic A→B delivery now pass; a different signed-in account and platform retention remain unverified. The sections below retain the initial audit
 baseline; no real-data adapter or larger UI has been enabled.
 
 ## Current implementation versus gaps

@@ -10,7 +10,7 @@ This is narrower than proving every ChatGPT web/mobile Voice client supports it.
 The next source candidate adds host-side Asana/GitHub metadata adapters, a strict
 Claude export reader, repaired sync-health ingestion, one expiring immutable Today
 snapshot, runtime delivery checks and source-linked numbered read tools. It is not
-a larger dashboard. This candidate is not yet saved or deployed in Sites.
+a larger dashboard. Saved version 2 is now privately deployed. Protected synthetic A→B delivery passed; the deployment is returned to the original fixed synthetic snapshot after testing.
 
 Local metadata reads from Asana and GitHub succeeded and produced a private pending
 proposal. No real proposal was uploaded to Sites or committed to Git. Claude exports
@@ -21,7 +21,7 @@ The independent review found and this candidate fixes hidden Today records in to
 responses, premature review labels, unsafe private-file placement, empty source
 allowlists, invalid derived views, arbitrary build overwrites and item 100 handling.
 Twenty-six synthetic checks pass, including those regressions. Hosted access and
-transport acceptance remain separate from these tests.
+transport receipts below are separate from these local tests.
 
 ## Remaining acceptance gates
 
@@ -29,17 +29,14 @@ transport acceptance remain separate from these tests.
 | --- | --- |
 | Owner-private publication | Original synthetic version is live; owner binding verified after user-opened sign-in diagnostic |
 | Native conversational retrieval | Actual authenticated tools returned the published fixed snapshot during Codex Voice; other Voice clients untested |
-| Unauthorized access | Local identity tests pass. Hosted anonymous, second-account and spoofed-header denial remain unaccepted. Edge error 1010 is not proof of Worker authorization |
-| Runtime delivery | New candidate supports one protected setting, exact digest and expiry; synthetic A→B hosted release and old-pin refusal are not yet exercised |
-| Data retention | Sites setting-revision retention/purge and absence of payloads from platform logs need confirmation before executive content |
+| Unauthorized access | Local identity tests pass. Hosted cookie-free requests returned 401 with no context, including a forged exact owner header. Signed-in owner requests with a different supplied identity header still returned the correct authorized context. A genuinely different signed-in account remains untested. Earlier edge error 1010 is not counted |
+| Runtime delivery | New candidate supports one protected setting, exact digest and expiry; synthetic A→B hosted releases passed; old pinned tools refused after B, refreshed page and authenticated tools returned B, and item two stayed Harbor dependency |
+| Data retention | Ten sampled Worker events across the live test contained no snapshot-body fields or fictional context text. Broader platform retention/purge remains unverified; the sample is not a platform-wide guarantee |
 | Exact content approval | Pending draft is runtime-forbidden. Real mode additionally requires an independent digest-bound, time-limited approval receipt |
 | Claude exports | Contract below is prepared; no claim that existing routines adopted it or generated a reviewed feed |
 | Refresh | Manual/on-demand candidate, not a live unattended sync. Expired context becomes unavailable |
 
-The original publishing exception allowed a short-lived credential in one recorded
-source-upload command. It does not grant a standing exception for subsequent uploads.
-Prepare and verify the new candidate before seeking any further narrowly scoped
-transfer exception if no protected source upload becomes available.
+Steve separately approved one short-lived source-upload exception for this prepared update. Upload, saved version 2 and private deployment succeeded. Both one-time publishing exceptions have been used; neither is a standing credential-policy change.
 
 ## Existing Claude routines and connection contract
 

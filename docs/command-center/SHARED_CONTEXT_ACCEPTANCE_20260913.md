@@ -4,6 +4,32 @@
 retrieval demonstrated during native Codex Voice. Real-data acceptance remains held.**
 No executive data, PHI, email bodies or raw transcripts entered the Site.
 
+## Published integration update and hosted tests
+
+Saved version 2 uses Site source `4ac1149` and the existing owner-only audience.
+Protected environment revision 2 delivered synthetic A; revision 3 delivered B.
+Both private deployments succeeded. Their content-derived snapshot/view IDs matched
+what the browser displayed and its authenticated read tools returned. Item two was
+Harbor dependency in each. Calling the old pinned tool after B was deployed refused;
+reloading acquired B and returned its updated fictional context. No real input was
+uploaded. Revision 4 removes the temporary runtime test snapshots and returns the
+new source to the original immutable synthetic proof, preserving owner binding.
+
+Hosted negative checks from the signed-in browser deliberately omitted cookies:
+normal and forged-identity requests both returned HTTP 401 without context. A third
+cookie-free request forged the exact owner identity, obtained in-browser without
+logging it; it also returned 401 and no context. A signed-in owner request carrying
+a different caller-supplied identity still returned authorized context, consistent
+with platform identity replacement. No protections or audience settings changed.
+A genuinely different signed-in account remains untested.
+
+Ten sampled Worker events from the test window contained neither snapshot-body
+fields nor the fictional payload text. This does not prove platform-wide retention
+or log policy. Sites old secret-setting revision retention/purge remains unknown.
+
+The source upload used the additional one-time exception Steve explicitly approved
+for this prepared update. No exception is carried forward to another source upload.
+
 ## Current receipt (supersedes the earlier publication diagnostics below)
 
 The owner binding redeploy succeeded September 13 at 20:02:45 UTC, using saved
