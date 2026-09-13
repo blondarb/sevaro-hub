@@ -11,9 +11,12 @@ Claude/Cowork/Code retain their existing Outlook, Fyxer, Slack and document rout
   task, unknown section or failed partial read marks the source unavailable.
 - GitHub uses the host's existing `gh` authentication and GraphQL field selection
   for exact PR numbers/state/draft/revision. It never fetches PR bodies or logs.
-- Claude supplies an already-reviewed export with source-linked decisions, replies,
+- Claude supplies an already-reviewed export envelope with a digest-bound review and
+  actual run/coverage receipt, containing source-linked decisions, replies,
   delegated work or meeting preparation. There is deliberately no raw mail, Slack,
   transcript, calendar or document parser here. Codex does not connect to Slack.
+  Partial runs remain private reconciliation evidence; the current Site schema cannot
+  carry their coverage and therefore the collector marks them unavailable.
 - Sync health reads the repaired writer's actionable count and original observation
   time. An old incompatible monitor file is unavailable, never silently interpreted
   as the 43 historical entries being failed writes. Upgrade remains cutover-gated.
@@ -33,6 +36,12 @@ review must occur before creating any input accepted by this module. A classific
 field or hash is not evidence that content is safe or that Steve approved it.
 
 ## Host operation
+
+Existing-routine export adoption and quiet refresh preparation: see
+[CLAUDE_EXPORT_ADOPTION.md](../docs/command-center/CLAUDE_EXPORT_ADOPTION.md).
+`refresh-cli.mjs` prepares pending snapshots and fixed health metadata only; it
+never approves, publishes, renews a Site release, or dispatches a notification.
+
 
 `node command-center/cli.mjs collect PRIVATE_PLAN PRIVATE_OUTPUT` reads an exact
 reviewed source plan, collects supported metadata/curated exports and prepares a

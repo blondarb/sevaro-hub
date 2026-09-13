@@ -4,8 +4,9 @@ import { homedir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { collectAsana, githubMetadataFeed, claudeExportFeed, syncHealthFeed } from './adapters.mjs';
+import { collectAsana, githubMetadataFeed, syncHealthFeed } from './adapters.mjs';
 import { requireThat, ContextError } from './context.mjs';
+import { reviewedClaudeExport, importableClaudeFeed } from './claude-export.mjs';
 const execute = promisify(execFile);
 export async function privateJson(path) {
   requireThat(await realpath(path) === resolve(path), 'canonical_private_path_required');
@@ -42,7 +43,11 @@ export async function githubHost(config) {
   }
   return githubMetadataFeed({ ...config, records, now: new Date().toISOString() });
 }
-export async function claudeHost(path, options) { return claudeExportFeed(await privateJson(path), options); }
+export async function claudeHost(path, options) {
+  // A plain feed's self-declared status is insufficient. Require Claude's exact
+  // review and actual run receipt; final Site publication still needs Steve.
+  return importableClaudeFeed(await reviewedClaudeExport(await privateJson(path),options));
+}
 export async function healthHost(path, options) { return syncHealthFeed(await privateJson(path), options); }
 export async function collectSources(plan) {
   requireThat(plan && Object.keys(plan).sort().join(',') === 'schema_version,sources' && plan.schema_version === 1 && Array.isArray(plan.sources) && plan.sources.length > 0 && plan.sources.length <= 50, 'invalid_plan');

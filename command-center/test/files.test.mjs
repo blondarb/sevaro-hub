@@ -6,8 +6,23 @@ import {join} from 'node:path';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 import {privatePaths} from '../private-paths.mjs';
-import {privateJson,githubHost} from '../collector.mjs';
+import {privateJson,githubHost,collectSources} from '../collector.mjs';
+import {source,row} from './fixtures.mjs';
+import {sha256} from '../context.mjs';
 const exec=promisify(execFile);
+test('collector imports complete reviewed Claude scope and fails closed for partial scope',async()=>{
+ const root=await realpath(await mkdtemp(join(tmpdir(),'context-claude-'))),path=join(root,'export.json');
+ try {
+  const feed=source({source_id:'claude:example',system:'claude',observed_at:new Date().toISOString(),expires_at:new Date(Date.now()+3600_000).toISOString(),items:[row({source_id:'claude:example',item_id:'claude:example:item'})]});
+  const packet={schema_version:1,feed,review:{reviewed_by:'Claude',reviewed_at:new Date().toISOString(),policy:'executive-project-context-v1',feed_digest:await sha256(feed)},run:{run_id:'synthetic-export',routine:'synthetic-review',started_at:feed.observed_at,completed_at:feed.observed_at,outcome:'succeeded',coverage:'complete-allowlist'}};
+  const plan={schema_version:1,sources:[{source_id:feed.source_id,system:'claude',private_export_path:path,allowed_hosts:['app.asana.com']}]};
+  await writeFile(path,JSON.stringify(packet),{mode:0o600});
+  assert.equal((await collectSources(plan)).feeds[0].items.length,1);
+  packet.run.outcome='partial';packet.run.coverage='reviewed-sources-only';
+  await writeFile(path,JSON.stringify(packet),{mode:0o600});
+  const held=(await collectSources(plan)).feeds[0];assert.equal(held.status,'unavailable');assert.deepEqual(held.items,[]);
+ } finally {await rm(root,{recursive:true,force:true});}
+});
 test('private inputs reject repository paths, symlink parents and public file permissions',async()=>{
   const root=await realpath(await mkdtemp(join(tmpdir(),'context-files-')));
   try {

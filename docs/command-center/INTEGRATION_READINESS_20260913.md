@@ -1,5 +1,47 @@
 # Command Center integration readiness — September 13, 2026
 
+## Quiet preparation and Claude adoption — local integration, not a new Site release
+
+The host refresh preparer now collects the existing allowlisted Asana/GitHub targets,
+rotates only pending candidates, preserves a validated prior candidate after a failed
+collection/replacement, and records fixed health metadata. Failed attempts report
+retained previous evidence, never fresh data. Corrupt current candidates can recover
+from a separately validated prior; receipts cannot supply an unchecked candidate hash.
+Unchanged time/revision-only runs are silent. Failure/recovery and source removal are
+explicit exceptions. This command is callable by existing routines; no new scheduler,
+notification service or automatic Site publication was installed.
+
+A real subscription-authenticated Claude Code run reviewed the first bounded module
+export. Its packet validates, with original source observation and expiry preserved,
+but coverage is explicitly partial. The current Site schema cannot express partial
+coverage, so that packet stays private for reconciliation and is NOT imported as an
+available feed. A successful complete export must cover its exact configured source
+allowlist; a checksum is not a signature, PHI detector or publication approval.
+The existing DONE decision remains the one review item until this evidence is reconciled.
+
+The installed Labs routine reads the existing artifact HANDOFF; that handoff now
+contains the export adoption request and points to CLAUDE_EXPORT_ADOPTION.md. A matching
+export step is prepared in the existing Ops PR. It is not installed in the main routine.
+The scheduled-task directory resolves to the existing sevaro-ops checkout, and the
+manifest is not consumed by its runner. No recent execution receipt was found for
+that scheduled task; the old data.js observation was September 10. Missing coordination,
+reply and calendar exports remain unavailable. No direct Codex Slack/Outlook access
+was added, and data.js/index.html ownership is unchanged.
+
+Validation: all 47 host tests passed during focused review; after final recovery and
+coverage corrections, all 16 affected refresh/export tests and five file/collector
+checks passed, including actual collector exclusion of a synthetic partial export. Real Asana/GitHub
+reads and the actual partial Claude packet were exercised; the resulting pending
+projection contains 35 items, and its unchanged second preparation exited successfully
+without output. No real content entered
+Git, Site source, or logs. The live Site remains saved version 9 with its previously
+approved 35-item release and 5:37 p.m. Mountain expiry. No renewal is implied.
+
+Next owners/actions: Claude's existing coordination routine supplies complete reviewed
+exports and actual run receipts; Codex integrates and checks the next pending projection;
+Steve reviews any new publication/renewal scope. Existing draft PRs remain unmerged.
+Asana write activation still requires the separately documented single-writer cutover.
+
 ## Approved portfolio review — published and verified
 
 Steve approved the exact private 35-item proposal, the unrun different-account test,

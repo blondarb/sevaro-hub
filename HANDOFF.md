@@ -6,6 +6,7 @@ only). No secrets._
 
 ## Snapshot (keep current)
 - Status: The owner-private Command Center review workspace is published and verified with the exact approved 35-item snapshot: 34 initiative cards plus engineering, with three exceptions on Today. Stable numbered and selected-item conversational reads match the page. Review access expires at 5:37 p.m. Mountain September 13; no automatic refresh. Claude completed the bounded local SDNE module inventory, but current Riya/Dhruv results and reviewed Cowork feeds remain unavailable. Asana writes OFF; stage choices unresolved; PRs draft/unmerged. Latest release and hosting-limit repair evidence: `docs/command-center/INTEGRATION_READINESS_20260913.md`.
+- Integration preparation: Quiet pending refresh and reviewed Claude export validation are implemented/tested; partial Claude exports remain held. Existing artifact handoff requests adoption; no scheduler, automatic Site renewal or source write was installed. See the newest integration readiness section.
 - Driver this week: Review the validated `/admin/portfolio` change, reconcile the unavailable original idea-dump email, and confirm the private `memory/people` location before assigning owners.
 - Lives in: https://github.com/blondarb/sevaro-hub.git
 
@@ -18,6 +19,13 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log (append-only, newest first)
+
+### 2026-09-13 · ChatGPT · Quiet refresh preparation and reviewed Claude exports
+- Did: Added a host-only refresh hook with private current/prior recovery, fixed health history, quiet unchanged runs and pending-only output. Added digest-bound Claude review/run envelopes, rejecting partial exports from the current complete-only snapshot schema. Exercised current Asana/GitHub reads and one actual partial Claude Code export.
+- Files/links touched: command-center host modules/tests; CLAUDE_EXPORT_ADOPTION.md; integration readiness; existing artifact HANDOFF adoption request; export step in the existing Ops feature PR. Private feed, run receipt and refresh health remain outside Git.
+- Decisions: No new agent schedule, raw ingestion, notification digest, automatic Site renewal, Asana writes or stage decisions. Preserve original observation times and the single-writer hold. Partial is not complete.
+- Open questions / needs Claude: Existing routine must supply reviewed coordination/reply/calendar exports and actual completion receipts. Current Riya/Dhruv evidence is still not reconciled. The installed routine definition and a pending handoff do not prove execution.
+- Next: Review existing PR updates; adopt the export step within the existing routine. Prepare any further private Site release against an exact newly reviewed snapshot and expiry. Do not merge automatically.
 
 ### 2026-09-13 · ChatGPT · Approved portfolio workspace published
 - Did: Revalidated and privately released Steve's exact approved 35-item snapshot. Hosted page, full conversational read, stable item two and selected-item read agree. Fixed provider binding size limit and retained legacy binding; content and expiry unchanged.
