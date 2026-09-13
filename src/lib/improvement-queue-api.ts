@@ -5,8 +5,6 @@ const API_URL =
 export interface ImprovementEntry {
   repoName: string;
   promptId: string;
-  /** Stable project ID from src/data/portfolio.json. Optional for legacy rows. */
-  parentProjectId?: string;
   title: string;
   priority: 'P1' | 'P2' | 'P3';
   status: 'pending' | 'in-progress' | 'completed' | 'deferred';

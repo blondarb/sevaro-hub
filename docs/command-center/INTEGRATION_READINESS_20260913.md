@@ -1,5 +1,34 @@
 # Command Center integration readiness — September 13, 2026
 
+## Owner-filter release and continuing reconciliation
+
+Steve requested excluding tasks assigned to Dhruv. The read-only owner check matched
+15 of the existing 34 allowlisted Asana targets to one verified account. Host plans
+now support an optional exact assignee-ID exclusion; names/real IDs remain private.
+The filter applies before shared snapshot construction, including both Today and
+Projects. Reassignment is reevaluated on refresh; unassigned tasks stay eligible,
+while missing owner data fails closed. Thirteen affected adapter/file tests passed.
+
+The same saved Site version 9 was privately redeployed with environment revision 12
+at 23:11:55 UTC September 13. Deployment appgdep_6aa72dabf9ac8191b39377eab84d82c7
+succeeded. Only those 15 items were removed and the remaining numbers/digests were
+recomputed. Retained text, original evidence times and 5:37 p.m. Mountain expiry did
+not change. The page shows 19 Projects, three Today exceptions and 20 total items;
+authenticated conversational reads agree, with FPPE at number 7. Protected unused
+chunks were explicitly emptied; no source upload or credential exception was needed.
+
+Claude Code completed a bounded reconciliation of the supplied newer pending
+projection. Primary review retained FPPE intent and DONE module evidence gaps and
+corrected unsupported naming/gate/flag conflicts. The delivery monitor is not an
+Asana read connector; compact omitted fields do not prove missing source records.
+The reviewed private artifact and actual run receipt are linked from the existing
+coordination handoff. This does not supply missing communications/calendar feeds.
+
+The Command Center code has no July portfolio dependency. Its PR is being isolated
+against main with only command-center, command-center-proof, their docs and current
+handoff/Claude pointers. The original portfolio branch is preserved. This is branch
+preparation, not an upstream PR merge or production activation.
+
 ## Quiet preparation and Claude adoption — local integration, not a new Site release
 
 The host refresh preparer now collects the existing allowlisted Asana/GitHub targets,

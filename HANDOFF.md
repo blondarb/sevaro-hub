@@ -5,9 +5,9 @@ ChatGPT/Codex read this FIRST and update it LAST. Plain language. No PHI (initia
 only). No secrets._
 
 ## Snapshot (keep current)
-- Status: The owner-private Command Center review workspace is published and verified with the exact approved 35-item snapshot: 34 initiative cards plus engineering, with three exceptions on Today. Stable numbered and selected-item conversational reads match the page. Review access expires at 5:37 p.m. Mountain September 13; no automatic refresh. Claude completed the bounded local SDNE module inventory, but current Riya/Dhruv results and reviewed Cowork feeds remain unavailable. Asana writes OFF; stage choices unresolved; PRs draft/unmerged. Latest release and hosting-limit repair evidence: `docs/command-center/INTEGRATION_READINESS_20260913.md`.
+- Status: Private Command Center now excludes the 15 Asana cards assigned to Dhruv, using the verified account ID. The approved filtered release contains 19 Asana cards plus engineering; Today remains three exceptions. Page and Voice match, with FPPE now number 7. Original source times and 5:37 p.m. Mountain September 13 expiry are unchanged. No Asana writes, merge or automatic renewal. Claude completed a bounded supplied-record reconciliation; current Riya/Dhruv evidence and communications feeds remain unresolved.
 - Integration preparation: Quiet pending refresh and reviewed Claude export validation are implemented/tested; partial Claude exports remain held. Existing artifact handoff requests adoption; no scheduler, automatic Site renewal or source write was installed. See the newest integration readiness section.
-- Driver this week: Review the validated `/admin/portfolio` change, reconcile the unavailable original idea-dump email, and confirm the private `memory/people` location before assigning owners.
+- Driver this week: Review the isolated Command Center PR against main, adopt existing Claude exports, and resolve evidence gaps before new stage or renewal decisions. Older July entries refer to the separately preserved portfolio branch.
 - Lives in: https://github.com/blondarb/sevaro-hub.git
 
 ## Open threads / next actions
@@ -19,6 +19,13 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log (append-only, newest first)
+
+### 2026-09-13 · ChatGPT · Owner filter published and Claude reconciliation reviewed
+- Did: Verified Dhruv's exact Asana assignment across 34 approved targets; excluded 15 in the host projection and existing private Site. Retained 20 items, original evidence times/expiry and identical page/Voice context. Added owner reassignment, unassigned and missing-owner checks; 13 affected tests pass. Claude Code completed a supplied-record reconciliation; primary review corrected unsupported implications and retained only actionable evidence gaps.
+- Files/links touched: Host adapter/config contract/tests; private filter/reconciliation receipts; existing Site saved version 9 reused with environment revision 12. Shared artifact handoff points to reviewed reconciliation. Command Center PR isolated from the July portfolio changes while preserving that branch and current main's org rules.
+- Decisions: Asana task state and ownership unchanged. Filter applies to Steve's view, not exclusion of relevant technical evidence from DONE. No extra sign-in, new schedule, direct Slack ingestion, automated renewal, source writes or automatic PR merge.
+- Open questions / needs Claude: Locate dated FPPE intent evidence and current Riya/Dhruv module results through existing authorized routines; produce reviewed coordination/reply/calendar exports and actual run receipts. Missing projection fields do not prove missing source evidence.
+- Next: Review the Command Center PR against main and the existing Ops/Context repair PRs; adopt exports without activating competing writers. Publish further changed context only within its exact approved scope.
 
 ### 2026-09-13 · ChatGPT · Quiet refresh preparation and reviewed Claude exports
 - Did: Added a host-only refresh hook with private current/prior recovery, fixed health history, quiet unchanged runs and pending-only output. Added digest-bound Claude review/run envelopes, rejecting partial exports from the current complete-only snapshot schema. Exercised current Asana/GitHub reads and one actual partial Claude Code export.
