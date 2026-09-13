@@ -6,6 +6,12 @@ visual cockpit**, **native ChatGPT Voice for conversation**, and
 The integration bridge is not yet implemented or accepted. Build read-only
 context first; do not create another portfolio database or custom speech stack.
 
+Follow-up: the bounded synthetic proof is now implemented in `command-center-proof/`.
+[Acceptance receipt](SHARED_CONTEXT_ACCEPTANCE_20260913.md): local browser/WebMCP
+shared retrieval passed; private Site publication, hosted auth and native Voice
+acceptance remain blocked/unrun. The sections below retain the initial audit
+baseline; no real-data adapter or larger UI has been enabled.
+
 ## Current implementation versus gaps
 
 Inspected `codex/portfolio-operating-system` at `227f41e` (already committed and

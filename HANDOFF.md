@@ -18,6 +18,13 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log (append-only, newest first)
+
+### 2026-09-13 · ChatGPT · Synthetic shared-context proof only
+- Did: Added one immutable synthetic snapshot, fixed numbered references, read-only Worker/browser tools and fail-closed owner binding. Local browser/WebMCP returned the same item 2; four Node tests passed.
+- Files/links touched: `command-center-proof/`; `docs/command-center/SHARED_CONTEXT_ACCEPTANCE_20260913.md`; draft PR #37.
+- Decisions: No real executive/clinical data or broad UI. Private Site registration is owner-only, but unpublished. Shared source remains here; the Site build copies only the proof allowlist.
+- Open questions / needs Claude: Secure Sites publishing transport, actual hosted owner/anonymous/other-user tests, and native Voice retrieval remain unaccepted. Preserve existing Outlook/Fyxer ingestion and data.js/index.html ownership.
+- Next: Resolve the authenticated proof blockers and pass Site/native Voice acceptance before adding data or UI. Do not merge automatically.
 ### 2026-09-13 · ChatGPT · Private Sites and native Voice architecture
 - Did: inspected the existing portfolio branch, live Sites access metadata and official Sites/Voice capabilities; specified a shared exception context and source/PHI boundaries.
 - Files/links touched: `docs/command-center/SITES_VOICE_ARCHITECTURE.md`, this HANDOFF.
