@@ -29,14 +29,23 @@ function item(entry, sourceId, revision, sourceUrl, status, due = null) {
   return { item_id: sourceId + ':' + entry.target, source_id: sourceId, source_revision: revision, source_url: sourceUrl, spoken_name: entry.spoken_name, kind: entry.kind, context: entry.context, recommendation: entry.recommendation, requires_steve: entry.requires_steve, due, status, next_event: entry.next_event, action_state: entry.action_state };
 }
 /** Exact task allowlist only: never list boards or fetch titles, descriptions, comments or attachments. */
-export async function collectAsana({ sourceId, projectId, entries, stageLabels, credential, fetcher = fetch, now = new Date().toISOString() }) {
+export async function collectAsana({ sourceId, projectId, entries, stageLabels, excludedAssigneeGids = [], credential, fetcher = fetch, now = new Date().toISOString() }) {
   identifier(sourceId); gid(projectId); requireThat(entries.length > 0 && entries.length <= 50 && new Set(entries.map(e=>e.target)).size === entries.length);
+  requireThat(Array.isArray(excludedAssigneeGids) && excludedAssigneeGids.length <= 50 && new Set(excludedAssigneeGids).size === excludedAssigneeGids.length,'invalid_owner_filter');
+  excludedAssigneeGids.forEach(gid);
   const items = [];
   try {
     for (const entry of entries) {
       definition(entry); gid(entry.target);
       const result = await jsonGet(fetcher, `https://app.asana.com/api/1.0/tasks/${entry.target}?opt_fields=${ASANA_FIELDS}`, { Authorization: 'Bearer ' + credential, Accept: 'application/json' });
       const task = result.data; requireThat(task?.gid === entry.target, 'source_conflict'); instant(task.modified_at);
+      if (excludedAssigneeGids.length) {
+        // Missing ownership is not the same as explicitly unassigned. Do not
+        // silently include an excluded owner's task after a partial response.
+        requireThat(task.assignee === null || task.assignee && typeof task.assignee.gid === 'string','source_conflict');
+        if (task.assignee !== null) gid(task.assignee.gid);
+        if (excludedAssigneeGids.includes(task.assignee?.gid)) continue;
+      }
       const memberships = task.memberships?.filter(m => m.project?.gid === projectId);
       requireThat(memberships?.length === 1, 'source_conflict');
       const section = memberships[0].section?.gid;

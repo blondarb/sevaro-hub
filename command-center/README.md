@@ -9,6 +9,11 @@ Claude/Cowork/Code retain their existing Outlook, Fyxer, Slack and document rout
 - Exact-task Asana GET adapter requests IDs, completion, due dates, source revisions
   and section IDs only. Reviewed section-ID labels preserve Asana's stages. A moved
   task, unknown section or failed partial read marks the source unavailable.
+  An optional private `excluded_assignee_gids` list removes tasks assigned to those
+  exact Asana users before snapshot construction. Steve requested excluding Dhruv's
+  tasks from his view. The verified account ID stays in the private plan, not code.
+  Reassignment is checked on every refresh; unassigned tasks remain eligible and
+  missing owner metadata fails closed. Page and Voice share the same filtered snapshot.
 - GitHub uses the host's existing `gh` authentication and GraphQL field selection
   for exact PR numbers/state/draft/revision. It never fetches PR bodies or logs.
 - Claude supplies an already-reviewed export envelope with a digest-bound review and
@@ -71,6 +76,8 @@ These labels/classifications/interpretations are curated proposals, never inferr
 business assignments. `stage_labels` maps reviewed Asana section GIDs to their
 exact labels, including emoji where present. The canonical upstream values win.
 No source config or real examples are checked into this public repository.
+For Asana only, the optional `excluded_assignee_gids` key adds an exact-owner
+exclusion. It changes the projection, never Asana task ownership or status.
 
 ## Protected release channel
 

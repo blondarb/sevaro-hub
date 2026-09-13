@@ -23,6 +23,18 @@ test('moved tasks and unrecognized stages become conflicts without automatic nor
     const result=await collectAsana({...config,fetcher:async()=>Response.json(data({memberships}))});assert.equal(result.failure_code,'source_conflict');
   }
 });
+test('owner exclusion follows live Asana assignment, including decisions, without dropping unassigned tasks',async()=>{
+ const filtered={...config,excludedAssigneeGids:['8']};
+ for(const assignee of [{gid:'8'},{gid:'9'},null]) {
+  const result=await collectAsana({...filtered,fetcher:async()=>Response.json(data({assignee}))});
+  assert.equal(result.status,'available');assert.equal(result.items.length,assignee?.gid==='8'?0:1);
+ }
+ for(const assignee of [undefined,{}, {gid:'invalid'}]) {
+  const result=await collectAsana({...filtered,fetcher:async()=>Response.json(data({assignee}))});
+  assert.equal(result.status,'unavailable');assert.deepEqual(result.items,[]);
+ }
+ await assert.rejects(collectAsana({...filtered,excludedAssigneeGids:['8','8']}),/invalid_owner_filter/);
+});
 test('Github consumes only selected metadata; raw author/body fields are rejected',()=>{
   const config={sourceId:'github:hub',repository:'example/project',entries:[entry()],records:[{number:101,state:'OPEN',isDraft:true,updatedAt:new Date(NOW).toISOString()}],now:new Date(NOW).toISOString()};
   assert.equal(githubMetadataFeed(config).items[0].status,'Draft pull request');

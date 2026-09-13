@@ -54,11 +54,12 @@ export async function collectSources(plan) {
   const allowed = {asana:['source_id','system','project_id','entries','stage_labels'],github:['source_id','system','repository','entries'],claude:['source_id','system','private_export_path','allowed_hosts'],asana_sync:['source_id','system','private_health_path','source_url']};
   const expectedSources=[],feeds=[];
   for(const spec of plan.sources) {
-    requireThat(allowed[spec.system] && Object.keys(spec).length === allowed[spec.system].length && Object.keys(spec).every(k=>allowed[spec.system].includes(k)), 'invalid_plan');
+    const keys=allowed[spec.system];
+    requireThat(keys && keys.every(k=>Object.hasOwn(spec,k)) && Object.keys(spec).every(k=>keys.includes(k) || spec.system==='asana' && k==='excluded_assignee_gids'), 'invalid_plan');
     requireThat(/^[a-zA-Z0-9:_./-]{1,160}$/.test(spec.source_id) && !expectedSources.includes(spec.source_id),'invalid_plan'); expectedSources.push(spec.source_id);
     try {
       let feed;
-      if(spec.system==='asana') feed=await asanaHost({sourceId:spec.source_id,projectId:spec.project_id,entries:spec.entries,stageLabels:spec.stage_labels});
+      if(spec.system==='asana') feed=await asanaHost({sourceId:spec.source_id,projectId:spec.project_id,entries:spec.entries,stageLabels:spec.stage_labels,excludedAssigneeGids:spec.excluded_assignee_gids});
       if(spec.system==='github') feed=await githubHost({sourceId:spec.source_id,repository:spec.repository,entries:spec.entries});
       if(spec.system==='claude') feed=await claudeHost(spec.private_export_path,{allowedHosts:spec.allowed_hosts});
       if(spec.system==='asana_sync') feed=await healthHost(spec.private_health_path,{sourceId:spec.source_id,sourceUrl:spec.source_url});
