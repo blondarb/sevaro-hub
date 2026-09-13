@@ -5,7 +5,7 @@ ChatGPT/Codex read this FIRST and update it LAST. Plain language. No PHI (initia
 only). No secrets._
 
 ## Snapshot (keep current)
-- Status: Portfolio source is committed and pushed at `227f41e` on `codex/portfolio-operating-system`; the July data is a historical snapshot, not current project authority. September 13 architecture evaluation selects private Sites + native Voice with this repo as integration home; see `docs/command-center/SITES_VOICE_ARCHITECTURE.md`. The bounded synthetic Site is privately published with verified owner binding and authenticated shared retrieval during native Codex Voice. Host adapters are implemented and gated runtime source version 4 is privately published. Explicit runtime-to-synthetic rollback is hosted-tested and the page/read tool visibly work. Synthetic A→B and hosted anonymous/forged-owner denial pass; different-account and platform-retention checks remain open. No real data or larger UI is enabled. See `docs/command-center/INTEGRATION_READINESS_20260913.md`.
+- Status: The existing owner-private Site now has a bounded, explicitly approved three-item real metadata trial on saved source version 5. Owner page and authenticated read/number tools during native Codex Voice matched the exact approved snapshot. Trial expires September 13 at 3:15 p.m. Mountain; no unattended refresh. Steve accepted the unavailable second-account test and uncertain platform retention for this trial only. Claude exports and repaired sync-health remain unavailable, Asana writes OFF, stage decisions unresolved, integration PRs draft/unmerged. July portfolio data remains historical; Asana is authoritative. See `docs/command-center/INTEGRATION_READINESS_20260913.md`.
 - Driver this week: Review the validated `/admin/portfolio` change, reconcile the unavailable original idea-dump email, and confirm the private `memory/people` location before assigning owners.
 - Lives in: https://github.com/blondarb/sevaro-hub.git
 
@@ -18,6 +18,14 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log (append-only, newest first)
+
+### 2026-09-13 · ChatGPT · Approved private real metadata trial published
+- Did: Revalidated the exact approved source revisions/content, bound Steve's approval to the immutable release, and deployed existing saved version 5 with protected runtime settings. Owner page and authenticated read tools returned the identical approved snapshot; numbered resolution matched.
+- Files/links touched: Existing Steve Shared Context Proof Site, acceptance/readiness receipts, private approval/deployment record outside Git.
+- Decisions: The exact three-item trial only is approved through 3:15 p.m. Mountain today; second-account test remains NOT RUN and platform retention unknown, explicitly accepted for this scope. No automatic refresh, broader feeds, source writes, merge or audience change.
+- Open questions / needs Claude: Adopt the reviewed export contract in existing routines. Continuous freshness and broader feeds remain unfinished; Asana writer cutover and stage decisions remain separate.
+- Next: Use the published trial, then prepare the next freshness/feed scope without silently extending this approval.
+
 
 ### 2026-09-13 · ChatGPT · Published integration runtime and verified protected refresh
 - Did: Used Steve's separately approved one-time upload exception to save/publish version 2. Delivered synthetic A and B through protected runtime settings; page and authenticated tools agreed, old pinned references refused. Cookie-free requests with no identity, fake identity and the exact owner identity returned 401 without context. Sampled logs contained no test payload. The rollback test found a hosted 409 after setting removal; explicit mode repair in version 4 now passes hosted rollback. Eighteen affected tests passed.

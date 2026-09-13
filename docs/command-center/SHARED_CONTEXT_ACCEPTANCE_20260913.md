@@ -1,5 +1,41 @@
 # Shared-context acceptance — September 13, 2026
 
+## Approved real metadata trial — current receipt
+
+Steve approved the exact three-item, owner-private, read-only proposal after seeing
+its content, sources and expiration. He accepted the unrun different-account test
+and uncertain platform retention beyond expiry/removal for this bounded trial.
+Those limits are accepted for this release only; neither is recorded as passed.
+
+Saved source version 5 (source commit `2ce27fc` (full revision retained in the saved Site version))
+was deployed with environment revision 8 at 21:06:52 UTC on September 13.
+Private deployment `appgdep_6aa71063c03081919424371b656903fc` succeeded at
+https://steve-context-proof.blondarb.chatgpt.site. Source revisions and exact item
+content were rechecked before release. Only review classification and its derived
+hash changed; approved content, numbering and freshness times did not.
+
+The owner page visibly showed all three approved items. Authenticated browser
+read tools during native Codex Voice returned the exact approved snapshot digest;
+the item-number resolver matched item two and the same snapshot/view pins.
+This is evidence for this native Codex Voice path, not every ChatGPT Voice client.
+The private approval/deployment receipt and payload remain outside this public
+repository; no credentials, private snapshot body or owner identity are recorded here.
+
+This immutable trial expires at 21:15:54 UTC (3:15 p.m. Mountain) September 13;
+expiry makes context unavailable and is not a claim of platform deletion. No
+unattended refresh is installed or approved. Claude exports and repaired sync
+health remain unavailable. Asana writes stay disabled, stage conflicts undecided,
+all integration PRs unmerged, and legacy writer retirement remains required.
+
+Version 5 additionally rejects invalid explicit source modes. Twenty-three
+affected checks passed for that repair and the trusted private-root alias fix;
+seven unchanged adapter checks retain their prior evidence. The runtime-only
+trial reuses that source and passed exact payload/approval and hosted checks.
+
+Earlier sections below are historical receipts; this section supersedes their
+claims that owner binding, hosted retrieval or all real-data publication remain blocked.
+
+
 **Result: privately published, owner binding verified, and authenticated shared
 retrieval demonstrated during native Codex Voice. Real-data acceptance remains held.**
 No executive data, PHI, email bodies or raw transcripts entered the Site.
