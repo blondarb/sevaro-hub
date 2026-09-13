@@ -41,7 +41,9 @@ export default {
       // Hosting adapters may represent removed settings as null or empty strings.
       // Fall back only when BOTH runtime fields are absent; partial/corrupt releases fail closed.
       const absent = value => value === undefined || value === null || value === '';
-      const current = absent(env.CONTEXT_SNAPSHOT) && absent(env.CONTEXT_RELEASE_SHA256) ? snapshot : await loadRuntimeSnapshot(env);
+      const current = env.CONTEXT_SOURCE_MODE === 'synthetic' ? snapshot
+        : env.CONTEXT_SOURCE_MODE === 'runtime' ? await loadRuntimeSnapshot(env)
+        : absent(env.CONTEXT_SNAPSHOT) && absent(env.CONTEXT_RELEASE_SHA256) ? snapshot : await loadRuntimeSnapshot(env);
       const pinnedRead = (snapshotId, viewId) => current === snapshot ? readContext(snapshotId, viewId) : readSnapshot(current, {snapshot_id:snapshotId,view_id:viewId});
       if (url.pathname === '/') {
         pinnedRead(current.snapshot_id, current.view_id);

@@ -96,3 +96,10 @@ test('removed setting representations restore the fixed proof; partial releases 
   for(const incomplete of [{CONTEXT_SNAPSHOT:'{}'},{CONTEXT_RELEASE_SHA256:'digest'}])
     assert.equal((await worker.fetch(request('/'),{PROOF_OWNER_SITE_USER_ID:'owner',...incomplete})).status,409);
 });
+
+test('explicit synthetic mode never reads removed settings; runtime mode requires a complete release',async()=>{
+  const env={PROOF_OWNER_SITE_USER_ID:'owner',CONTEXT_SOURCE_MODE:'synthetic'};
+  for(const key of ['CONTEXT_SNAPSHOT','CONTEXT_RELEASE_SHA256'])Object.defineProperty(env,key,{get(){throw Error('missing setting');}});
+  assert.equal((await worker.fetch(request('/'),env)).status,200);
+  assert.equal((await worker.fetch(request('/'),{PROOF_OWNER_SITE_USER_ID:'owner',CONTEXT_SOURCE_MODE:'runtime'})).status,409);
+});

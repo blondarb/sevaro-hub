@@ -80,7 +80,7 @@ No source config or real examples are checked into this public repository.
    human decision; generating its fields does not constitute that decision.
    After exact-content approval, the Site-owning operator uses the platform's
    protected environment-variable API to set `CONTEXT_SNAPSHOT` (secret) and
-   `CONTEXT_RELEASE_SHA256` and the secret approval receipt together, then redeploys the same saved source version.
+   `CONTEXT_RELEASE_SHA256`, `CONTEXT_SOURCE_MODE=runtime` and the secret approval receipt together, then redeploys the same saved source version.
    Environment edits do not affect the running Site until that deployment succeeds.
    Do not use shell arguments, public assets, Git or a new database to transfer data.
 5. The trusted operator must verify hosted owner/anonymous/other-account access,
@@ -99,10 +99,12 @@ unavailable until a reviewed refresh is released. Do not claim current data whil
 presenting an expired snapshot. The platform may retain old setting revisions;
 retention/purge behavior needs verification before sensitive executive content.
 
-Rollback clears `CONTEXT_SNAPSHOT`, `CONTEXT_RELEASE_SHA256`,
+Rollback first selects `CONTEXT_SOURCE_MODE=synthetic` in the same environment update
+that clears `CONTEXT_SNAPSHOT`, `CONTEXT_RELEASE_SHA256`,
 `CONTEXT_APPROVAL_RECEIPT` and `CONTEXT_REAL_DATA_ENABLED` and redeploys the
 same saved version, returning to the immutable synthetic proof (until its expiry).
-Preserve owner binding. Do not restore expired/unapproved real content. No source
+Do not rely on deleting settings to select the fallback: hosting did not expose removed
+settings in the form assumed by the original code. Preserve owner binding. Do not restore expired/unapproved real content. No source
 system is mutated by rollback.
 
 ## Tests

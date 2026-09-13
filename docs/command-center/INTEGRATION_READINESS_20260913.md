@@ -10,7 +10,12 @@ This is narrower than proving every ChatGPT web/mobile Voice client supports it.
 The next source candidate adds host-side Asana/GitHub metadata adapters, a strict
 Claude export reader, repaired sync-health ingestion, one expiring immutable Today
 snapshot, runtime delivery checks and source-linked numbered read tools. It is not
-a larger dashboard. Saved version 2 was privately deployed and passed protected synthetic A→B delivery. Clearing the test settings then produced a hosted 409. Saved version 1 has been restored and visibly verified working. The version-2 fallback correction is local/tested but not yet published; the exact hosted missing-setting representation remains unconfirmed.
+a larger dashboard. Saved version 4 is privately deployed. Protected synthetic A→B delivery passed.
+An implicit-fallback failure after deleting runtime settings was fixed by explicitly
+selecting synthetic or runtime mode. Version 4 then passed hosted runtime delivery
+and rollback; the final page and authenticated number-two tool visibly work. The
+current runtime has only owner binding and synthetic mode; no executive payload.
+
 
 Local metadata reads from Asana and GitHub succeeded and produced a private pending
 proposal. No real proposal was uploaded to Sites or committed to Git. Claude exports
@@ -20,7 +25,7 @@ Historical portfolio JSON is not used as a live feed.
 The independent review found and this candidate fixes hidden Today records in tool
 responses, premature review labels, unsafe private-file placement, empty source
 allowlists, invalid derived views, arbitrary build overwrites and item 100 handling.
-Twenty-six synthetic checks passed before deployment. After the hosted rollback finding, seventeen affected checks passed, including one new regression for null/empty removed settings; unchanged adapter/file checks retain their earlier evidence. Hosted access and
+Twenty-six synthetic checks passed before deployment. After the hosted rollback finding, eighteen affected checks passed, including regressions for removed settings and an explicit mode that avoids reading deleted values; unchanged adapter/file checks retain their earlier evidence. Hosted access and
 transport receipts below are separate from these local tests.
 
 ## Remaining acceptance gates
@@ -36,7 +41,7 @@ transport receipts below are separate from these local tests.
 | Claude exports | Contract below is prepared; no claim that existing routines adopted it or generated a reviewed feed |
 | Refresh | Manual/on-demand candidate, not a live unattended sync. Expired context becomes unavailable |
 
-Steve separately approved one short-lived source-upload exception for this prepared update. Upload, saved version 2 and private deployment succeeded. Both one-time publishing exceptions have been used; neither is a standing credential-policy change.
+Steve separately approved one short-lived source-upload exception for this prepared update. Upload, saved version 2 and private deployment succeeded. The latest approval covered this publishing update and its fallback repair. Neither approval is a standing credential-policy change.
 
 ## Existing Claude routines and connection contract
 

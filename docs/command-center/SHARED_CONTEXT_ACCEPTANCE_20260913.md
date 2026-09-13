@@ -4,6 +4,22 @@
 retrieval demonstrated during native Codex Voice. Real-data acceptance remains held.**
 No executive data, PHI, email bodies or raw transcripts entered the Site.
 
+## Final working deployment
+
+Saved version 4 (Site source `f96ef17`) deployed with explicit synthetic mode and
+verified owner binding. Environment revision 6 then selected runtime mode with
+synthetic B; the page and authenticated numbered tool agreed. Revision 7 selected
+synthetic mode and removed the runtime payload/digest. Deployment succeeded at
+20:48:38 UTC; an old runtime reference refused, then reload showed all original
+items and the authenticated number-two tool returned Harbor dependency.
+
+The implicit fallback problem described below is resolved operationally by explicit
+mode selection. The exact representation of deleted settings was not established.
+No real-data gate, approval receipt or executive payload is configured. Eighteen
+affected local tests pass; unchanged adapter/file evidence is retained. Different
+signed-in-account testing, platform retention confirmation, Claude export adoption
+and exact fresh executive-content review remain outstanding.
+
 ## Published integration update and hosted tests
 
 Saved version 2 uses Site source `4ac1149` and the existing owner-only audience.
@@ -32,7 +48,7 @@ fields nor the fictional payload text. This does not prove platform-wide retenti
 or log policy. Sites old secret-setting revision retention/purge remains unknown.
 
 The source upload used the additional one-time exception Steve explicitly approved
-for this prepared update. No exception is carried forward to another source upload.
+for this prepared update. That approval covered this publishing update and its scoped fallback repair, not future unrelated uploads.
 
 ## Current receipt (supersedes the earlier publication diagnostics below)
 
