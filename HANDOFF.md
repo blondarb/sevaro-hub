@@ -5,7 +5,7 @@ ChatGPT/Codex read this FIRST and update it LAST. Plain language. No PHI (initia
 only). No secrets._
 
 ## Snapshot (keep current)
-- Status: The earlier owner-private three-item real trial was published and its page/Voice reads matched, but its approval expired at 3:15 p.m. Mountain September 13. The full read-only review workspace is now implemented and tested locally: category navigation, selected-item Voice context, stable numbers, explicit portfolio drilldown, bounded two-hour approval support and truthful unavailable/expired state. All 34 initiative cards are mapped into a private pending proposal, plus one engineering item; no broader snapshot is approved or published. Claude Code completed a bounded local SDNE module inventory; current remote results and Cowork exports remain unconfirmed. Asana writes OFF, stage choices unresolved, PRs draft/unmerged. See `docs/command-center/INTEGRATION_READINESS_20260913.md`.
+- Status: The owner-private Command Center review workspace is published and verified with the exact approved 35-item snapshot: 34 initiative cards plus engineering, with three exceptions on Today. Stable numbered and selected-item conversational reads match the page. Review access expires at 5:37 p.m. Mountain September 13; no automatic refresh. Claude completed the bounded local SDNE module inventory, but current Riya/Dhruv results and reviewed Cowork feeds remain unavailable. Asana writes OFF; stage choices unresolved; PRs draft/unmerged. Latest release and hosting-limit repair evidence: `docs/command-center/INTEGRATION_READINESS_20260913.md`.
 - Driver this week: Review the validated `/admin/portfolio` change, reconcile the unavailable original idea-dump email, and confirm the private `memory/people` location before assigning owners.
 - Lives in: https://github.com/blondarb/sevaro-hub.git
 
@@ -18,6 +18,13 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log (append-only, newest first)
+
+### 2026-09-13 · ChatGPT · Approved portfolio workspace published
+- Did: Revalidated and privately released Steve's exact approved 35-item snapshot. Hosted page, full conversational read, stable item two and selected-item read agree. Fixed provider binding size limit and retained legacy binding; content and expiry unchanged.
+- Files/links touched: Existing Site saved version 9; release/acceptance docs; protected transport and regression tests; private approval/deployment receipt outside Git.
+- Decisions: The scoped different-account and retention limitations were explicitly accepted. Review ends at 5:37 p.m. Mountain September 13. Preserve private audience, PHI-free metadata, no automatic refresh and no source writes.
+- Open questions / needs Claude: Current Riya/Dhruv evidence and reviewed communications/calendar exports; sync monitoring still requires its existing cutover. No new decisions inferred.
+- Next: Use Projects for initiative review and Today for exceptions; connect reviewed exports and define a separately approved renewal scope. Review existing PRs without automatic merge.
 
 ### 2026-09-13 · ChatGPT · Full review workspace and actual Claude module review
 - Did: Implemented the full read-only category/review surface and fresh selected-item read tool; added explicit two-hour and portfolio preparation options, fixed authenticated expiry/health behavior and resolved the focused security review. All 34 source/adapter/file/approval tests pass; synthetic browser category and focused Voice reads match, and 375px viewport has no page overflow. Exact generated Worker secret scan passed.

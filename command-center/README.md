@@ -20,7 +20,7 @@ Claude/Cowork/Code retain their existing Outlook, Fyxer, Slack and document rout
 - Assembly refuses duplicate/conflicting IDs, unknown fields, unapproved hosts,
   future observations, stale-source items and invalid dates. By default it excludes quiet records before creating one
   deterministic item-number map with a content-derived snapshot and view ID.
-- Site runtime accepts one protected snapshot setting plus its exact approved digest.
+- Site runtime accepts one protected snapshot or protected transport chunks, plus its exact approved digest.
   Real-data mode is disabled unless separately enabled after the acceptance gates.
   All reads use the exact displayed pins; deployment of a new snapshot makes old
   references fail rather than silently resolving a newly numbered item.
@@ -71,8 +71,11 @@ No source config or real examples are checked into this public repository.
 2. Revalidate source revisions and approval immediately before release. Any changed
    source/content invalidates the previous release approval; recollect and review.
 3. `prepareRelease` validates the canonical payload and enforces a conservative
-   65536-byte cap. Do not compress, shard or truncate it to evade the cap. The
-   platform's documented maximum and retention are not established by this code.
+   65536-byte total cap. Do not compress, shard or truncate to evade that cap.
+   Hosted testing established an additional per-binding limit of about 5.1 kB.
+   `snapshotBindings(payload)` splits the unchanged canonical payload into UTF-8
+   chunks of at most 4096 bytes, with a count. All chunks are rejoined and checked
+   against the same complete snapshot digest and approval; no data is dropped.
 4. The operator may mark the exact inspected snapshot `executive-reviewed` only
    after Steve approves its content. Recompute its snapshot/view hashes, then record
    an independent `CONTEXT_APPROVAL_RECEIPT` with the released digest, approved_by
@@ -81,8 +84,13 @@ No source config or real examples are checked into this public repository.
    this exact unexpired receipt as well as the real-data gate. A receipt records a
    human decision; generating its fields does not constitute that decision.
    After exact-content approval, the Site-owning operator uses the platform's
-   protected environment-variable API to set `CONTEXT_SNAPSHOT` (secret) and
-   `CONTEXT_RELEASE_SHA256`, `CONTEXT_SOURCE_MODE=runtime` and the secret approval receipt together, then redeploys the same saved source version.
+   protected environment-variable API to set `CONTEXT_SNAPSHOT` (secret), or the
+   secret `CONTEXT_SNAPSHOT_CHUNK_COUNT` and `CONTEXT_SNAPSHOT_CHUNK_0` through
+   the declared final chunk from `snapshotBindings`. Set the legacy single binding
+   to an explicit empty string when switching to chunks. Explicitly empty every
+   unused old chunk when reducing chunk count or returning to the single binding:
+   removal from Sites settings alone was observed to retain old runtime values.
+   Never accept mixed transports. Set secret `CONTEXT_RELEASE_SHA256`, `CONTEXT_SOURCE_MODE=runtime` and the secret approval receipt together, then redeploys the same saved source version.
    Environment edits do not affect the running Site until that deployment succeeds.
    Do not use shell arguments, public assets, Git or a new database to transfer data.
 5. The trusted operator must verify hosted owner/anonymous/other-account access,

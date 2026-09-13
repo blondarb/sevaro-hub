@@ -1,5 +1,46 @@
 # Command Center integration readiness — September 13, 2026
 
+## Approved portfolio review — published and verified
+
+Steve approved the exact private 35-item proposal, the unrun different-account test,
+unknown platform retention beyond expiry, and a fresh one-time upload exception.
+Source records were rechecked unchanged before release. Only classification and
+its derived hashes changed; content, numbering, source times and expiry were preserved.
+
+Saved version 9, source `3acf130` (full revision retained in Sites), deployed privately
+with environment revision 11 at 21:51:46 UTC September 13. Deployment
+`appgdep_6aa71ae2e4e88191975607bfdb46917c` succeeded at
+https://steve-context-proof.blondarb.chatgpt.site.
+
+Hosted owner verification passed: 35 items in the exact approved snapshot, 34 in
+Projects, three exceptions in Today, stable item-number resolution and selected-item
+read agreement. The authenticated conversational read matched the approved full
+snapshot digest. This verifies the current native Codex Voice/browser path, not
+all ChatGPT Voice clients. The other-account test remains NOT RUN, explicitly
+accepted for this exact release; it is not a passed test.
+
+Two hosting failures were resolved without changing approved content: the provider
+limits a single text binding to about 5.1 kB, and removing the legacy binding from
+settings left it present at runtime. The payload now uses five protected chunks;
+an explicit empty legacy value resolved the mixed-transport rejection. Missing,
+extra, oversized, mixed or changed chunks fail closed. The global 64 KiB payload
+cap, exact digest and approval checks remain. Safe fixed failure codes are retained
+in the authenticated empty shell when a client blocks error-response bodies.
+
+The snapshot expires at 23:37:07 UTC / 5:37 p.m. Mountain September 13. There is no
+automatic renewal. Expiry prevents new retrieval; it does not promise deletion of
+platform copies or prior conversation results. Claude communications/calendar
+exports and sync-monitor inputs remain unavailable. Claude's completed local module
+review is not a live Cowork feed or proof of current Riya/Dhruv results. No source
+writes, stage changes, automatic merge or scheduler cutover occurred.
+
+Validation: 34 earlier checks plus two chunk/partial-configuration regressions;
+affected context, authorization, file and build checks passed. Final readiness-only
+changes passed 25 affected context/authorization checks. Final generated Worker
+secret scan passed. Private approval and deployment receipts remain outside Git.
+
+Earlier sections are historical receipts and are superseded by this section.
+
 ## Full review continuation — prepared, not yet published
 
 Steve requested completion of the broader workspace and two-hour review support.
