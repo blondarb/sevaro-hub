@@ -37,3 +37,13 @@ test('API returns same pins and rejects mutations or unreviewed query fields', a
     assert.equal((await worker.fetch(req(url, 'owner', method), env)).status, 405);
   assert.equal((await worker.fetch(req(url + '&raw_email=forbidden', 'owner'), env)).status, 400);
 });
+test('viewer diagnostic exposes only self identity and never enrolls first visitor', async () => {
+  assert.equal((await worker.fetch(req('/api/viewer'))).status, 401);
+  const env = {};
+  const result = await worker.fetch(req('/api/viewer', 'owner'), env);
+  assert.deepEqual(await result.json(), { site_user_id: 'owner', binding_configured: false });
+  assert.deepEqual(env, {});
+  assert.equal((await worker.fetch(req('/api/context', 'owner'), env)).status, 503);
+  assert.equal((await worker.fetch(req('/api/viewer', 'other'), { PROOF_OWNER_SITE_USER_ID: 'owner' })).status, 403);
+  assert.equal((await worker.fetch(req('/api/viewer', 'owner', 'POST'), env)).status, 405);
+});

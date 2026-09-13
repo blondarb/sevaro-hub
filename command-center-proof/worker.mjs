@@ -17,12 +17,19 @@ export default {
     // Do not expose this worker directly or forward these headers to a Hub backend.
     const viewer = request.headers.get('oai-authenticated-user-id');
     if (!viewer) return response({ error: 'authentication_required' }, 401);
+    if (request.method !== 'GET') return response({ error: 'read_only' }, 405);
+    const url = new URL(request.url);
+    // Owner-only Sites policy must be verified before operator setup. This
+    // diagnostic returns only the authenticated visitor's own Site-scoped ID;
+    // it never enrolls that visitor or exposes the snapshot without a binding.
+    if (url.pathname === '/api/viewer' && !url.search && !env.PROOF_OWNER_SITE_USER_ID)
+      return response({ site_user_id: viewer, binding_configured: false });
     if (!env.PROOF_OWNER_SITE_USER_ID)
       return response({ error: 'owner_binding_not_configured' }, 503);
     if (viewer !== env.PROOF_OWNER_SITE_USER_ID)
       return response({ error: 'owner_only' }, 403);
-    if (request.method !== 'GET') return response({ error: 'read_only' }, 405);
-    const url = new URL(request.url);
+    if (url.pathname === '/api/viewer' && !url.search)
+      return response({ site_user_id: viewer, binding_configured: true });
     // No body parsing, upload, action endpoint, request logging or external fetch.
     try {
       if (url.pathname === '/') {

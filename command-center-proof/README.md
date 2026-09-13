@@ -35,6 +35,11 @@ infer one from email, trust a caller-supplied header on an exposed origin or use
 first-visitor enrollment. Unset binding returns 503; no identity returns 401;
 another user returns 403. There is no deployment of an app-owned auth stack.
 
+The authenticated `/api/viewer` diagnostic returns only the visitor's own
+Site-scoped ID. During setup it exposes no snapshot and changes no binding.
+After independently verifying the Site's owner-only policy and the signed-in
+owner session, the operator can use that ID for the exact runtime binding.
+
 All context routes are GET-only/no-store. This fixture's phrase parameter is
 synthetic only. Do not reuse a query-string interface for actual spoken input
 without a separate request/logging privacy design; infrastructure may log URLs.
