@@ -49,7 +49,7 @@ test('tampered snapshot number, source health and body cannot be accepted',async
 test('runtime release pins reject old references, unknown input and write methods',async()=>{
   const now=Date.now(), at=new Date(now-1000).toISOString(), expires=new Date(now+60_000).toISOString();
   const a=await assemble([source({observed_at:at,expires_at:expires})],{...options,now}),r=await prepareRelease(a,now);
-  const env={PROOF_OWNER_SITE_USER_ID:'owner',CONTEXT_SNAPSHOT:r.payload,CONTEXT_RELEASE_SHA256:r.digest};
+  const env={PROOF_OWNER_SITE_USER_ID:'owner',CONTEXT_SOURCE_MODE:'runtime',CONTEXT_SNAPSHOT:r.payload,CONTEXT_RELEASE_SHA256:r.digest};
   const path='/api/resolve?'+new URLSearchParams({...pins(a),item_number:'1'});
   const response=await worker.fetch(request(path),env);assert.equal(response.status,200);assert.equal((await response.json()).item.item_id,a.items[0].item_id);
   for(const p of ['/','/api/context','/api/resolve','/proof.js']){
@@ -102,4 +102,13 @@ test('explicit synthetic mode never reads removed settings; runtime mode require
   for(const key of ['CONTEXT_SNAPSHOT','CONTEXT_RELEASE_SHA256'])Object.defineProperty(env,key,{get(){throw Error('missing setting');}});
   assert.equal((await worker.fetch(request('/'),env)).status,200);
   assert.equal((await worker.fetch(request('/'),{PROOF_OWNER_SITE_USER_ID:'owner',CONTEXT_SOURCE_MODE:'runtime'})).status,409);
+});
+
+test('unknown mode refuses even a complete approved executive release',async()=>{
+  const now=Date.now(),at=new Date(now).toISOString(),expires=new Date(now+60_000).toISOString();
+  const snapshot=await assemble([source({observed_at:at,expires_at:expires})],{...options,now,classification:'executive-reviewed'}),release=await prepareRelease(snapshot,now);
+  const approval={digest:release.digest,approved_by:'Steve',approved_at:at,expires_at:expires,scope:'owner-only-read-only-site'};
+  const env={PROOF_OWNER_SITE_USER_ID:'owner',CONTEXT_SNAPSHOT:release.payload,CONTEXT_RELEASE_SHA256:release.digest,CONTEXT_REAL_DATA_ENABLED:'approved',CONTEXT_APPROVAL_RECEIPT:JSON.stringify(approval)};
+  for(const mode of ['synthetci','',null,undefined])assert.equal((await worker.fetch(request('/'),{...env,CONTEXT_SOURCE_MODE:mode})).status,409);
+  assert.equal((await worker.fetch(request('/'),{...env,CONTEXT_SOURCE_MODE:'runtime'})).status,200);
 });

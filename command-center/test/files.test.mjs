@@ -5,6 +5,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
+import {privatePaths} from '../private-paths.mjs';
 import {privateJson,githubHost} from '../collector.mjs';
 const exec=promisify(execFile);
 test('private inputs reject repository paths, symlink parents and public file permissions',async()=>{
@@ -33,4 +34,19 @@ test('Site build creates isolated sources and refuses overwrite or repository de
     await mkdir(join(root,'.git'));
     await assert.rejects(exec(process.execPath,[build,join(root,'another')]));
   } finally { await rm(root,{recursive:true,force:true}); }
+});
+
+test('documented root alias resolves once; arbitrary aliases and symlink files stay forbidden',async()=>{
+  const temp=await realpath(await mkdtemp(join(tmpdir(),'context-root-')));
+  try {
+    await mkdir(join(temp,'storage'));await symlink(join(temp,'storage'),join(temp,'configured'));
+    const root=join(temp,'configured','handoffs');await mkdir(root,{mode:0o700});
+    await writeFile(join(root,'input.json'),'{}',{mode:0o600});
+    const paths=await privatePaths(root,join(root,'input.json'),join(root,'proposed-current-context.json'));
+    assert.equal(paths.root,join(temp,'storage','handoffs'));assert.deepEqual(await privateJson(paths.input),{});
+    await symlink(join(temp,'storage','handoffs'),join(temp,'untrusted'));
+    await assert.rejects(privatePaths(root,join(temp,'untrusted','input.json'),join(root,'proposed-current-context.json')));
+    await symlink(join(root,'input.json'),join(root,'linked.json'));
+    await assert.rejects(privatePaths(root,join(root,'linked.json'),join(root,'proposed-current-context.json')));
+  } finally {await rm(temp,{recursive:true,force:true});}
 });

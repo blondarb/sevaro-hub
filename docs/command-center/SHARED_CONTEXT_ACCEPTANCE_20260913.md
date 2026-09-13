@@ -61,10 +61,7 @@ The action phrase “okay do that” was rejected. These were actual bound Site 
 not the earlier loopback identity shim. The user has not separately completed an
 exact spoken-number acceptance script, and other Voice clients remain untested.
 
-Hosted anonymous/second-account and identity-header-spoofing tests are still open.
-The newer runtime-delivery candidate is local only; twenty-six synthetic checks
-pass. Synthetic A→B hosted delivery and retention/log safety remain open. No real
-content is authorized for release. See `INTEGRATION_READINESS_20260913.md`.
+Hosted anonymous and forged-owner denial plus synthetic A→B delivery passed as recorded above. A different-account test is NOT RUN because Steve has no second account. The independent reviewer considers the combined existing controls proportionate for a specific metadata-only release if Steve accepts that limitation and potential platform retention of the exact content. No real content is yet authorized for release. See `INTEGRATION_READINESS_20260913.md`.
 
 ## Earlier publication diagnostics (historical; not current status)
 

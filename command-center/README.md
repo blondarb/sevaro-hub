@@ -42,7 +42,9 @@ It never approves or publishes. It prints only a digest, expiry and count.
 Output must be directly in `~/ClaudeSync/handoffs/command-center`, mode 0600, outside
 Git. The output filename is `proposed-current-context.json`; its previous value
 rotates into `proposed-prior-context.json`. Inputs must live directly in that private
-folder and be owner-private regular files, with no symlink or repository ancestors;
+folder and be owner-private regular files outside repositories. The documented ClaudeSync
+root alias is resolved once to its existing Google Drive location; unknown aliases and
+symlinked leaf files are refused;
 there is no automated history, report schedule or new background agent.
 
 A plan has `schema_version: 1` and `sources`. Each source uses exactly these keys:
@@ -87,7 +89,11 @@ No source config or real examples are checked into this public repository.
    synthetic A-to-B digest consistency, old-pin refusal, no payload in logs, and
    native Voice equivalence before setting `CONTEXT_REAL_DATA_ENABLED=approved`.
    The flag is an operational gate, not a substitute for those receipts or a PHI
-   review. Only the Site owner may change runtime settings; source permissions stay
+   review. If a genuinely different account is unavailable, record NOT RUN and
+   obtain Steve's explicit scope-specific acceptance of the existing compensating
+   controls before release. Unknown setting retention requires content-specific
+   acceptance that exact metadata may outlive expiry/deletion. Otherwise keep
+   executive content disabled. Only the Site owner may change runtime settings; source permissions stay
    in their original systems. No automated uploader or auto-approval exists.
 6. Verify the resulting snapshot/view/digest and expiry through owner-authenticated
    Site reads and Voice. Never count a bypass-token response as visitor acceptance.
