@@ -75,11 +75,11 @@ export function isTodayItem(i, now) {
     (i.kind === 'deadline' && i.due !== null && deadline(i.due) <= now + 48 * 3600_000) ||
     (i.kind === 'meeting' && i.due !== null && deadline(i.due) >= now && deadline(i.due) <= now + 48 * 3600_000);
 }
-export async function assemble(feeds, { expectedSources, allowedHosts, now = Date.now(), ttlMs = 15 * 60_000, classification = 'synthetic-only' }) {
+export async function assemble(feeds, { expectedSources, allowedHosts, now = Date.now(), ttlMs = 15 * 60_000, classification = 'synthetic-only', includePortfolio = false }) {
   requireThat(['synthetic-only', 'executive-pending-review', 'executive-reviewed'].includes(classification));
   requireThat(Array.isArray(expectedSources) && expectedSources.length > 0 && expectedSources.length <= 50);
   expectedSources.forEach(identifier); requireThat(new Set(expectedSources).size === expectedSources.length);
-  requireThat(ttlMs > 0 && ttlMs <= 3600_000 && Array.isArray(allowedHosts) && allowedHosts.length > 0);
+  requireThat(ttlMs > 0 && ttlMs <= 7200_000 && Array.isArray(allowedHosts) && allowedHosts.length > 0);
   const bySource = new Map(), byItem = new Map(), health = [];
   for (const feed of feeds) {
     validateFeed(feed, allowedHosts, now);
@@ -97,11 +97,11 @@ export async function assemble(feeds, { expectedSources, allowedHosts, now = Dat
     }
   }
   const all = [...byItem.values()].sort((a,b) => a.item_id < b.item_id ? -1 : a.item_id > b.item_id ? 1 : 0);
-  // This release contains exactly one Today view. Quiet records never cross the bridge.
-  const visible = all.filter(item => isTodayItem(item, now));
+  // Explicit portfolio review may include approved project summaries. Today remains exception-only.
+  const visible = all.filter(item => isTodayItem(item, now) || includePortfolio && item.kind === 'project');
   requireThat(visible.length <= MAX_ITEMS, 'too_many_items');
   const items = visible.map((item, i) => ({ ...item, number: i + 1 }));
-  const today = items;
+  const today = items.filter(item => isTodayItem(item, now));
   const data = { schema_version: 1, classification, generated_at: new Date(now).toISOString(), expires_at: new Date(expiry).toISOString(), health, items, today_item_ids: today.map(i => i.item_id), requiring_steve: items.filter(i => i.requires_steve).length };
   const digest = await sha256(data);
   return freeze({ ...data, snapshot_id: 'snapshot-' + digest, view_id: 'today-' + digest });

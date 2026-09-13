@@ -9,9 +9,9 @@ const headers = {
   'Referrer-Policy': 'no-referrer',
   'Content-Security-Policy': "default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'none'"
 };
-function response(value, status = 200, type = 'application/json') {
+function response(value, status = 200, type = 'application/json', extraHeaders = {}) {
   return new Response(type === 'application/json' ? JSON.stringify(value) : value,
-    { status, headers: { ...headers, 'Content-Type': type } });
+    { status, headers: { ...headers, ...extraHeaders, 'Content-Type': type } });
 }
 export default {
   async fetch(request, env = {}) {
@@ -36,6 +36,8 @@ export default {
       return response({ error: 'owner_only' }, 403);
     if (url.pathname === '/api/viewer' && !url.search)
       return response({ site_user_id: viewer, binding_configured: true });
+    // The authenticated shell remains usable when context expires. APIs still fail closed.
+    if (url.pathname === '/proof.js') return response(env.PROOF_BROWSER_SOURCE ?? '', env.PROOF_BROWSER_SOURCE ? 200 : 503, 'text/javascript');
     // No body parsing, upload, action endpoint, request logging or external fetch.
     try {
       // Hosting adapters may represent removed settings as null or empty strings.
@@ -47,6 +49,7 @@ export default {
       else if (mode === 'runtime') current = await loadRuntimeSnapshot(env);
       else if (mode === undefined && absent(env.CONTEXT_SNAPSHOT) && absent(env.CONTEXT_RELEASE_SHA256)) current = snapshot;
       else throw new Error('invalid_context_mode');
+      if (url.pathname === '/api/status' && !url.search) return response({state:'ready',expires_at:current.expires_at});
       const pinnedRead = (snapshotId, viewId) => current === snapshot ? readContext(snapshotId, viewId) : readSnapshot(current, {snapshot_id:snapshotId,view_id:viewId});
       if (url.pathname === '/') {
         pinnedRead(current.snapshot_id, current.view_id);
@@ -71,9 +74,14 @@ export default {
         const found = context.items.find(i => args.item_id !== undefined ? i.item_id === args.item_id : i.number === number);
         return found ? response({snapshot_id:context.snapshot_id,view_id:context.view_id,item:found}) : response({error:'unknown_item'}, 400);
       }
-      if (url.pathname === '/proof.js') return response(env.PROOF_BROWSER_SOURCE ?? '', env.PROOF_BROWSER_SOURCE ? 200 : 503, 'text/javascript');
       return response({ error: 'not_found' }, 404);
-    } catch {
+    } catch (error) {
+      const reason = ['snapshot_expired','approval_expired','review_required','real_data_disabled','approval_required','release_not_approved','digest_mismatch','context_unavailable'].includes(error?.code) ? error.code : 'invalid_context';
+      if (url.pathname === '/api/status' && !url.search) return response({state:'unavailable',reason},409);
+      if (url.pathname === '/' && !url.search) {
+        const shell = page.replace('__SNAPSHOT_ID__', 'unavailable').replace('__VIEW_ID__', 'unavailable').replace('__CLASSIFICATION__', 'unavailable');
+        return response(shell, 200, 'text/html; charset=utf-8', {'X-Context-State':'unavailable'});
+      }
       return response({ error: 'context_unavailable_or_reference_invalid' }, 409);
     }
   }

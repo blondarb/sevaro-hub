@@ -1,12 +1,12 @@
 import { exact, requireThat, instant, validateItem, sha256, canonical, identifier, ContextError, isTodayItem } from './context.mjs';
-export const MAX_RELEASE_BYTES = 4096;
+export const MAX_RELEASE_BYTES = 65536;
 export const LINK_HOSTS = Object.freeze(['app.asana.com', 'github.com', 'outlook.office.com', 'drive.google.com']);
 /** This validates a previously reviewed projection, never classifies raw content as PHI-free. */
 export async function validateSnapshot(snapshot, now = Date.now()) {
   exact(snapshot, ['schema_version', 'classification', 'generated_at', 'expires_at', 'health', 'items', 'today_item_ids', 'requiring_steve', 'snapshot_id', 'view_id']);
   requireThat(snapshot.schema_version === 1 && ['synthetic-only','executive-pending-review','executive-reviewed'].includes(snapshot.classification));
   const created = instant(snapshot.generated_at), expiry = instant(snapshot.expires_at);
-  requireThat(created <= now + 60_000 && expiry > now && expiry > created && expiry - created <= 3600_000, 'snapshot_expired');
+  requireThat(created <= now + 60_000 && expiry > now && expiry > created && expiry - created <= 7200_000, 'snapshot_expired');
   requireThat(Array.isArray(snapshot.items) && snapshot.items.length <= 100 && Array.isArray(snapshot.health) && snapshot.health.length <= 50);
   const sourceIds = new Set();
   for (const h of snapshot.health) {
@@ -22,7 +22,7 @@ export async function validateSnapshot(snapshot, now = Date.now()) {
     const {number, ...item} = row; requireThat(number === index + 1, 'invalid_numbering'); validateItem(item, LINK_HOSTS);
     requireThat(sourceIds.has(item.source_id) && snapshot.health.find(h=>h.source_id===item.source_id).state === 'available' && !seen.has(item.item_id), 'invalid_provenance'); seen.add(item.item_id);
   }
-  requireThat(snapshot.items.every(item => isTodayItem(item, created)) && canonical(snapshot.today_item_ids) === canonical(snapshot.items.map(item => item.item_id)), 'invalid_today_view');
+  requireThat(snapshot.items.every(item => isTodayItem(item, created) || item.kind === 'project') && canonical(snapshot.today_item_ids) === canonical(snapshot.items.filter(item => isTodayItem(item, created)).map(item => item.item_id)), 'invalid_today_view');
   requireThat(snapshot.requiring_steve === snapshot.items.filter(i=>i.requires_steve).length);
   const {snapshot_id,view_id,...body} = snapshot, hash = await sha256(body);
   requireThat(snapshot_id === 'snapshot-' + hash && view_id === 'today-' + hash, 'digest_mismatch');

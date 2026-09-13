@@ -5,7 +5,7 @@ ChatGPT/Codex read this FIRST and update it LAST. Plain language. No PHI (initia
 only). No secrets._
 
 ## Snapshot (keep current)
-- Status: The existing owner-private Site now has a bounded, explicitly approved three-item real metadata trial on saved source version 5. Owner page and authenticated read/number tools during native Codex Voice matched the exact approved snapshot. Trial expires September 13 at 3:15 p.m. Mountain; no unattended refresh. Steve accepted the unavailable second-account test and uncertain platform retention for this trial only. Claude exports and repaired sync-health remain unavailable, Asana writes OFF, stage decisions unresolved, integration PRs draft/unmerged. July portfolio data remains historical; Asana is authoritative. See `docs/command-center/INTEGRATION_READINESS_20260913.md`.
+- Status: The earlier owner-private three-item real trial was published and its page/Voice reads matched, but its approval expired at 3:15 p.m. Mountain September 13. The full read-only review workspace is now implemented and tested locally: category navigation, selected-item Voice context, stable numbers, explicit portfolio drilldown, bounded two-hour approval support and truthful unavailable/expired state. All 34 initiative cards are mapped into a private pending proposal, plus one engineering item; no broader snapshot is approved or published. Claude Code completed a bounded local SDNE module inventory; current remote results and Cowork exports remain unconfirmed. Asana writes OFF, stage choices unresolved, PRs draft/unmerged. See `docs/command-center/INTEGRATION_READINESS_20260913.md`.
 - Driver this week: Review the validated `/admin/portfolio` change, reconcile the unavailable original idea-dump email, and confirm the private `memory/people` location before assigning owners.
 - Lives in: https://github.com/blondarb/sevaro-hub.git
 
@@ -18,6 +18,14 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log (append-only, newest first)
+
+### 2026-09-13 · ChatGPT · Full review workspace and actual Claude module review
+- Did: Implemented the full read-only category/review surface and fresh selected-item read tool; added explicit two-hour and portfolio preparation options, fixed authenticated expiry/health behavior and resolved the focused security review. All 34 source/adapter/file/approval tests pass; synthetic browser category and focused Voice reads match, and 375px viewport has no page overflow. Exact generated Worker secret scan passed.
+- Files/links touched: command-center and command-center-proof sources; private pending portfolio proposal and actual Claude review receipt outside Git. Site staging commit a0b579f is prepared locally; existing hosted saved version 5 remains unchanged and expired.
+- Decisions: Full portfolio is a separate approved drilldown, not a Today dump. Source metadata mapping now covers 34 initiative cards and excludes the operating-rules card. Preserve Paused/Gate Required and Consolidated/Moved exactly from Asana. No broadened real-data approval, automatic renewal, source write, merge or new schedule. Expiry limits new retrieval, not previously retained conversation content.
+- Open questions / needs Claude: Current published Riya/Dhruv results and reviewed Cowork email/Slack/calendar exports. Local Claude inventory is not those live feeds. Changed Site source still needs the scoped publishing credential path and exact new snapshot approval before a broader real-data release.
+- Next: Review the private exact portfolio proposal, revalidate source revisions, then publish the prepared same-Site source and approved snapshot through native Sites. Keep historical queue and one-writer cutover gates unchanged.
+
 
 ### 2026-09-13 · ChatGPT · Approved private real metadata trial published
 - Did: Revalidated the exact approved source revisions/content, bound Steve's approval to the immutable release, and deployed existing saved version 5 with protected runtime settings. Owner page and authenticated read tools returned the identical approved snapshot; numbered resolution matched.

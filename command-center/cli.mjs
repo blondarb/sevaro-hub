@@ -8,13 +8,15 @@ import { assemble, ContextError, requireThat } from './context.mjs';
 import { privatePaths } from './private-paths.mjs';
 import { prepareRelease, LINK_HOSTS } from './release.mjs';
 async function main() {
-  const [command, inputPath, outputPath] = process.argv.slice(2);
+  const [command, inputPath, outputPath, ...flags] = process.argv.slice(2);
+  requireThat(flags.every(f=>["--review-hours=2","--include-portfolio"].includes(f)) && new Set(flags).size===flags.length, "invalid_review_options");
+  const reviewOption=flags.includes("--review-hours=2");
   requireThat(['prepare','collect'].includes(command) && inputPath && outputPath, 'usage_prepare_private_input_private_output');
   const {root:privateRoot,input:canonicalInput,destination}=await privatePaths(resolve(homedir(),'ClaudeSync/handoffs/command-center'),inputPath,outputPath);
   const config = await privateJson(canonicalInput);
   const input = command === 'collect' ? await collectSources(config) : config;
   requireThat(input && Object.keys(input).sort().join(',') === 'expected_sources,feeds', 'unexpected_fields');
-  const snapshot = await assemble(input.feeds, {expectedSources:input.expected_sources, allowedHosts:LINK_HOSTS, classification:'executive-pending-review'});
+  const snapshot = await assemble(input.feeds, {expectedSources:input.expected_sources, allowedHosts:LINK_HOSTS, classification:'executive-pending-review', ttlMs:reviewOption ? 7200_000 : 900_000, includePortfolio:flags.includes("--include-portfolio")});
   const release = await prepareRelease(snapshot);
   await mkdir(dirname(destination), {recursive:true,mode:0o700});
   // Fixed current/prior slots; reject existing unsafe paths before bounded rotation.

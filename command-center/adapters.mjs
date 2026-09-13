@@ -4,7 +4,7 @@ export const asanaFields = ASANA_FIELDS;
 function gid(value) { requireThat(typeof value === 'string' && /^\d{1,24}$/.test(value), 'invalid_target'); }
 function feed(sourceId, system, observedAt, items, failure = null) {
   instant(observedAt);
-  return { schema_version: 1, source_id: sourceId, system, observed_at: observedAt, expires_at: new Date(Date.parse(observedAt) + 3600_000).toISOString(), status: failure ? 'unavailable' : 'available', failure_code: failure, items: failure ? [] : items };
+  return { schema_version: 1, source_id: sourceId, system, observed_at: observedAt, expires_at: new Date(Date.parse(observedAt) + 7200_000).toISOString(), status: failure ? 'unavailable' : 'available', failure_code: failure, items: failure ? [] : items };
 }
 function code(error) { return ['permission_required','rate_limited','source_conflict'].includes(error?.code) ? error.code : 'source_unavailable'; }
 async function jsonGet(fetcher, url, headers) {

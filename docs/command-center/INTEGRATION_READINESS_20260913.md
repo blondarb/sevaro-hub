@@ -1,5 +1,45 @@
 # Command Center integration readiness — September 13, 2026
 
+## Full review continuation — prepared, not yet published
+
+Steve requested completion of the broader workspace and two-hour review support.
+The implementation has category navigation, a selected-item discussion pane,
+source links, recommendations only when supplied, pending-action state, and
+read-only Voice focus retrieval. No form entry or dashboard maintenance is required.
+The complete approved snapshot is shared; Today remains the exception subset,
+while an explicitly included portfolio is a separate drilldown with global numbers.
+Duration and portfolio scope are separate preparation flags. Both remain pending
+until the exact content is approved; the original trial is now expired.
+
+Thirty-four tests passed after these changes. Browser testing on the synthetic
+preview confirmed stable number two across category filtering and matching focused
+Voice retrieval; the layout fits 375px without page overflow. The exact allowlisted
+Worker was scanned with no secrets detected. The independent review's expiry,
+status reporting, stale prompt and implicit scope findings were addressed. No
+new data was loaded into the hosted Site for these checks.
+
+The private next proposal covers all 34 current initiative cards, with one
+operating-rules card intentionally excluded, and one engineering pull request.
+Metadata was read from Asana; legacy local stage labels were not used. Two additional
+actual Asana sections required catalog reconciliation: Paused / Gate Required and
+Consolidated / Moved. The pending proposal is not a complete inventory of Team Ops,
+subtasks, messages, meetings or unpublished work; those gaps remain explicit.
+
+Claude Code actually completed a bounded read-only local SDNE source review under
+the existing Claude subscription. Its private report distinguishes source code and
+old documented tests from current published results. Some categorical draft claims
+must be read only within that checkout scope. Source code found locally is not
+clinical validity, and absent local evidence does not establish absent external work.
+The report and job receipt live with the existing private handoff. No new recurring
+job, agent connection, external message or Asana write was created.
+
+The same-Site source is packaged locally at staging commit a0b579f. It has not been
+pushed to Sites, saved as a new version or deployed. Broader exact data approval
+and the scoped source-publishing credential exception remain release gates. The
+previous one-time exception is not treated as standing future authority. All code
+remains in the existing feature branch/PR; no automatic merge.
+
+
 ## Approved real metadata trial — current receipt
 
 Steve approved the exact three-item, owner-private, read-only proposal after seeing

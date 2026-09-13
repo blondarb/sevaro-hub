@@ -37,7 +37,7 @@ test('release binds exact digest, denies real data by default and caps payload s
   await assert.rejects(loadRuntimeSnapshot({CONTEXT_SNAPSHOT:r.payload,CONTEXT_RELEASE_SHA256:'bad'},NOW),/release_not_approved/);
   const real=await assemble([source()],{...options,classification:'executive-reviewed'}),rr=await prepareRelease(real,NOW);
   await assert.rejects(loadRuntimeSnapshot({CONTEXT_SNAPSHOT:rr.payload,CONTEXT_RELEASE_SHA256:rr.digest},NOW),/real_data_disabled/);
-  const large=await assemble([source({items:Array.from({length:10},(_,i)=>row({item_id:'asana:portfolio:'+i}))})],options);
+  const large=await assemble([source({items:Array.from({length:100},(_,i)=>row({item_id:'asana:portfolio:'+i,context:'x'.repeat(600),recommendation:'y'.repeat(400)}))})],options);
   await assert.rejects(prepareRelease(large,NOW),/release_too_large/);
 });
 test('tampered snapshot number, source health and body cannot be accepted',async()=>{
@@ -94,14 +94,14 @@ test('removed setting representations restore the fixed proof; partial releases 
     assert.equal((await worker.fetch(request('/'),env)).status,200);
   }
   for(const incomplete of [{CONTEXT_SNAPSHOT:'{}'},{CONTEXT_RELEASE_SHA256:'digest'}])
-    assert.equal((await worker.fetch(request('/'),{PROOF_OWNER_SITE_USER_ID:'owner',...incomplete})).status,409);
+    assert.equal((await worker.fetch(request('/api/context'),{PROOF_OWNER_SITE_USER_ID:'owner',...incomplete})).status,409);
 });
 
 test('explicit synthetic mode never reads removed settings; runtime mode requires a complete release',async()=>{
   const env={PROOF_OWNER_SITE_USER_ID:'owner',CONTEXT_SOURCE_MODE:'synthetic'};
   for(const key of ['CONTEXT_SNAPSHOT','CONTEXT_RELEASE_SHA256'])Object.defineProperty(env,key,{get(){throw Error('missing setting');}});
   assert.equal((await worker.fetch(request('/'),env)).status,200);
-  assert.equal((await worker.fetch(request('/'),{PROOF_OWNER_SITE_USER_ID:'owner',CONTEXT_SOURCE_MODE:'runtime'})).status,409);
+  assert.equal((await worker.fetch(request('/api/context'),{PROOF_OWNER_SITE_USER_ID:'owner',CONTEXT_SOURCE_MODE:'runtime'})).status,409);
 });
 
 test('unknown mode refuses even a complete approved executive release',async()=>{
@@ -109,6 +109,49 @@ test('unknown mode refuses even a complete approved executive release',async()=>
   const snapshot=await assemble([source({observed_at:at,expires_at:expires})],{...options,now,classification:'executive-reviewed'}),release=await prepareRelease(snapshot,now);
   const approval={digest:release.digest,approved_by:'Steve',approved_at:at,expires_at:expires,scope:'owner-only-read-only-site'};
   const env={PROOF_OWNER_SITE_USER_ID:'owner',CONTEXT_SNAPSHOT:release.payload,CONTEXT_RELEASE_SHA256:release.digest,CONTEXT_REAL_DATA_ENABLED:'approved',CONTEXT_APPROVAL_RECEIPT:JSON.stringify(approval)};
-  for(const mode of ['synthetci','',null,undefined])assert.equal((await worker.fetch(request('/'),{...env,CONTEXT_SOURCE_MODE:mode})).status,409);
+  for(const mode of ['synthetci','',null,undefined])assert.equal((await worker.fetch(request('/api/context'),{...env,CONTEXT_SOURCE_MODE:mode})).status,409);
   assert.equal((await worker.fetch(request('/'),{...env,CONTEXT_SOURCE_MODE:'runtime'})).status,200);
+});
+
+
+test('expired approval preserves only authenticated empty shell, never released work',async()=>{
+  const env={PROOF_OWNER_SITE_USER_ID:'owner',CONTEXT_SOURCE_MODE:'runtime',CONTEXT_SNAPSHOT:'invalid',PROOF_BROWSER_SOURCE:'// synthetic static script'};
+  const shell=await worker.fetch(request('/'),env);assert.equal(shell.status,200);
+  const html=await shell.text();assert.match(html,/Steve · Command Center/);assert.match(html,/content="unavailable"/);
+  assert.equal((await worker.fetch(request('/api/context'),env)).status,409);
+  assert.equal((await worker.fetch(request('/proof.js'),env)).status,200);
+  assert.equal((await worker.fetch(request('/','other'),env)).status,403);
+});
+
+test('two-hour review must be freshly approved and does not renew old receipts',async()=>{
+  const end=new Date(NOW+7200_000).toISOString();
+  const s=await assemble([source({expires_at:end})],{...options,ttlMs:7200_000,classification:'executive-reviewed'});
+  const r=await prepareRelease(s,NOW);
+  const receipt={digest:r.digest,approved_by:'Steve',approved_at:new Date(NOW).toISOString(),expires_at:end,scope:'owner-only-read-only-site'};
+  const env={CONTEXT_SNAPSHOT:r.payload,CONTEXT_RELEASE_SHA256:r.digest,CONTEXT_REAL_DATA_ENABLED:'approved',CONTEXT_APPROVAL_RECEIPT:JSON.stringify(receipt)};
+  assert.deepEqual(await loadRuntimeSnapshot(env,NOW+7199_000),s);
+  await assert.rejects(loadRuntimeSnapshot(env,NOW+7200_000),/snapshot_expired/);
+  await assert.rejects(loadRuntimeSnapshot({...env,CONTEXT_APPROVAL_RECEIPT:JSON.stringify({...receipt,expires_at:new Date(NOW+60_000).toISOString()})},NOW+61_000),/approval_expired/);
+  await assert.rejects(assemble([source({expires_at:new Date(NOW+7201_000).toISOString()})],{...options,ttlMs:7201_000}));
+});
+
+
+test('explicit portfolio review shares one approved snapshot while Today stays exception-only',async()=>{
+ const visible=row(),quiet=row({item_id:'asana:portfolio:102',kind:'project',requires_steve:false});
+ const s=await assemble([source({items:[quiet,visible]})],{...options,includePortfolio:true});
+ assert.equal(s.items.length,2);assert.deepEqual(s.today_item_ids,[visible.item_id]);
+ assert.equal(resolveReference(s,pins(s),'number two',NOW).item.item_id,quiet.item_id);
+ await validateSnapshot(s,NOW);
+ const copy=structuredClone(s);copy.today_item_ids.push(quiet.item_id);
+ const {snapshot_id,view_id,...body}=copy,hash=await sha256(body);copy.snapshot_id='snapshot-'+hash;copy.view_id='today-'+hash;
+ await assert.rejects(validateSnapshot(copy,NOW),/invalid_today_view/);
+});
+
+
+test('health distinguishes verification failure from a ready shell without disclosing content',async()=>{
+ const env={PROOF_OWNER_SITE_USER_ID:'owner',CONTEXT_SOURCE_MODE:'runtime'};
+ const root=await worker.fetch(request('/'),env);assert.equal(root.headers.get('X-Context-State'),'unavailable');
+ const health=await worker.fetch(request('/api/status'),env);assert.equal(health.status,409);
+ assert.deepEqual(await health.json(),{state:'unavailable',reason:'context_unavailable'});
+ for(const who of [null,'other'])assert.equal((await worker.fetch(request('/api/status',who),env)).status,who?403:401);
 });

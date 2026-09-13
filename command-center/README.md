@@ -18,7 +18,7 @@ Claude/Cowork/Code retain their existing Outlook, Fyxer, Slack and document rout
   time. An old incompatible monitor file is unavailable, never silently interpreted
   as the 43 historical entries being failed writes. Upgrade remains cutover-gated.
 - Assembly refuses duplicate/conflicting IDs, unknown fields, unapproved hosts,
-  future observations, stale-source items and invalid dates. It excludes quiet records before creating one
+  future observations, stale-source items and invalid dates. By default it excludes quiet records before creating one
   deterministic item-number map with a content-derived snapshot and view ID.
 - Site runtime accepts one protected snapshot setting plus its exact approved digest.
   Real-data mode is disabled unless separately enabled after the acceptance gates.
@@ -71,7 +71,7 @@ No source config or real examples are checked into this public repository.
 2. Revalidate source revisions and approval immediately before release. Any changed
    source/content invalidates the previous release approval; recollect and review.
 3. `prepareRelease` validates the canonical payload and enforces a conservative
-   4096-byte cap. Do not compress, shard or truncate it to evade the cap. The
+   65536-byte cap. Do not compress, shard or truncate it to evade the cap. The
    platform's documented maximum and retention are not established by this code.
 4. The operator may mark the exact inspected snapshot `executive-reviewed` only
    after Steve approves its content. Recompute its snapshot/view hashes, then record
@@ -120,3 +120,33 @@ system is mutated by rollback.
 Tests use only invented IDs, labels and source responses. Hosted deployment,
 real-feed permission, second-account denial and actual Voice acceptance are
 separate receipts, not implied by these tests.
+
+
+## Extended review workspace (September 13 continuation)
+
+The same private Site now has category navigation and a one-item discussion pane.
+Global numbers remain stable across filters. Today contains only exceptions;
+Projects can include explicitly requested, approved portfolio summaries in the same
+snapshot. `read_review_focus` resolves the visually selected item using the same
+owner-authenticated pinned API; selecting an item is not an approval or source write.
+
+Preparation defaults remain a 15-minute Today-only proposal. The separate
+`--review-hours=2` flag requests up to two hours, bounded by each input feed's expiry;
+`--include-portfolio` separately includes quiet `kind:project` records. Neither flag
+approves or publishes data. Host Asana/GitHub feeds carry a two-hour snapshot window,
+not a claim that source systems are continuously current. The page shows capture and
+expiration times. The full payload, including portfolio records not on Today, needs
+exact approval. Keep the 100-item and 64-KiB limits; do not shard around them. Hosted
+payload capacity beyond the previous small trial has not yet been established.
+
+Expiry controls new API retrieval and visible current context; it cannot remove
+previous tool results from a conversation or guarantee platform deletion. Current
+answers must use a fresh successful read, not earlier results after expiry. The
+owner-authenticated shell and static JS remain available without context; that is
+not a healthy-feed signal. Use GET `/api/status`: ready is 200; unavailable is 409
+with a fixed non-sensitive reason. Empty shells carry X-Context-State: unavailable.
+No raw upstream errors, snapshot bodies or request logs are emitted.
+
+The earlier real trial approval expired. Its receipt must not be renewed, copied to
+a different payload, or used to publish this broader review automatically. Prepared
+private candidates, Claude reports and coverage records remain outside Git/Sites.
