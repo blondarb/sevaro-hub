@@ -76,7 +76,7 @@ export default {
       }
       return response({ error: 'not_found' }, 404);
     } catch (error) {
-      const reason = ['snapshot_expired','approval_expired','review_required','real_data_disabled','approval_required','release_not_approved','digest_mismatch','context_unavailable'].includes(error?.code) ? error.code : 'invalid_context';
+      const reason = ['snapshot_expired','approval_expired','review_required','real_data_disabled','approval_required','release_not_approved','digest_mismatch','context_unavailable','context_unavailable_mixed_transport','context_unavailable_chunk_count','context_unavailable_chunk_keys','context_unavailable_chunk_size'].includes(error?.code) ? error.code : 'invalid_context';
       if (url.pathname === '/api/status' && !url.search) return response({state:'unavailable',reason},409);
       if (url.pathname === '/' && !url.search) {
         const shell = page.replace('__SNAPSHOT_ID__', 'unavailable').replace('__VIEW_ID__', 'unavailable').replace('__CLASSIFICATION__', 'unavailable').replace('</head>', '<meta name="context-failure" content="'+reason+'"></head>');

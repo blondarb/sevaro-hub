@@ -23,12 +23,13 @@ function runtimePayload(env) {
     requireThat(keys.length === 0 && typeof env.CONTEXT_SNAPSHOT === 'string', 'context_unavailable');
     return env.CONTEXT_SNAPSHOT;
   }
-  requireThat(!present(env.CONTEXT_SNAPSHOT) && /^(?:[1-9]|1[0-6])$/.test(env.CONTEXT_SNAPSHOT_CHUNK_COUNT), 'context_unavailable');
+  requireThat(!present(env.CONTEXT_SNAPSHOT), 'context_unavailable_mixed_transport');
+  requireThat(/^(?:[1-9]|1[0-6])$/.test(env.CONTEXT_SNAPSHOT_CHUNK_COUNT), 'context_unavailable_chunk_count');
   const count = Number(env.CONTEXT_SNAPSHOT_CHUNK_COUNT);
-  requireThat(keys.length === count && keys.every(k => Array.from({length:count},(_,i) => 'CONTEXT_SNAPSHOT_CHUNK_'+i).includes(k)), 'context_unavailable');
+  requireThat(keys.length === count && keys.every(k => Array.from({length:count},(_,i) => 'CONTEXT_SNAPSHOT_CHUNK_'+i).includes(k)), 'context_unavailable_chunk_keys');
   return Array.from({length:count},(_,i) => {
     const value = env['CONTEXT_SNAPSHOT_CHUNK_'+i];
-    requireThat(typeof value === 'string' && value.length > 0 && new TextEncoder().encode(value).byteLength <= CHUNK_BYTES, 'context_unavailable');
+    requireThat(typeof value === 'string' && value.length > 0 && new TextEncoder().encode(value).byteLength <= CHUNK_BYTES, 'context_unavailable_chunk_size');
     return value;
   }).join('');
 }
