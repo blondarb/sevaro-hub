@@ -6,6 +6,10 @@ No external write, connector, custom voice stack or larger dashboard was built.
 
 ## Implemented
 
+An authenticated self-identity diagnostic now supports owner setup. It returns
+only the visitor's Site-scoped ID, never auto-enrolls anyone, and does not expose
+the context while the exact owner binding is unset. Five synthetic tests pass.
+
 - One immutable snapshot `synthetic-context-20260913-v1`, view
   `synthetic-today-v1`; three stable numbered synthetic items.
 - Visual response and read-only reference resolver share the exact object and
@@ -21,7 +25,7 @@ No external write, connector, custom voice stack or larger dashboard was built.
 
 | Acceptance check | Result |
 | --- | --- |
-| Identical snapshot/reference in local model and API tests | PASS, four Node tests cover identity, immutable ordinal mapping, expiry, request shape and write rejection |
+| Identical snapshot/reference in local model and API tests | PASS, five Node tests cover identity, immutable ordinal mapping, expiry, request shape and write rejection |
 | Missing/other identity and absent owner binding | PASS in synthetic Worker tests; not proof of hosted dispatch header integrity |
 | Private Site registration | PASS: `appgprj_6aa6deb2d21881919267767a67b881fd`, access revision 1, custom owner-only allowlist, no groups, editors or external visitors; calling account is owner |
 | Local browser + actual WebMCP tool invocation | PASS: visible item 2 was Harbor dependency; `read_shared_context` and `resolve_shared_context_item` returned the same snapshot/view and `synthetic:blocker:harbor` through the loopback synthetic identity shim |
@@ -37,15 +41,16 @@ Reuse its exact project ID; do not create another Site to retry publication.
 
 ## Current blockers
 
-1. The Sites publishing flow requires a temporary source-repository credential
-   in a per-command Git authorization header. The available shell tool has no
-   opaque-secret/environment binding, and ambient credential-helper access to
-   that provider failed (`unable to get password from user`). No credential was
-   placed in a tool argument, command, file, Git configuration or commit. Use a
-   runtime-supported secret transport that keeps the credential out of recorded
-   tool arguments before publishing the prepared synthetic artifact. Do not
-   broaden access, publish publicly or reuse a backend/PAT credential to work
-   around this. This is a publishing transport limitation, not an approval denial.
+1. Steve explicitly authorized the temporary Sites credential as a per-command
+   HTTP authorization header. The credential was renewed for the existing Site;
+   automatic approval review then **rejected the push before execution**, citing
+   the repository's no-secrets-in-tool-arguments rule despite that authorization.
+   No indirect/obfuscated execution, policy edit or alternate upload was attempted.
+   The prepared Site source remains committed locally, not pushed or published.
+   This is now an automatic approval-review block, superseding the earlier lack
+   of authorization for that credential transport. Resolve it through a supported
+   approval/credential transport path; do not keep asking Steve for the same
+   conversational authorization or weaken Site privacy.
 2. Private policy metadata does not establish runtime authorization. Before
    context access, verify the owner session's trusted Site-scoped identity, set
    the exact binding, and test anonymous and another-account requests to both

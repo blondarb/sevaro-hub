@@ -19,6 +19,13 @@ only). No secrets._
 
 ## Session log (append-only, newest first)
 
+### 2026-09-13 · ChatGPT · Private proof publishing blocked by approval review
+- Did: Added authenticated self-identity diagnostic for owner setup; five Node tests pass. Steve explicitly authorized per-command source-push authentication; automatic approval review rejected the push before execution under the no-secrets-in-tool-arguments rule. No bypass or repeated push.
+- Files/links touched: command-center-proof Worker/tests/README, acceptance receipt, draft PR #37. Existing Site remains owner-only, unpublished, with no saved version.
+- Decisions: Keep the Site source prepared locally and all context synthetic. User authorization is already present; do not ask him to repeat it or edit policy to bypass the review block.
+- Open questions / needs Claude: Supported resolution for the publishing approval/credential transport block. Hosted auth and actual native Voice acceptance remain unrun.
+- Next: Once runtime access is resolved, push the existing prepared Site, privately publish, bind the verified owner and finish the original synthetic acceptance. No real-data ingestion or larger UI.
+
 ### 2026-09-13 · ChatGPT · Synthetic shared-context proof only
 - Did: Added one immutable synthetic snapshot, fixed numbered references, read-only Worker/browser tools and fail-closed owner binding. Local browser/WebMCP returned the same item 2; four Node tests passed.
 - Files/links touched: `command-center-proof/`; `docs/command-center/SHARED_CONTEXT_ACCEPTANCE_20260913.md`; draft PR #37.
