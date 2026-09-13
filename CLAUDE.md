@@ -33,7 +33,7 @@ Splash page and admin dashboard for Sevaro apps. Includes feedback management wi
 
 ## Portfolio Operating System
 
-- Project source of truth: `src/data/portfolio.json` and `/admin/portfolio`
+- Initiative/task/decision source of truth: Asana. `src/data/portfolio.json` and `/admin/portfolio` are the historical July projection, not current authoritative status. See `HANDOFF.md` and `docs/command-center/INTEGRATION_READINESS_20260913.md`.
 - Validation and filtering: `src/lib/portfolio.ts`; run `pnpm validate:portfolio`
 - Improvements remain DynamoDB-backed and may link through optional `parentProjectId`
 - Private people records remain outside this repository in the existing private `memory/people` system

@@ -5,7 +5,7 @@ ChatGPT/Codex read this FIRST and update it LAST. Plain language. No PHI (initia
 only). No secrets._
 
 ## Snapshot (keep current)
-- Status: Portfolio source is committed and pushed at `227f41e` on `codex/portfolio-operating-system`; the July data is a historical snapshot, not current project authority. September 13 architecture evaluation selects private Sites + native Voice with this repo as integration home; see `docs/command-center/SITES_VOICE_ARCHITECTURE.md`. No new UI, bridge or Site is implemented/deployed.
+- Status: Portfolio source is committed and pushed at `227f41e` on `codex/portfolio-operating-system`; the July data is a historical snapshot, not current project authority. September 13 architecture evaluation selects private Sites + native Voice with this repo as integration home; see `docs/command-center/SITES_VOICE_ARCHITECTURE.md`. The bounded synthetic Site is privately published with verified owner binding and authenticated shared retrieval during native Codex Voice. Host adapters and a gated runtime snapshot candidate are implemented locally; hosted negative-auth/transport gates remain open. No real data or larger UI is enabled. See `docs/command-center/INTEGRATION_READINESS_20260913.md`.
 - Driver this week: Review the validated `/admin/portfolio` change, reconcile the unavailable original idea-dump email, and confirm the private `memory/people` location before assigning owners.
 - Lives in: https://github.com/blondarb/sevaro-hub.git
 
@@ -18,6 +18,20 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log (append-only, newest first)
+
+### 2026-09-13 · ChatGPT · Shared owner retrieval and read-only integration candidate
+- Did: Bound the verified owner and redeployed original synthetic version; authenticated Site tools returned the same snapshot and Harbor dependency during native Codex Voice. Added narrow host metadata adapters, reviewed-export contract, expiring Today context and approval-bound runtime loader; fixed independent review findings. Twenty-six synthetic tests pass.
+- Files/links touched: `command-center/`, `command-center-proof/`, architecture/acceptance and integration-readiness documents. Private pending proposal remains outside Git/Sites.
+- Decisions: All real proposals remain pending and runtime-forbidden until exact review; hosted negative-auth, protected runtime transfer and retention gates remain open. Preserve one Asana writer cutover and Claude ownership. No merge or new deployment of this candidate.
+- Open questions / needs Claude: Adopt the curated export contract in existing routines and provide actual run receipts. Installed legacy health cannot substitute for the repaired monitor. FPPE/SDNE stage decisions remain Steve's.
+- Next: Review candidate and publish through an authorized source transfer, exercise synthetic A→B and hosted unauthorized access, then review exact fresh executive content. No live source writes.
+
+### 2026-09-13 · ChatGPT · Synthetic Site privately published; browser verification held
+- Did: Completed reviewed source upload after Steve's explicit one-time credential exception, saved version 1 and verified successful private deployment. Signed-in root reaches the Worker; owner binding remains unset.
+- Files/links touched: https://steve-context-proof.blondarb.chatgpt.site; shared-context acceptance receipt and architecture status.
+- Decisions: Publication is complete. Browser-blocked identity response is a separate issue; no security protections disabled, no real data or live Asana writes enabled.
+- Open questions / needs Claude: Automated browser reports inspector-blocked identity response despite Worker 200. Exact owner binding, hosted negative authorization tests and native Voice snapshot retrieval remain incomplete.
+- Next: Inspect user-opened verification page, bind the verified Site identity, redeploy the same saved version, then complete the synthetic Site/Voice receipt. No automatic merge.
 
 ### 2026-09-13 · ChatGPT · Private proof publishing blocked by approval review
 - Did: Added authenticated self-identity diagnostic for owner setup; five Node tests pass. Steve explicitly authorized per-command source-push authentication; automatic approval review rejected the push before execution under the no-secrets-in-tool-arguments rule. No bypass or repeated push.

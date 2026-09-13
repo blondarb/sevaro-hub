@@ -3,13 +3,12 @@
 Decision direction, September 13, 2026: prefer **ChatGPT Sites for the private
 visual cockpit**, **native ChatGPT Voice for conversation**, and
 **blondarb/sevaro-hub for shared integration, normalization and business logic**.
-The integration bridge is not yet implemented or accepted. Build read-only
+The integration candidate is implemented locally; real-data acceptance is not complete. Build read-only
 context first; do not create another portfolio database or custom speech stack.
 
 Follow-up: the bounded synthetic proof is now implemented in `command-center-proof/`.
 [Acceptance receipt](SHARED_CONTEXT_ACCEPTANCE_20260913.md): local browser/WebMCP
-shared retrieval passed; private Site publication, hosted auth and native Voice
-acceptance remain blocked/unrun. The sections below retain the initial audit
+shared retrieval passed, private publication and owner binding succeeded, and authenticated tools returned the hosted snapshot during native Codex Voice. Hosted negative-auth and new runtime-delivery acceptance remain incomplete. The sections below retain the initial audit
 baseline; no real-data adapter or larger UI has been enabled.
 
 ## Current implementation versus gaps
@@ -28,10 +27,7 @@ stacked on the portfolio branch to preserve its ownership and implementation.
 | Portfolio tests | Existing validation/filter/link/UI coverage; 114 passes are a historical receipt, not current validation for new integration. |
 | Improvement Queue linkage | Exact project IDs / unique repo aliases are reusable; that DynamoDB feature is not a new executive status store. |
 
-Missing: live Asana adapter, approved Claude export contract, calendar/prep input,
-normalized exception feed, source freshness semantics, shared Voice retrieval,
-read-only Site backend route, transport authentication, and a verified private
-visitor test. No Sites manifest or native voice bridge exists on this branch.
+Initial audit gaps have partly closed: local Asana/GitHub adapters, the Claude export contract, normalization, freshness, read-only backend and shared retrieval are implemented. Claude export adoption, hosted unauthorized-access tests and protected runtime delivery remain unaccepted. See `INTEGRATION_READINESS_20260913.md` for current evidence.
 
 ## Feasibility in this account/runtime
 
