@@ -5,7 +5,7 @@ ChatGPT/Codex read this FIRST and update it LAST. Plain language. No PHI (initia
 only). No secrets._
 
 ## Snapshot (keep current)
-- Status: Active — a source-controlled portfolio operating system is implemented on the uncommitted `codex/portfolio-operating-system` worktree for review.
+- Status: Portfolio source is committed and pushed at `227f41e` on `codex/portfolio-operating-system`; the July data is a historical snapshot, not current project authority. September 13 architecture evaluation selects private Sites + native Voice with this repo as integration home; see `docs/command-center/SITES_VOICE_ARCHITECTURE.md`. No new UI, bridge or Site is implemented/deployed.
 - Driver this week: Review the validated `/admin/portfolio` change, reconcile the unavailable original idea-dump email, and confirm the private `memory/people` location before assigning owners.
 - Lives in: https://github.com/blondarb/sevaro-hub.git
 
@@ -18,6 +18,13 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log (append-only, newest first)
+### 2026-09-13 · ChatGPT · Private Sites and native Voice architecture
+- Did: inspected the existing portfolio branch, live Sites access metadata and official Sites/Voice capabilities; specified a shared exception context and source/PHI boundaries.
+- Files/links touched: `docs/command-center/SITES_VOICE_ARCHITECTURE.md`, this HANDOFF.
+- Decisions: Asana remains authoritative; Claude retains Outlook/Fyxer ingestion; Sites is the private visual surface; native Voice is conversational; Hub owns normalization. Reuse existing code without treating July portfolio JSON as live data.
+- Open questions / needs Claude: narrow approved executive export; authenticated Hub-to-Site/Voice bridge and synthetic identical-snapshot acceptance remain unimplemented. No existing artifact ownership changes.
+- Next: implement/verify the read-only context boundary before UI or real-data publication; coordinate with the sevaro-ops Asana delivery repair.
+
 ### 2026-07-17 · ChatGPT · Portfolio operating system implemented
 - Did: audited routes/data/deployment; added validated source-controlled projects, features, intake, decisions, and sources; implemented `/admin/portfolio`; linked `/admin/improvements` through optional project IDs and safe repo aliases; documented reconciliation gaps and operating procedures.
 - Files/links touched: `src/data/portfolio.json`, `src/lib/portfolio.ts`, `/admin/portfolio`, `/admin/improvements`, improvement Lambda source, `docs/portfolio/*`, July 16 Drive transcript `1HBIc2VCztf_xkU6RGvPqm44aIoioHojZ`.
