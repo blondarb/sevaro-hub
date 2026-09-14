@@ -1,9 +1,44 @@
 # Command Center approval inbox
 
-Implementation: PR #40 (`codex/command-center-approval-inbox`), dependent on PR #39.
-Published to the existing owner-private Site as v13 on September 14; PRs remain unmerged.
+Implementation: PR #40 (`codex/command-center-approval-inbox`), following PR #39.
+Both PRs merged September 14 and are installed in the canonical Hub checkout.
+Published to the existing owner-private Site as v13 on September 14.
 This is an owner-only consent capture feature. It has no external dispatcher.
 The existing private Site and Asana/GitHub/Claude ownership model are preserved.
+
+## Completion phase: supervised delivery protocol
+
+The subsequent delivery branch adds a separate `delivery_events` ledger and
+owner-authenticated claim, dispatch-start, outcome and history tools. It does not
+add a provider sender, another Asana writer, a background dispatcher, credentials
+or a source of project status. The live v13 remains capture-only until a later
+source publication and hosted acceptance are recorded.
+
+Claims expire after at most two minutes. Dispatch requires the current catalog,
+approval revision and a provider preflight no older than 30 seconds. SQLite checks
+the approval and delivery revisions atomically, including withdrawal racing the
+dispatch request. The claim records the exact destination/payload digest, which
+the private host handoff recomputes before issuing a permit. Source changes reject.
+
+An expired claim can be reclaimed only before dispatch starts. A lost start
+response, crash after start or uncertain provider result stays held for readback;
+it never becomes automatically retryable. Withdrawal after dispatch cannot claim
+recall. Outcome/history recording remains available after catalog expiry or
+disablement. Identical outcomes are idempotent; conflicting terminal results reject.
+
+Success recorded by the owner-session supervisor is explicitly **executor reported,
+not independently verified**. The Site does not authenticate the provider or query
+it merely because an ID and hash were supplied. Never promote this to independently
+verified completion without the actual retained writer/provider readback path.
+
+Host-only helpers and the remaining consumer interfaces are described in
+[DELIVERY_HANDOFF.md](DELIVERY_HANDOFF.md). Readiness switches
+`DELIVERY_SUPERVISION_ENABLED`, `CLAUDE_DELIVERY_READY` and
+`ASANA_SINGLE_WRITER_READY` default OFF. A hosted source release alone does not
+authorize enabling them. A live Claude consumer, current owner session and the
+Asana single-writer cutover have not been accepted. A locked Mac blocks native
+Claude and browser acceptance; there is no callable service identity or private
+tunnel registration tool in this runtime to replace that owner session.
 
 ## Steve's workflow
 

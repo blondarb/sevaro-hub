@@ -9,38 +9,9 @@ import {
   sha256,
 } from '../command-center/context.mjs';
 import { ApprovalStore } from './approval-store.mjs';
-const LIMIT = 8192;
-async function boundedBody(request) {
-  requireThat(
-    request.headers.get('content-type') === 'application/json',
-    'json_required',
-  );
-  const reader = request.body?.getReader();
-  requireThat(reader, 'body_required');
-  let bytes = 0,
-    parts = [];
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    bytes += value.byteLength;
-    if (bytes > LIMIT) {
-      await reader.cancel();
-      requireThat(false, 'request_too_large');
-    }
-    parts.push(value);
-  }
-  const joined = new Uint8Array(bytes);
-  let offset = 0;
-  for (const part of parts) {
-    joined.set(part, offset);
-    offset += part.byteLength;
-  }
-  try {
-    return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(joined));
-  } catch {
-    throw new ContextError('invalid_request');
-  }
-}
+import {boundedBody} from './request-body.mjs';
+import {DeliveryStore,deliveryLabel} from './delivery-store.mjs';
+import {deliveryCapabilities} from './delivery-api.mjs';
 export async function approvalApi(request, env, viewer, respond) {
   try {
     const url = new URL(request.url);
@@ -88,9 +59,9 @@ export async function approvalApi(request, env, viewer, respond) {
       );
       return respond({
         next_cursor,
-        receipts: receipts.map((r) => ({
+        receipts: receipts.map(({delivery_state,delivery_lease_expires_at,...r}) => ({
           ...r,
-          state: executionState(r, now),
+          state: deliveryLabel(r,delivery_state?{state:delivery_state,lease_expires_at:delivery_lease_expires_at}:null,now) ?? executionState(r, now),
         })),
         execution_enabled: false,
       });
@@ -112,7 +83,7 @@ export async function approvalApi(request, env, viewer, respond) {
       });
       return respond({
         receipt,
-        state: executionState(receipt, now),
+        state: deliveryLabel(receipt,await new DeliveryStore(env.DB).latest(owner,receipt.proposal_digest),now) ?? executionState(receipt, now),
         execution_enabled: false,
       });
     }
@@ -141,11 +112,12 @@ export async function approvalApi(request, env, viewer, respond) {
           ...p,
           approval_expires_at: catalog.expires_at,
           receipt,
-          state: executionState(receipt, now),
+          state: deliveryLabel(receipt,await new DeliveryStore(env.DB).latest(owner,p.digest),now) ?? executionState(receipt, now),
         });
       }
       return respond({
         state: 'ready',
+        delivery_capabilities: deliveryCapabilities(env),
         catalog_digest: digest,
         classification: catalog.classification,
         expires_at: catalog.expires_at,
@@ -195,7 +167,7 @@ export async function approvalApi(request, env, viewer, respond) {
           proposal_digest: p.digest,
           ok: true,
           receipt,
-          state: executionState(receipt, now),
+          state: deliveryLabel(receipt,await new DeliveryStore(env.DB).latest(owner,receipt.proposal_digest),now) ?? executionState(receipt, now),
         });
       } catch (error) {
         outcomes.push({

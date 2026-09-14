@@ -17,6 +17,15 @@ async function read() {
   if (!r.ok) throw Error('approval_unavailable');
   return r.json();
 }
+async function deliveryRequest(path,body,cursor) {
+  const response=await fetch('/api/delivery/'+path+(cursor?'?cursor='+encodeURIComponent(cursor):''),{
+    method:body===undefined?'GET':'POST',credentials:'same-origin',cache:'no-store',
+    ...(body===undefined?{}:{headers:{'Content-Type':'application/json','X-Command-Approval':'exact-proposals-v1'},body:JSON.stringify(body)}),
+  });
+  const result=await response.json();
+  if(!response.ok)throw Error(result.error??'delivery_save_uncertain');
+  return result;
+}
 const format = (v) =>
   v === null
     ? 'Not set'
@@ -47,7 +56,9 @@ function render() {
       : (inbox.classification === 'synthetic-only'
           ? 'Fictional examples — no real actions. '
           : '') +
-        'Approval recording is available. Delivery connections are not enabled; approved items will wait.';
+        (inbox.delivery_capabilities?.enabled
+          ? 'Approved actions need a connected supervisor and delivery owner. Completion appears only after readback.'
+          : 'Approval recording is available. Delivery connections are not enabled; approved items will wait.');
   for (const p of inbox?.proposals ?? []) {
     const card = el('article', undefined, 'approval-card');
     const label = el('label'),
@@ -204,7 +215,7 @@ async function withdraw(proposal_digest, expected_revision) {
     const data = await r.json();
     if (!r.ok) throw Error('withdrawal_not_confirmed');
     $('approval-result').textContent =
-      'Approval withdrawn. No external action has run.';
+      'Approval withdrawal saved. Check the delivery status below.';
     return data;
   } catch {
     $('approval-result').textContent =
@@ -247,8 +258,8 @@ async function record(catalog_digest, decisions) {
               ')',
           )
           .join('; ') +
-        '. Check saved status; no external actions have run.'
-      : 'Your choices are saved. No external actions have run; approved items are waiting for delivery.';
+        '. Check each item’s saved choice and delivery status.'
+      : 'Your choices are saved. Check each item for its delivery status.';
     return result;
   } catch {
     await load();
@@ -311,9 +322,22 @@ if (document.modelContext?.registerTool) {
   };
 
   register({
+    name: 'read_delivery_history',
+    description: 'Read delivery reservations and executor-reported provider readback for this owner. Dispatch started or unknown is NOT completion. These records do not prove executor identity or independently query a provider.',
+    inputSchema: {type:'object',properties:{cursor:{type:'string',pattern:'^[a-f0-9]{64}$'}},additionalProperties:false},
+    annotations:{readOnlyHint:true},
+    execute: async ({cursor}) => deliveryRequest('history',undefined,cursor),
+  });
+  for (const [name,path,description,properties] of [
+    ['claim_approved_action','claim','Reserve one exact currently approved action for the retained delivery owner. Does not send. Requires a current inbox read. Synthetic classification MUST NEVER be dispatched to a provider.',{catalog_digest:{type:'string'},proposal_digest:{type:'string'},approval_revision:{type:'integer'},expected_revision:{type:'integer'},supervisor_run_id:{type:'string'}}],
+    ['mark_dispatch_started','start','Record the irreversible dispatch boundary immediately before one provider call, after the retained executor checks the exact source/account/thread/target. A missing/lost response is uncertain: read history and never repeat the send. Requires current approval and a fresh preflight. This operation does not call the provider.',{catalog_digest:{type:'string'},proposal_digest:{type:'string'},approval_revision:{type:'integer'},expected_revision:{type:'integer'},attempt_id:{type:'string'},preflight:{type:'object',properties:{source_revision:{type:'string'},checked_at:{type:'string'},destination_digest:{type:'string'}},required:['source_revision','checked_at','destination_digest'],additionalProperties:false}}],
+    ['record_delivery_outcome','outcome','Record the retained executor’s observed outcome. Succeeded requires actual provider ID and exact authoritative readback digest, not inference. Unknown is frozen for reconciliation; no blind retries. Do not treat this receipt as a cryptographic attestation.',{proposal_digest:{type:'string'},attempt_id:{type:'string'},expected_revision:{type:'integer'},state:{type:'string',enum:['succeeded','failed_definitive','stale','unknown']},provider_ref:{type:['string','null']},readback_digest:{type:['string','null']},reason_code:{type:['string','null']}}],
+  ]) register({name,description,inputSchema:{type:'object',properties,required:Object.keys(properties),additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:true},execute:async input=>{const result=await deliveryRequest(path,input);await load();return result;}});
+
+  register({
     name: 'read_approval_history',
     description:
-      'Read saved choice receipts independently of the current proposal catalog, including expired or withdrawn approvals. These receipts never prove delivery.',
+      'Read saved choices independently of the current catalog, including expired or withdrawn approvals, with separate delivery status when recorded. Read delivery history for provider readback evidence; consent alone never proves delivery.',
     inputSchema: {
       type: 'object',
       properties: { cursor: { type: 'string', pattern: '^[a-f0-9]{64}$' } },

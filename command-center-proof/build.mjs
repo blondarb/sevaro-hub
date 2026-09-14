@@ -15,7 +15,7 @@ await mkdir(resolve(parent, destination.split('/').at(-1)), {mode:0o700});
 const dir = resolve(destination, 'dist/server');
 await mkdir(dir, {recursive:true});
 // Exact source allowlist. Host collectors, credentials, fixtures and private snapshots are never bundled.
-for (const [input, output] of [['context.mjs','context.mjs'],['approval-api.mjs','approval-api.mjs'],['approval-store.mjs','approval-store.mjs'],['../command-center/approvals.mjs','approvals.mjs'],['page.mjs','page.mjs'],['../command-center/context.mjs','shared-context.mjs'],['../command-center/source-links.mjs','source-links.mjs'],['../command-center/refresh-grant.mjs','refresh-grant.mjs'],['../command-center/release.mjs','release.mjs']]) {
+for (const [input, output] of [['delivery-api.mjs','delivery-api.mjs'],['delivery-store.mjs','delivery-store.mjs'],['request-body.mjs','request-body.mjs'],['context.mjs','context.mjs'],['approval-api.mjs','approval-api.mjs'],['approval-store.mjs','approval-store.mjs'],['../command-center/approvals.mjs','approvals.mjs'],['page.mjs','page.mjs'],['../command-center/context.mjs','shared-context.mjs'],['../command-center/source-links.mjs','source-links.mjs'],['../command-center/refresh-grant.mjs','refresh-grant.mjs'],['../command-center/release.mjs','release.mjs']]) {
   const source = await readFile(new URL(input,root),'utf8');
   await exclusiveWrite(resolve(dir,output),['release.mjs','refresh-grant.mjs','approvals.mjs'].includes(output) ? source.replace("'./context.mjs'", "'./shared-context.mjs'") : source.replaceAll("'../command-center/approvals.mjs'", "'./approvals.mjs'").replaceAll("'../command-center/context.mjs'", "'./shared-context.mjs'"));
 }

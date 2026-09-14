@@ -1,6 +1,7 @@
 import { readContext, resolveItem, snapshot } from './context.mjs';
 import { page } from './page.mjs';
 import { approvalApi } from './approval-api.mjs';
+import { deliveryApi } from './delivery-api.mjs';
 import { loadRuntimeSnapshot } from '../command-center/release.mjs';
 import { readSnapshot } from '../command-center/context.mjs';
 
@@ -36,6 +37,7 @@ export default {
       return response({ error: 'owner_binding_not_configured' }, 503);
     if (viewer !== env.PROOF_OWNER_SITE_USER_ID)
       return response({ error: 'owner_only' }, 403);
+    if (url.pathname.startsWith('/api/delivery')) return deliveryApi(request,env,viewer,response);
     if (url.pathname.startsWith('/api/approvals')) return approvalApi(request, env, viewer, response);
     if (request.method !== 'GET') return response({ error: 'read_only' }, 405);
     if (url.pathname === '/approvals.js') return response(env.APPROVAL_BROWSER_SOURCE ?? '', env.APPROVAL_BROWSER_SOURCE ? 200 : 503, 'text/javascript');

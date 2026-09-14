@@ -29,7 +29,7 @@ export class ApprovalStore {
     requireThat(!cursor || after, 'invalid_history_cursor');
     const result = await this.db
       .prepare(
-        'SELECT e.* FROM approval_events e WHERE owner_id=? AND revision=(SELECT MAX(revision) FROM approval_events WHERE proposal_digest=e.proposal_digest AND owner_id=e.owner_id) AND (recorded_at<? OR (recorded_at=? AND event_id<?)) ORDER BY recorded_at DESC,event_id DESC LIMIT 101',
+        'SELECT e.*,d.state AS delivery_state,d.lease_expires_at AS delivery_lease_expires_at FROM approval_events e LEFT JOIN delivery_events d ON d.owner_id=e.owner_id AND d.proposal_digest=e.proposal_digest AND d.revision=(SELECT MAX(revision) FROM delivery_events WHERE owner_id=e.owner_id AND proposal_digest=e.proposal_digest) WHERE e.owner_id=? AND e.revision=(SELECT MAX(revision) FROM approval_events WHERE proposal_digest=e.proposal_digest AND owner_id=e.owner_id) AND (e.recorded_at<? OR (e.recorded_at=? AND e.event_id<?)) ORDER BY e.recorded_at DESC,e.event_id DESC LIMIT 101',
       )
       .bind(
         owner,
