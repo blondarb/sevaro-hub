@@ -23,7 +23,7 @@ only). No secrets._
 ### 2026-09-13 · ChatGPT · Command Center partial reviewed coverage
 - Did: Added the closed `partial` source and health state for reviewed Claude exports. Fresh partial items can enter the same pending/shared snapshot with an explicit Site health warning; expiry hides them, and failed/unavailable sources still add no items. `claude:replies` has an effective two-hour cap from original observation so late exports cannot revive old reply obligations. Added the one documented Outlook event webLink route without relaxing general query-string rejection.
 - Files/links touched: `command-center/`, `command-center-proof/browser.mjs`, Claude export adoption/readiness docs, shared-context acceptance notes, and focused synthetic tests.
-- Decisions: Partial coverage is never relabeled available or complete. Existing digest, expiry, pending-publication and Steve approval gates are unchanged; no source reads, Site publication, scheduler, merge or source write occurred.
+- Decisions: Partial coverage is never relabeled available or complete. Version-2 Claude envelopes bind the feed and run receipt; legacy unbound envelopes stay held until re-reviewed. Existing digest, expiry, pending-publication and Steve approval gates are unchanged; no source reads, Site publication, scheduler, merge or source write occurred.
 - Open questions / needs Claude: Provide reviewed exports and actual run receipts under the existing exact allowlist; reconcile any incomplete coverage before treating a feed as complete.
 - Next: Review the isolated Command Center commit, then adopt a reviewed export only within the existing approval and expiry scope.
 

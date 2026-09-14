@@ -35,10 +35,10 @@ expiry; it does not make it fresh.
 
 ## Exact packet
 
-Top-level keys: `schema_version:1`, `feed`, `review`, `run`.
+Top-level keys: `schema_version:2`, `feed`, `review`, `run`.
 
 `feed` is the exact existing normalized feed schema in `command-center/README.md`.
-It has source ID/system, observed_at/expires_at, available/unavailable status,
+It has source ID/system, observed_at/expires_at, available/partial/unavailable status,
 fixed failure code and curated items. No raw message bodies, subjects, transcripts,
 patient information, personnel/compensation details, source prompts, credentials,
 arbitrary attachments or unrestricted source URLs. Review every free-text field and
@@ -53,9 +53,13 @@ not permission to invent a link.
 - `policy`: `executive-project-context-v1`
 - `feed_digest`: SHA-256 of canonical JSON for the exact feed, using the exported
   `sha256` helper in `command-center/context.mjs`
+- `packet_digest`: SHA-256 of canonical `{feed,run}` using that same helper
 
 Claude records the review only after actually checking the content. The checksum
 is integrity evidence, not a PHI detector, a signature or Steve's approval.
+`packet_digest` binds the outcome, coverage and run times that determine whether the
+feed is partial or complete. Legacy schema-version-1 envelopes lack this binding and
+are held as unimportable until Claude re-reviews and emits a version-2 envelope.
 
 `run` has exactly:
 

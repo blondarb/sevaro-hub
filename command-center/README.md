@@ -16,7 +16,8 @@ Claude/Cowork/Code retain their existing Outlook, Fyxer, Slack and document rout
   missing owner metadata fails closed. Page and Voice share the same filtered snapshot.
 - GitHub uses the host's existing `gh` authentication and GraphQL field selection
   for exact PR numbers/state/draft/revision. It never fetches PR bodies or logs.
-- Claude supplies an already-reviewed export envelope with a digest-bound review and
+- Claude supplies a schema-version-2 reviewed export envelope with feed and
+  `{feed,run}` digests binding its outcome, coverage and run times, and
   actual run/coverage receipt, containing source-linked decisions, replies,
   delegated work or meeting preparation. There is deliberately no raw mail, Slack,
   transcript, calendar or document parser here. Codex does not connect to Slack.

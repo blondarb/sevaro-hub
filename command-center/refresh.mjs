@@ -55,7 +55,11 @@ function validHealth(receipt, now) {
     if (![null, ...SAFE_FAILURES].includes(receipt.last_failure_code) || ![null, ...SAFE_FAILURES].includes(receipt.failure_code)) throw new ContextError('invalid_context');
     if (receipt.candidate_digest !== null && !/^[a-f0-9]{64}$/.test(receipt.candidate_digest)) throw new ContextError('invalid_context');
     if (![null, 'executive-pending-review'].includes(receipt.candidate_classification) || !['fresh','degraded','expired','missing','retained_previous'].includes(receipt.freshness_state) || !['none','used_prior','replaced_invalid_current','missing'].includes(receipt.recovery_state)) throw new ContextError('invalid_context');
-    exact(receipt.source_counts, ['available','partial','unavailable','stale']);
+    const legacyCounts = receipt.source_counts && typeof receipt.source_counts === 'object' && !Array.isArray(receipt.source_counts) && Object.keys(receipt.source_counts).length === 3 && ['available','unavailable','stale'].every(key => Object.hasOwn(receipt.source_counts,key));
+    if (legacyCounts) {
+      if (!Array.isArray(receipt.sources) || receipt.sources.some(source => source?.state === 'partial')) throw new ContextError('invalid_context');
+      receipt = {...receipt,source_counts:{available:receipt.source_counts.available,partial:0,unavailable:receipt.source_counts.unavailable,stale:receipt.source_counts.stale}};
+    } else exact(receipt.source_counts, ['available','partial','unavailable','stale']);
     if (!Object.values(receipt.source_counts).every(value => Number.isSafeInteger(value) && value >= 0) || !Array.isArray(receipt.sources)) throw new ContextError('invalid_context');
     const ids = new Set();
     for (const source of receipt.sources) {
@@ -124,9 +128,10 @@ export function compareCandidates(previous, next) {
     const old = oldHealth.get(id);
     if (!old || old.state !== row.state || old.failure_code !== row.failure_code) {
       health_changed++;
-      if (row.state !== 'available' && old?.state === 'available') new_failure = true;
-      if (row.state === 'available' && old && old.state !== 'available') recovery = true;
-      if (!old && row.state !== 'available') new_failure = true;
+      const quality = state => state === 'available' ? 2 : state === 'partial' ? 1 : 0;
+      if (old && quality(row.state) < quality(old.state)) new_failure = true;
+      if (old && quality(row.state) > quality(old.state)) recovery = true;
+      if (!old && quality(row.state) < 2) new_failure = true;
     }
   }
   for (const id of oldHealth.keys()) {
@@ -170,9 +175,9 @@ export async function refreshOnce({ root, plan, collect = collectSources, now = 
       if (!collected || !Array.isArray(collected.expected_sources) || !Array.isArray(collected.feeds)) throw new ContextError('source_unavailable');
       const next = await assemble(collected.feeds, { expectedSources: collected.expected_sources, allowedHosts: LINK_HOSTS, now, ttlMs, classification: 'executive-pending-review', includePortfolio });
       validatedCollection = next;
+      comparison = compareCandidates(previous, next);
       if(!next.health.some(h=>['available','partial'].includes(h.state)))throw new ContextError('source_unavailable');
       const prepared = await prepareRelease(next, now);
-      comparison = compareCandidates(previous, next);
 
       // Keep exactly one prior candidate. A completed current always has a valid prior or none.
       // Never move the live candidate away before a replacement is durable.
@@ -182,7 +187,7 @@ export async function refreshOnce({ root, plan, collect = collectSources, now = 
       snapshot = next; release = prepared;
     } catch (error) {
       failure_code = failureCode(error);
-      comparison = { added: 0, removed: 0, changed: 0, revision_only: 0, health_changed: 0, new_failure: previousHealth?.failure_code === null || !previousHealth, recovery: false };
+      comparison ??= { added: 0, removed: 0, changed: 0, revision_only: 0, health_changed: 0, new_failure: previousHealth?.failure_code === null || !previousHealth, recovery: false };
     }
     const candidate = snapshot ?? previous;
     const recovery_state = current.snapshot ? 'none' : prior.snapshot ? snapshot && current.invalid ? 'replaced_invalid_current' : 'used_prior' : 'missing';

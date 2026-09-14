@@ -37,7 +37,7 @@ test('fresh partial coverage remains visible and expires out of the shared snaps
  const partial=source({source_id:'claude:calendar',system:'claude',status:'partial',items:[row({item_id:'claude:calendar:prep',source_id:'claude:calendar',kind:'meeting',due:'2026-09-13T21:00:00Z'})]});
  const opts={...options,expectedSources:['claude:calendar']};
  const fresh=await assemble([partial],opts);
- assert.equal(fresh.health[0].state,'partial');assert.equal(fresh.health[0].failure_code,null);assert.equal(fresh.items.length,1);await validateSnapshot(fresh,NOW);
+ assert.equal(fresh.health[0].state,'partial');assert.equal(fresh.health[0].failure_code,null);assert.equal(fresh.items.length,1);assert.equal(resolveReference(fresh,pins(fresh),'number one',NOW).source_health.state,'partial');await validateSnapshot(fresh,NOW);
  const expired=await assemble([partial],{...opts,now:Date.parse(partial.expires_at)});
  assert.equal(expired.health[0].state,'stale');assert.equal(expired.items.length,0);await validateSnapshot(expired,Date.parse(partial.expires_at));
 });
@@ -49,8 +49,9 @@ test('partial source state survives approved runtime retrieval and the page keep
  const approval={digest:release.digest,approved_by:'Steve',approved_at:at,expires_at:expires,scope:'owner-only-read-only-site'};
  const env={PROOF_OWNER_SITE_USER_ID:'owner',CONTEXT_SOURCE_MODE:'runtime',CONTEXT_SNAPSHOT:release.payload,CONTEXT_RELEASE_SHA256:release.digest,CONTEXT_REAL_DATA_ENABLED:'approved',CONTEXT_APPROVAL_RECEIPT:JSON.stringify(approval),PROOF_BROWSER_SOURCE:'partial coverage'};
  const shared=await worker.fetch(request('/api/context?'+new URLSearchParams(pins(snapshot))),env);assert.equal(shared.status,200);assert.equal((await shared.json()).health[0].state,'partial');
+ const resolved=await worker.fetch(request('/api/resolve?'+new URLSearchParams({...pins(snapshot),item_number:'1'}),'owner'),env);assert.equal((await resolved.json()).source_health.state,'partial');
  const page=await worker.fetch(request('/'),env);assert.match(await page.text(),/id="notice"/);
- assert.match(await readFile(new URL('../../command-center-proof/browser.mjs',import.meta.url),'utf8'),/Partial coverage:/);
+ const browser=await readFile(new URL('../../command-center-proof/browser.mjs',import.meta.url),'utf8');assert.match(browser,/Partial coverage:/);assert.match(browser,/partial\.length.*failures\.length/);
  const pending=await assemble([partial],{...options,expectedSources:['claude:calendar'],now,classification:'executive-pending-review'}),pendingRelease=await prepareRelease(pending,now);
  await assert.rejects(loadRuntimeSnapshot({...env,CONTEXT_SNAPSHOT:pendingRelease.payload,CONTEXT_RELEASE_SHA256:pendingRelease.digest},now),/review_required/);
 });

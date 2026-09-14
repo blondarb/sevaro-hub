@@ -116,5 +116,5 @@ export function resolveReference(snapshot, pins, phrase, now = Date.now()) {
   const words = ['one','two','three','four','five','six','seven','eight','nine','ten'];
   const number = /^\d+$/.test(match[1]) ? Number(match[1]) : words.indexOf(match[1].toLowerCase()) + 1;
   const item = snapshot.items.find(i => i.number === number); requireThat(item, 'unknown_item');
-  return { snapshot_id: snapshot.snapshot_id, view_id: snapshot.view_id, item };
+  return { snapshot_id: snapshot.snapshot_id, view_id: snapshot.view_id, item, source_health: snapshot.health.find(row => row.source_id === item.source_id) };
 }

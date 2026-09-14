@@ -41,12 +41,13 @@ explicit exceptions. This command is callable by existing routines; no new sched
 notification service or automatic Site publication was installed.
 
 A real subscription-authenticated Claude Code run reviewed the first bounded module
-export. Its packet validates, with original source observation and expiry preserved,
-and imports as an explicit partial source state. Fresh reviewed items may appear in a
-pending or approved snapshot with a partial-coverage warning; the source never becomes
-available/complete by that path, and expired partial evidence is hidden. A successful
-complete export must cover its exact configured source allowlist; a checksum is not a
-signature, PHI detector or publication approval.
+export with original source observation and expiry preserved. Its legacy version-1
+envelope is now held: it does not bind the run outcome/coverage and cannot enter a
+snapshot until Claude re-reviews it as a version-2 envelope. A fresh version-2 partial
+export may appear with a partial-coverage warning; it never becomes available/complete
+by that path, and expired partial evidence is hidden. A successful complete export must
+cover its exact configured source allowlist; a checksum is not a signature, PHI detector
+or publication approval.
 The existing DONE decision remains the one review item until this evidence is reconciled.
 
 The installed Labs routine reads the existing artifact HANDOFF; that handoff now
