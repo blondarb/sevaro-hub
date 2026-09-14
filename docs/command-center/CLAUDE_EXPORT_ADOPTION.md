@@ -196,11 +196,14 @@ An exclusive lock prevents concurrent rotations; `refresh_locked` requires check
 whether the owner process finished before removing a stale lock. Do not delete a
 lock blindly or treat a configured job as a completed run.
 
-Prepared output is always `executive-pending-review`. It cannot replace the live
-Site without a new exact-content approval and expiry-bound receipt. The current
-35-item release is not standing approval for new free text, new feeds, or renewal.
-A future standing metadata refresh policy must explicitly define source/field scope,
-duration and retained access/retention limitations; it does not exist yet.
+Prepared output is always `executive-pending-review`. Publication requires either
+Steve's exact-content approval or an active, explicitly approved refresh scope,
+an actual content review and a distinct digest/expiry-bound derivation receipt.
+The September 14 morning grant ends at noon Mountain; it is not indefinite consent.
+Site v12 validates the original authorization and its independently pinned
+destination/version anchor. Do not represent a Codex review as a new Steve approval.
+See [the authorization operating contract](AUTHORIZATION_OPERATING_CONTRACT.md)
+for the current boundary and the proposed simpler renewal process.
 
 
 ## September 13 communications recovery
@@ -250,7 +253,24 @@ The retained morning and afternoon instruction sets now require parsed timestamp
 ordering and canonical-digest assertions before emitting the named output. A
 producer assertion is defense in depth; the host remains the enforcement boundary.
 
-The morning task is configured for 04:00 and Labs refresh for 07:30. A two-hour
-reply feed from the former cannot remain fresh until the latter. Immediate producer
-completion delivery or an explicitly agreed schedule adjustment is still needed;
-never extend source timestamps/expiry to hide this timing gap.
+The 04:00 morning task previously expired before Labs at 07:30. On September 14,
+the existing Comms morning briefing was saved at 07:00 local/Mountain; the UI
+confirmed the next run tomorrow at approximately 07:00. Frequency, instructions,
+model and access were preserved. A future scheduled run/delivery is not yet verified;
+never extend source timestamps/expiry to hide missed delivery.
+
+The bounded 15:05 UTC rechecks returned fresh partial replies and coordination.
+Cowork reported Outlook disconnected, and incomplete sent-message coverage remains
+partial. Steve requested Apple Mail evaluation: the retained communications owner
+verified the work Inbox/Sent Items through existing app scripting and found recent
+Inbox timestamps in a bounded ten-message sample. This does not establish complete
+Sent coverage or synchronization. Work-account-only fallback instructions are now
+saved in both retained communications routines; no personal-account ingestion,
+new scheduler or actual Mail obligation export has been accepted.
+
+For derived runtime updates, explicitly set `CONTEXT_APPROVAL_RECEIPT` to an empty
+string while retaining the required `CONTEXT_REFRESH_GRANT` and receipt. On the
+hosted v12 acceptance, removing the legacy key alone yielded 409; explicit blanking
+restored authenticated reads. Retained provider configuration is suspected, not
+confirmed. Blank unused payload transport keys when changing modes; never mix
+legacy approval with derived approval or relax the runtime checks.
