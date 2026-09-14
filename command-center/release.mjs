@@ -1,4 +1,5 @@
 import { exact, requireThat, instant, validateItem, sha256, canonical, identifier, ContextError, isTodayItem } from './context.mjs';
+import {validateDerivedRefresh} from './refresh-grant.mjs';
 export const MAX_RELEASE_BYTES = 65536;
 const CHUNK_BYTES = 4096;
 const MAX_CHUNKS = 16;
@@ -81,6 +82,13 @@ export async function loadRuntimeSnapshot(env, now = Date.now()) {
   // This switch must remain absent until hosted negative-auth and exact-content approval gates are recorded.
   requireThat(snapshot.classification === 'synthetic-only' || env.CONTEXT_REAL_DATA_ENABLED === 'approved', 'real_data_disabled');
   if (snapshot.classification === 'executive-reviewed') {
+    if (present(env.CONTEXT_REFRESH_RECEIPT)) {
+      requireThat(!present(env.CONTEXT_APPROVAL_RECEIPT),'mixed_approval_modes');
+      let receipt,grant;
+      try {receipt=JSON.parse(env.CONTEXT_REFRESH_RECEIPT);grant=JSON.parse(env.CONTEXT_REFRESH_GRANT);} catch {throw new ContextError('refresh_authorization_required');}
+      await validateDerivedRefresh(snapshot,receipt,grant,now);
+      return snapshot;
+    }
     let approval; try { approval = JSON.parse(env.CONTEXT_APPROVAL_RECEIPT); } catch { throw new ContextError('approval_required'); }
     exact(approval, ['digest','approved_by','approved_at','expires_at','scope']);
     requireThat(approval.digest === env.CONTEXT_RELEASE_SHA256 && approval.approved_by === 'Steve' && approval.scope === 'owner-only-read-only-site', 'approval_required');

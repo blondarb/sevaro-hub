@@ -21,6 +21,28 @@ The assembler still refuses collisions; withheld duplicates are a coverage gap,
 not an empty calendar. Establish one owner per event-preparation obligation before
 combining overlapping feeds. This patch does not select a conflicting source.
 
+### September 14 continuation: producer work still required
+
+- The module review now has an actual bounded local Claude re-review and a
+  mechanically bound V2 receipt. Its item distinguishes local source implementation
+  from still-unverified published Riya/Dhruv results and measurement reliability.
+  It is partial coverage, not a live communications or clinical validation feed.
+- Native Claude schedule control reached a locked Mac. No cadence or calendar
+  ownership change was applied. Resume the existing owners after unlock; do not
+  create a replacement task, bypass an approval denial, or relabel stale files.
+- Morning cadence repair should put the retained communications run close enough
+  before the existing 07:30 Labs consumer for its two-hour reply evidence window
+  to remain valid. Confirm the UI timezone and actual next-run time when editing
+  the existing task; the contradictory old description is not configuration.
+- Calendar and meeting producers must reconcile the same event-preparation
+  obligation explicitly. Retain the known event IDs and both reviewed source
+  records while unresolved. Separate follow-up commitments only when they are
+  actually distinct obligations; renaming duplicate IDs is not reconciliation.
+- A successful interactive run does not establish unattended operation. Close
+  delivery only with the next clock-triggered producer receipt, matching importer
+  digest and fresh candidate. Report default-calendar-only or partial reply
+  coverage accurately. Keep the already-paused duplicate briefs paused.
+
 ## What the existing routine does
 
 At the end of an actual run, Claude may export only already-reviewed executive

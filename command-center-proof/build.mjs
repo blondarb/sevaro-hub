@@ -15,9 +15,9 @@ await mkdir(resolve(parent, destination.split('/').at(-1)), {mode:0o700});
 const dir = resolve(destination, 'dist/server');
 await mkdir(dir, {recursive:true});
 // Exact source allowlist. Host collectors, credentials, fixtures and private snapshots are never bundled.
-for (const [input, output] of [['context.mjs','context.mjs'],['page.mjs','page.mjs'],['../command-center/context.mjs','shared-context.mjs'],['../command-center/source-links.mjs','source-links.mjs'],['../command-center/release.mjs','release.mjs']]) {
+for (const [input, output] of [['context.mjs','context.mjs'],['page.mjs','page.mjs'],['../command-center/context.mjs','shared-context.mjs'],['../command-center/source-links.mjs','source-links.mjs'],['../command-center/refresh-grant.mjs','refresh-grant.mjs'],['../command-center/release.mjs','release.mjs']]) {
   const source = await readFile(new URL(input,root),'utf8');
-  await exclusiveWrite(resolve(dir,output),output === 'release.mjs' ? source.replace("'./context.mjs'", "'./shared-context.mjs'") : source);
+  await exclusiveWrite(resolve(dir,output),['release.mjs','refresh-grant.mjs'].includes(output) ? source.replace("'./context.mjs'", "'./shared-context.mjs'") : source);
 }
 const browser = await readFile(new URL('browser.mjs',root),'utf8');
 const worker = await readFile(new URL('worker.mjs',root),'utf8');
