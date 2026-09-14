@@ -4,8 +4,9 @@ import {mkdir,lstat,realpath,open,rename,unlink} from 'node:fs/promises';
 import {constants} from 'node:fs';
 import {dirname,join,resolve} from 'node:path';
 import {canonical,ContextError,instant,requireThat} from './context.mjs';
-import {reviewedClaudeExport} from './claude-export.mjs';
+import {reviewedClaudeExport,importableClaudeFeed} from './claude-export.mjs';
 import {LINK_HOSTS} from './release.mjs';
+import {SOURCES} from './cowork-import.mjs';
 
 export const MAX_ENCODED_BYTES=192*1024;
 const MAX_PACKET_BYTES=128*1024;
@@ -35,20 +36,20 @@ function decode(encoded) {
   // Store a deterministic encoding after the reviewed packet's strict validation.
   return {packet:parsed,bytes:Buffer.from(canonical(parsed))};
 }
-async function validate(packet, now, allowedHosts, fresh=true) {
+async function validate(packet, spec, now, allowedHosts, fresh=true) {
   let reviewed; try { reviewed=await reviewedClaudeExport(packet,{allowedHosts,now}); } catch { throw new ContextError('invalid_packet'); }
-  requireThat(reviewed.feed.source_id==='claude:meetings'&&reviewed.receipt.routine==='routine:weekday-afternoon-digest','invalid_packet');
-  requireThat(instant(reviewed.receipt.completed_at)<=now&&instant(reviewed.receipt.reviewed_at)<=now&&(!fresh||instant(reviewed.feed.expires_at)>now),'invalid_packet');
+  requireThat(reviewed.feed.source_id===spec.source_id&&spec.routines.has(reviewed.receipt.routine),'invalid_packet');
+  requireThat(instant(reviewed.receipt.completed_at)<=now&&instant(reviewed.receipt.reviewed_at)<=now&&(!fresh||instant(importableClaudeFeed(reviewed).expires_at)>now),'invalid_packet');
   return {digest:reviewed.receipt.packet_digest,run_id:reviewed.receipt.run_id,observed_at:reviewed.feed.observed_at,completed_at:reviewed.receipt.completed_at};
 }
-async function existing(path, now, allowedHosts) {
+async function existing(path, spec, now, allowedHosts) {
   let handle; try { handle=await open(path,constants.O_RDONLY|constants.O_NOFOLLOW); } catch(error) { if(error.code==='ENOENT') return null; throw new ContextError('private_file_required'); }
   try {
     const info=await handle.stat(); requireThat(info.isFile()&&info.uid===process.getuid()&&(info.mode&0o777)===0o600&&info.size<=MAX_PACKET_BYTES,'private_file_required');
     let packet; try { packet=JSON.parse((await handle.readFile()).toString('utf8')); } catch { throw new ContextError('invalid_packet'); }
     // An expired reviewed packet is unusable for import but remains a verified
     // monotonic floor for staging a later fresh packet.
-    return validate(packet,now,allowedHosts,false);
+    return validate(packet,spec,now,allowedHosts,false);
   } finally { await handle.close(); }
 }
 async function atomic(path, bytes) {
@@ -61,12 +62,13 @@ async function lock(directory) {
   return async()=>{await handle.close().catch(()=>{});await unlink(join(directory,'.stage-meeting-export.lock')).catch(()=>{});};
 }
 
-export async function stageMeetingExport({root,encoded,now=Date.now(),allowedHosts=LINK_HOSTS}) {
-  const decoded=decode(encoded),selected=await validate(decoded.packet,now,allowedHosts),directory=await incomingDirectory(await rootDirectory(root)),target=join(directory,'claude-meetings.json'),release=await lock(directory);
+export async function stageClaudeExport({root,encoded,sourceId,now=Date.now(),allowedHosts=LINK_HOSTS}) {
+  const spec=SOURCES.find(row=>row.source_id===sourceId);requireThat(spec,'invalid_stage_source');
+  const decoded=decode(encoded),selected=await validate(decoded.packet,spec,now,allowedHosts),directory=await incomingDirectory(await rootDirectory(root)),target=join(directory,spec.file),release=await lock(directory);
   try {
     // Read after acquiring the lock so concurrent older input cannot replace a
     // newer staged artifact between its comparison and atomic rename.
-    const prior=await existing(target,now,allowedHosts);
+    const prior=await existing(target,spec,now,allowedHosts);
     if(prior) {
       if(prior.digest===selected.digest)return {status:'unchanged',digest:selected.digest};
       requireThat(prior.run_id!==selected.run_id&&prior.observed_at!==selected.observed_at&&instant(selected.observed_at)>instant(prior.observed_at)&&instant(selected.completed_at)>instant(prior.completed_at),'stage_conflict');
@@ -77,3 +79,5 @@ export async function stageMeetingExport({root,encoded,now=Date.now(),allowedHos
     await release();
   }
 }
+export function stageMeetingExport(options) { return stageClaudeExport({...options,sourceId:'claude:meetings'}); }
+export function stageRepliesExport(options) { return stageClaudeExport({...options,sourceId:'claude:replies'}); }

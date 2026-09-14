@@ -5,10 +5,10 @@ ChatGPT/Codex read this FIRST and update it LAST. Plain language. No PHI (initia
 only). No secrets._
 
 ## Snapshot (keep current)
-- Status: Hub #38 and Context #30 are merged; owner-private Site v10 contains the approved 19-item view through September 13, 10:38 p.m. Mountain. Asana writes remain off.
-- Integration: Existing Claude Microsoft 365 read and reviewed cloud-file transfer to the Mac now passed manual acceptance. The locked Hub refresh produced a corrected 21-item pending snapshot with two meeting-preparation items. It is not published; calendar coverage is partial and email/Slack reconciliation remains incomplete.
-- Engineering: This feature branch adds only fixed-path reviewed meeting staging/import, tests and runbook corrections. Fifteen focused tests and functional review passed. Local end-to-end and replay receipts are retained privately. New branch is not merged; next timed routine run is unverified.
-- Driver this week: Review the exact pending publication and engineering PR, then verify the retained scheduled run. No new schedule or competing source of truth.
+- Status: Hub #38 and Context #30 remain merged; owner-private Site v10 remains the approved 19-item view through September 13, 10:38 p.m. Mountain. No new publication or renewal in the overnight continuation. Asana writes remain OFF.
+- Integration: A fresh retained Cowork reply review validated and imported through its bound local session output. Zero reviewed outstanding replies, partial coverage; not a clear-inbox claim. Reviewed meetings remain partial. Latest prepared candidate contains 22 items including open Hub PR #39, is pending approval and expires at 05:00:04.786Z.
+- Engineering: PR #39 adds strict fixed-path reviewed meeting/reply staging and imports. Seventeen focused tests passed; the added reply CLI target-isolation checks passed. Independent security/data-integrity review found no material findings. New source is not merged; producer scheduling acceptance remains open.
+- Next: Complete the dispatched existing Labs refresh; resolve morning producer-to-consumer timing; answer the pending read-only publication policy question. One quiet 08:15 local task continuation will inspect actual morning receipts. Do not treat this as a new ingestion scheduler or approval.
 - Lives in: https://github.com/blondarb/sevaro-hub.git
 
 ## Open threads / next actions
@@ -20,6 +20,14 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log
+
+### 2026-09-13 · ChatGPT · Overnight reply delivery and morning timing check
+- Did: Reused the retained Cowork communications owner for one source recheck. Its first receipt had an observation after completion and was rejected; Claude preserved the audit copy, corrected from the actual recorded source-read time and re-reviewed. Corrected V2 digest d6129ff9b57d7c80591bd3e3cf7f51632eac90bd872628fc1d972a4161fd9aab imported successfully. Zero outstanding obligations in reviewed sources, partial coverage; one already-handled request was excluded. Existing morning and afternoon prompts now assert actual timestamp ordering and hashes; UI save and local readback verified. Cadence/model/access unchanged.
+- Files/links touched: PR #39 source and focused tests, delivery documentation; existing Cowork comms-morning-briefing/comms-afternoon-check instructions; private overnight-acceptance-20260913.json, PUBLICATION_REVIEW_OVERNIGHT_20260913.md and refresh-plan backup. Pending read plan now follows actual open PR #39 instead of merged #37.
+- Decisions: Fixed replies staging uses the existing source/routine binding, two-hour cap, private paths, shared staging lock and monotonic importer receipts. No new ingest schedule, source write, external draft/message, Asana replay, merge or Site publication. Seventeen focused tests passed, added CLI target isolation passed; independent read-only safety review found no material issue. One-time 08:15 task continuation is configured only to verify/finish this requested overnight work, quiet unless actionable. Temporary 10-hour idle-sleep prevention does not unlock the Mac or defeat lid sleep.
+- Open questions / needs Claude: Mac locked during continuation; no further GUI operations possible. Existing Labs task local_c370cb5e-87d4-4104-b50a-8f8cc2bcf39e was dispatched for bounded fresh coordination/calendar exports, but its completion is not yet verified. The separate Claude phone-layout task reports successful private Site review in signed-in Chrome; pinned numbered retrieval by Claude remains untested. Module-review file is a legacy V1 envelope requiring its owner's re-review. Morning comms runs at 04:00 and expires before Labs 07:30; immediate completion delivery is not yet proven. Do not extend evidence freshness to hide this gap.
+- Next: Keep this feature checkout while the saved meeting staging command references it. Review/merge #39 only with approval, then retarget installed paths. Pending 22-item candidate and read-only refresh policy through September 14 noon Mountain are NOT approved. Revalidate/recollect after expiry or source change before any approved publication. Preserve owner-only audience (live recheck: one owner, zero groups/external visitors), explicit partial/stale health, 43 historical audit-only proposals, writes OFF and data.js/index.html ownership.
+
 
 ### 2026-09-13 · ChatGPT · Direct Outlook meetings and reviewed artifact delivery verified
 - Did: Repaired the cloud-artifact delivery gap without adding a scheduler. Requires this computer exposes Mac tools but cloud outputs remain in /mnt/user-data/outputs. Claude's existing Microsoft 365 default-work-calendar read returned seven events and produced two reviewed meeting-preparation items. The existing Mac capability successfully invoked the fixed staging CLI; the locked Hub refresh imported the packet and prepared a 21-item private pending snapshot. The prior 19 approved items are unchanged.

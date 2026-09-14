@@ -9,7 +9,7 @@ import {reviewedClaudeExport,importableClaudeFeed} from './claude-export.mjs';
 const UUID='[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}';
 const uuid=new RegExp(`^${UUID}$`,'i');
 const local=new RegExp(`^local_${UUID}$`,'i');
-const SOURCES=Object.freeze([
+export const SOURCES=Object.freeze([
   {source_id:'claude:replies',file:'claude-replies.json',routines:new Set(['comms-morning-briefing','comms-afternoon-check','routine:comms-morning-briefing','routine:comms-afternoon-check'])},
   // Keep Cowork's meeting digest distinct from Claude Code's leadership-prep
   // calendar export. Cloud-only sessions may simply be absent locally.
@@ -127,8 +127,8 @@ export async function importCoworkOutputs({root,sessionsRoot,accountId,workspace
       for(const output of found) try { const value=await candidate(join(output,spec.file),spec,allowedHosts,now); if(value) candidates.push(value); } catch(error) { if(error.code!=='ENOENT') failure=error.code||'invalid_packet'; }
       // A reviewed cloud artifact is staged only at this exact private path. It is
       // deliberately not treated as a Cowork session or a general discovery root.
-      if(spec.source_id==='claude:meetings') try {
-        const value=await candidate(join(destinationRoot,'incoming','claude-meetings.json'),spec,allowedHosts,now,false,true);
+      if(['claude:meetings','claude:replies'].includes(spec.source_id)) try {
+        const value=await candidate(join(destinationRoot,'incoming',spec.file),spec,allowedHosts,now,false,true);
         if(value) candidates.push(value);
       } catch(error) { if(error.code!=='ENOENT') failure=error.code||'invalid_packet'; }
       if(failure) { outcomes.push(outcome(spec.source_id,'held',failure)); continue; }

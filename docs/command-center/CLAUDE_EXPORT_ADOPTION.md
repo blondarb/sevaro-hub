@@ -183,12 +183,30 @@ Schedules, connections and the paused duplicate tasks are unchanged. UI readback
 and the corresponding local Scheduled files confirm persistence. The next timed
 execution has not been observed.
 
-Session output delivery is still a one-time Codex transfer, not an installed
-cross-session watcher or an automatic import. Do not describe the cloud-to-local
-bridge as autonomous. The afternoon meeting digest remains a separate existing
-owner with useful outputs; its delivery and same-action reconciliation still need
-acceptance. No new schedule or Site publication was added by this repair.
+At that earlier receipt, session output delivery was a one-time transfer. The
+subsequent account/workspace-bound importer now discovers retained local session
+outputs during the existing locked refresh. The meeting producer has also passed
+one actual cloud-to-Mac fixed-path staging run. These manual receipts do not prove
+the next timed run, unattended tool permissions, or continuous Site refresh. No new
+schedule or Site publication was added by the delivery repair.
 
 ## Automatic host import and explicit obligation links
 
-See [reviewed obligation reconciliation and Cowork delivery](OBLIGATION_RECONCILIATION.md) for the account-bound importer, the existing Labs refresh hook, and the cloud meeting delivery limitation. The actual weekday meeting digest now emits `claude-meetings.json` as a separate source. Its September 13 cloud artifact was transferred once; future cloud delivery and local calendar access are not yet proven.
+See [reviewed obligation reconciliation and Cowork delivery](OBLIGATION_RECONCILIATION.md) for the account-bound importer, the existing Labs refresh hook, and the cloud meeting delivery limitation. The actual weekday meeting digest now emits `claude-meetings.json` as a separate source. Its September 13 reviewed cloud artifact passed the fixed-path Mac staging and locked importer acceptance. The existing Microsoft 365 work-calendar read succeeded; the next scheduled producer run and unattended delivery remain unverified.
+
+
+## Overnight producer receipt correction
+
+A genuine communications recheck initially emitted an observation time later than
+its own completion/review time. The importer must reject that packet. Claude
+corrected its receipt using the recorded source-read time, preserved the rejected
+artifact under a distinct audit filename, and recomputed the review digests; the
+corrected export validated and imported through the existing bound session path.
+The retained morning and afternoon instruction sets now require parsed timestamp
+ordering and canonical-digest assertions before emitting the named output. A
+producer assertion is defense in depth; the host remains the enforcement boundary.
+
+The morning task is configured for 04:00 and Labs refresh for 07:30. A two-hour
+reply feed from the former cannot remain fresh until the latter. Immediate producer
+completion delivery or an explicitly agreed schedule adjustment is still needed;
+never extend source timestamps/expiry to hide this timing gap.

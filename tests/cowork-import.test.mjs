@@ -85,3 +85,11 @@ test('staged meetings preserve monotonic conflict handling and reject unsafe pat
   await chmod(path,0o600);await rm(path);await symlink(join(x.root,'claude-meetings.json'),path);assert.equal((await importCoworkOutputs(args)).outcomes[1].state,'held');
  }finally{await rm(x.base,{recursive:true,force:true});}
 });
+
+test('a staged retained communications artifact imports only through its existing binding',async()=>{
+ const x=await setup();try{
+  const args={root:x.root,sessionsRoot:x.sessions,accountId:account,workspaceId:workspace,now:NOW,allowedHosts:host},incoming=join(x.root,'incoming');await mkdir(incoming,{mode:0o700});
+  await put(join(incoming,'claude-replies.json'),await packet({routine:'comms-afternoon-check',runId:'staged-replies'}));
+  const result=await importCoworkOutputs(args);assert.equal(result.outcomes[0].state,'imported');assert.equal(JSON.parse(await readFile(join(x.root,'claude-replies.json'))).run.run_id,'staged-replies');
+ }finally{await rm(x.base,{recursive:true,force:true});}
+});

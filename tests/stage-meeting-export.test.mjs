@@ -4,7 +4,7 @@ import {mkdtemp,mkdir,readFile,lstat,symlink,chmod,rm,realpath,open} from 'node:
 import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {spawn} from 'node:child_process';
-import {stageMeetingExport,MAX_ENCODED_BYTES} from '../command-center/stage-meeting-export.mjs';
+import {stageMeetingExport,stageRepliesExport,MAX_ENCODED_BYTES} from '../command-center/stage-meeting-export.mjs';
 import {sha256} from '../command-center/context.mjs';
 
 const NOW=Date.parse('2026-09-13T20:00:00Z'),hosts=['app.asana.com'];
@@ -15,7 +15,7 @@ async function packet({observed='2026-09-13T19:00:00Z',completed='2026-09-13T19:
 }
 const encode=value=>Buffer.from(JSON.stringify(value)).toString('base64');
 async function root(){const path=await realpath(await mkdtemp(join(tmpdir(),'stage-meeting-')));await chmod(path,0o700);return path;}
-async function cli(input,env){return await new Promise((resolveRun,reject)=>{const child=spawn(process.execPath,[resolve('command-center/stage-meeting-export-cli.mjs')],{env:{...process.env,...env}});let out='',err='';child.stdout.on('data',x=>out+=x);child.stderr.on('data',x=>err+=x);child.on('error',reject);child.on('close',code=>resolveRun({code,out,err}));child.stdin.end(input);});}
+async function cli(input,env,script='stage-meeting-export-cli.mjs'){return await new Promise((resolveRun,reject)=>{const child=spawn(process.execPath,[resolve('command-center',script)],{env:{...process.env,...env}});let out='',err='';child.stdout.on('data',x=>out+=x);child.stderr.on('data',x=>err+=x);child.on('error',reject);child.on('close',code=>resolveRun({code,out,err}));child.stdin.end(input);});}
 test('stages canonical reviewed meeting bytes and quietly replays the exact digest',async()=>{
  const path=await root();try{const value=await packet(),first=await stageMeetingExport({root:path,encoded:encode(value),now:NOW,allowedHosts:hosts});assert.equal(first.status,'staged');assert.equal((await lstat(join(path,'incoming'))).mode&0o777,0o700);assert.equal((await lstat(join(path,'incoming','claude-meetings.json'))).mode&0o777,0o600);assert.equal(JSON.parse(await readFile(join(path,'incoming','claude-meetings.json'))).feed.source_id,'claude:meetings');assert.equal((await stageMeetingExport({root:path,encoded:encode(value),now:NOW,allowedHosts:hosts})).status,'unchanged');}finally{await rm(path,{recursive:true,force:true});}
 });
@@ -52,5 +52,22 @@ test('the fixed CLI resolves a private ClaudeSync symlink before staging',async(
   await mkdir(home,{mode:0o700});await mkdir(target,{recursive:true,mode:0o700});await chmod(storage,0o700);await chmod(join(storage,'handoffs'),0o700);await chmod(target,0o700);await symlink(storage,join(home,'ClaudeSync'));
   const clock=Date.now(),value=await packet({observed:new Date(clock-120_000).toISOString(),completed:new Date(clock-60_000).toISOString(),expires:new Date(clock+3_600_000).toISOString()});
   const result=await cli(encode(value),{HOME:home});assert.equal(result.code,0,result.err);assert.deepEqual(JSON.parse(result.out),{status:'staged',digest:value.review.packet_digest});assert.equal(result.err,'');assert.equal((await lstat(join(target,'incoming','claude-meetings.json'))).isFile(),true);
+  const reply=await packet({source:'claude:replies',routine:'comms-morning-briefing',runId:'reply-cli',observed:new Date(clock-120_000).toISOString(),completed:new Date(clock-60_000).toISOString(),expires:new Date(clock+3_600_000).toISOString()});
+  const stagedReply=await cli(encode(reply),{HOME:home},'stage-claude-replies-export-cli.mjs');assert.equal(stagedReply.code,0,stagedReply.err);assert.equal(JSON.parse(stagedReply.out).digest,reply.review.packet_digest);
+  assert.equal(JSON.parse(await readFile(join(target,'incoming','claude-meetings.json'))).review.packet_digest,value.review.packet_digest);
+  const wrong=await cli(encode(value),{HOME:home},'stage-claude-replies-export-cli.mjs');assert.equal(wrong.code,1);assert.equal(JSON.parse(wrong.err).error,'invalid_packet');assert.equal(wrong.out,'');
+  assert.equal(JSON.parse(await readFile(join(target,'incoming','claude-replies.json'))).review.packet_digest,reply.review.packet_digest);
  }finally{await rm(base,{recursive:true,force:true});}
+});
+test('retained reply staging accepts only the existing routines and preserves replay/conflict rules',async()=>{
+ const path=await root();try{
+  const replies=await packet({source:'claude:replies',routine:'comms-afternoon-check',runId:'reply-1'}),args={root:path,encoded:encode(replies),now:NOW,allowedHosts:hosts};
+  assert.equal((await stageRepliesExport(args)).status,'staged');assert.equal((await stageRepliesExport(args)).status,'unchanged');
+  await assert.rejects(stageRepliesExport({...args,encoded:encode(await packet({source:'claude:meetings'}))}),/invalid_packet/);
+  await assert.rejects(stageRepliesExport({...args,encoded:encode(await packet({source:'claude:replies',routine:'routine:weekday-afternoon-digest',runId:'reply-2'}))}),/invalid_packet/);
+  await assert.rejects(stageRepliesExport({...args,encoded:encode(await packet({source:'claude:replies',routine:'comms-afternoon-check',runId:'reply-2',expires:'2026-09-13T19:59:00Z'}))}),/invalid_packet/);
+  await assert.rejects(stageRepliesExport({...args,encoded:encode(await packet({source:'claude:replies',routine:'comms-afternoon-check',runId:'reply-2',observed:'2026-09-13T17:00:00Z',completed:'2026-09-13T17:30:00Z'}))}),/invalid_packet/);
+  await assert.rejects(stageRepliesExport({...args,encoded:encode(await packet({source:'claude:replies',routine:'comms-afternoon-check',runId:'reply-2'}))}),/stage_conflict/);
+  assert.equal(JSON.parse(await readFile(join(path,'incoming','claude-replies.json'))).run.run_id,'reply-1');
+ }finally{await rm(path,{recursive:true,force:true});}
 });
