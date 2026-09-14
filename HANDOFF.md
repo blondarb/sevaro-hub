@@ -5,10 +5,10 @@ ChatGPT/Codex read this FIRST and update it LAST. Plain language. No PHI (initia
 only). No secrets._
 
 ## Snapshot (keep current)
-- Status: Owner-private Site v12 is published and verified with 23 items, five Today and three requiring Steve. Latest reviewed runtime refresh expires September 14 09:47 Mountain; the original refresh authorization ends noon. Asana writes remain OFF and 43 historical proposals audit-only.
+- Status: Owner-private Site v12 is published and verified with 23 items, five Today and three requiring Steve. Latest reviewed runtime refresh expires September 14 09:47 Mountain; the seven-day renewal ends September 21 at 09:27:52 Mountain. Asana writes remain OFF and 43 historical proposals audit-only.
 - Integration: Retained Claude owners completed bounded 15:05 UTC communications and coordination rechecks; partial coverage preserved. Existing Comms morning briefing now runs 07:00 local/Mountain before Labs 07:30. Apple Mail Sevaro Inbox/Sent Items access was verified by Claude; fallback instructions saved in both retained communications routines. Personal accounts excluded; complete email coverage and scheduled fallback delivery are not yet verified.
 - Engineering: PR #39 remains draft/unmerged. Matching Site source is saved as v12 with exact provenance in the private publication receipt; the tested derived-authorization runtime and authenticated page/read tools work. Documentation records the hosted legacy-secret blanking recovery. Keep the feature checkout while existing producer commands reference it.
-- Next: Existing quiet continuation reuses saved v12 and the independently pinned original grant for reviewed runtime refreshes through noon, without another source-upload credential. Proposed seven-day renewal is prepared, not approved or installed. Calendar/meeting overlap ownership is undecided and feeds remain held; do not choose a source silently. No automatic merge or upstream writes.
+- Next: Existing quiet continuation reuses saved v12 and the independently pinned seven-day grant for five weekday reviewed runtime refreshes, without another source-upload credential. Steve approved the renewal and it is deployed; prior morning grant preserved. Calendar/meeting overlap ownership is undecided and feeds remain held; do not choose a source silently. No automatic merge or upstream writes.
 - Lives in: https://github.com/blondarb/sevaro-hub.git
 
 ## Open threads / next actions
@@ -20,6 +20,14 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log
+
+### 2026-09-14 · ChatGPT · Seven-day read-only authorization activated
+- Did: Recorded Steve's explicit renewal as a new private grant, preserved the morning grant, rebound the already-reviewed unchanged snapshot and deployed saved v12 with environment revision 19. Updated the existing continuation in place for five weekday refreshes and an exact seven-day cutoff; no new schedule or source upload.
+- Files/links touched: Private read-only-refresh-authorization-20260914-seven-day.json, derived grant/receipt and publication receipt; existing maintenance continuation; authorization/adoption docs and this handoff.
+- Decisions: Approval recorded 15:27:52 UTC September 14, expires September 21 at 15:27:52 UTC (09:27:52 Mountain). Cadence 07:45/09:15/11:15/13:45/16:30 Mountain on weekdays; final in-window run pauses continuation and caps expiry. Actual content review and independent exact grant/version/digest checks remain mandatory. Current snapshot evidence expiry unchanged; permission renewal is not source refresh. Messages, external drafts, Asana changes, decisions, merges, code publication and access expansion remain separately gated.
+- Open questions / needs Claude: Existing partial email coverage and unresolved calendar/meeting ownership persist; source observation and transport failures are not repaired by permission. Second-account denial untested, platform retention unknown, accepted with renewal. Computer sleep and missing evidence may leave periods without a fresh snapshot.
+- Next: Reuse the existing v12 runtime publication path under the new grant; quiet on routine success and actionable exceptions only. Honor revocation and the hard cutoff. Do not reuse the expired morning grant or request approval for every permitted refresh.
+
 
 ### 2026-09-14 · ChatGPT · Private refresh authorization and Mail fallback
 - Did: Used Steve's exact one-time source exception to upload prepared source, save v12 and publish privately. Fixed hosted approval-mode mismatch by explicitly blanking the unused legacy receipt; removing it alone had yielded 409. Reused saved v12 for a second reviewed runtime refresh with no new credential or Steve approval. Page and authenticated numbered read matched the exact release. Retained Claude owners rechecked existing reply and coordination obligations.

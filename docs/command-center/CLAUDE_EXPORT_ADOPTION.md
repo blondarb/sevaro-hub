@@ -199,7 +199,8 @@ lock blindly or treat a configured job as a completed run.
 Prepared output is always `executive-pending-review`. Publication requires either
 Steve's exact-content approval or an active, explicitly approved refresh scope,
 an actual content review and a distinct digest/expiry-bound derivation receipt.
-The September 14 morning grant ends at noon Mountain; it is not indefinite consent.
+Steve renewed the scope for seven days on September 14; it ends September 21 at
+09:27:52 Mountain. Preserve the old morning grant as history.
 Site v12 validates the original authorization and its independently pinned
 destination/version anchor. Do not represent a Codex review as a new Steve approval.
 See [the authorization operating contract](AUTHORIZATION_OPERATING_CONTRACT.md)
