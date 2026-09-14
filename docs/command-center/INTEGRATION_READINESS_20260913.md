@@ -1,5 +1,25 @@
 # Command Center integration readiness — September 13, 2026
 
+## September 14 verified continuation
+
+Hub #39 and #40 are now merged and installed in the canonical Hub checkout.
+V13 was refreshed privately at 17:23 UTC using its existing saved source and
+environment revision 22; 19 reviewed Asana items expire 19:12:12 UTC. Native
+browser acceptance of that refresh is unavailable because the Mac is locked.
+Claude's five exports are stale; zero fresh replies is not a clear inbox.
+
+Context #29 is confirmed MERGED on GitHub. The legacy local
+`com.sevaro.asana-repo-snapshot` service is not loaded and is persistently disabled.
+The September 13 Ops cutover audit describes its earlier preparation state and
+must not be mistaken for current installation evidence. The repaired monitor
+completed at 17:12 UTC: 43 audit-only records, zero actionable entries, zero
+uncertain writes, no stuck alert. This is not a successful Asana write.
+App/cloud and other-host callers remain unverified, so delivery stays off.
+
+The new owner-session delivery protocol has source/unit/package review, not
+hosted or provider acceptance. See [APPROVAL_INBOX.md](APPROVAL_INBOX.md) for the
+precise flags and remaining authenticated-consumer requirements.
+
 ## Current closeout — merged repair and pending Claude integration
 
 This section supersedes the dated preparation/release states below.

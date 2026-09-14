@@ -30,9 +30,11 @@ Claude remains the communications owner. An Apple Mail fallback, if verified,
 uses the same authorized work account and replaces a failed Outlook read for that
 run; it must not become a second simultaneous ingestion routine.
 
-Reuse the existing continuation for bounded reviewed refreshes at 07:45, 09:15,
-11:15, 13:45 and 16:30 Mountain on weekdays, plus explicitly requested refreshes.
-This cadence is saved in the existing continuation, with a hard end date. Reuse
+Under Steve's September 14 completion approval, reuse the existing continuation
+for bounded reviewed refreshes hourly at :45 from 07:45 through 17:45 Mountain
+on weekdays, plus explicitly requested refreshes. This replaces the five-run
+cadence, whose gaps could outlast the two-hour snapshot. It does not extend the
+original September 21 cutoff or guarantee fresh Claude observations. Reuse
 retained producer routines; do not
 start new inbox sweeps to make a timer green. Missed or stale coverage remains
 visible. No continuous availability guarantee: computer sleep, app capability,
@@ -55,7 +57,7 @@ creates another exception nor claims a platform-managed upload capability exists
 
 ## Stop and revocation
 
-At the final in-window run (September 21 09:15 Mountain), cap the last snapshot at
+At the final in-window run (September 21 08:45 Mountain), cap the last snapshot at
 09:27:52 and pause the continuation; the Site denies expired context. On revocation,
 stop the existing refresh continuation and replace
 the active runtime projection with the fixed synthetic proof using the existing
@@ -78,3 +80,11 @@ reply and Asana-comment proposals, defer and withdrawal, with no external
 dispatcher. It neither renews this grant nor grants message sending, task-field
 changes, access or publication permissions. Future bounded automation remains
 backlog work; no extra daily scheduler was added.
+
+September 14 completion authorization also covered the reviewed engineering
+merge and installation. PRs #39 and #40 are merged, and Codex maintenance now
+uses `/Users/stevearbogast/dev/repos/sevaro-hub`. Preserve the older compatible
+meeting-delivery checkout while saved Claude UI commands still point to it.
+Retarget those existing commands after desktop access returns; do not create
+replacement routines. General completion approval is not an exact message,
+business-stage decision, or exception to the credential-safety policy.

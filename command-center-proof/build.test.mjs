@@ -14,6 +14,7 @@ test('isolated artifact includes usable migrations and approval runtime but no c
     ]);
     const files = await readdir(destination + '/dist', { recursive: true });
     assert.ok(files.includes('.openai/drizzle/0000_approval_receipts.sql'));
+    assert.ok(files.includes('.openai/drizzle/0001_delivery_receipts.sql'));
     assert.ok(
       !files.some((x) =>
         /testing|fixture|adapter|collector|node_modules/.test(x),
@@ -43,7 +44,12 @@ test('isolated artifact includes usable migrations and approval runtime but no c
       await worker.fetch(req('/approvals.js'), env)
     ).text();
     assert.match(browser, /read_approval_inbox/);
+    assert.match(browser, /claim_approved_action/);
+    assert.match(browser, /record_delivery_outcome/);
     assert.ok(!browser.includes('casey@example.com'));
+    const history=await worker.fetch(req('/api/delivery/history'),env);
+    assert.equal(history.status,200);
+    assert.equal((await history.json()).capabilities.enabled,false);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
