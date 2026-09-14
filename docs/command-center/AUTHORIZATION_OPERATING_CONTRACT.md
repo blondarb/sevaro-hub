@@ -62,3 +62,13 @@ the active runtime projection with the fixed synthetic proof using the existing
 deployment path. Never enlarge a grant based on silence or a general encouragement.
 Retain only necessary private audit receipts. Runtime removal is not proof that the
 hosting platform has deleted all historical versions or copies.
+
+
+## Shared approval section (prepared, not deployed)
+
+The [approval inbox](APPROVAL_INBOX.md) records exact owner choices separately
+from routine metadata refresh permission. The initial release supports reviewed
+reply and Asana-comment proposals, defer and withdrawal, with no external
+dispatcher. It neither renews this grant nor grants message sending, task-field
+changes, access or publication permissions. Future bounded automation remains
+backlog work; no extra daily scheduler was added.

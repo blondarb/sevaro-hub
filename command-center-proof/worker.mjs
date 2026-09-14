@@ -1,5 +1,6 @@
 import { readContext, resolveItem, snapshot } from './context.mjs';
 import { page } from './page.mjs';
+import { approvalApi } from './approval-api.mjs';
 import { loadRuntimeSnapshot } from '../command-center/release.mjs';
 import { readSnapshot } from '../command-center/context.mjs';
 
@@ -7,7 +8,8 @@ const headers = {
   'Cache-Control': 'private, no-store',
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'no-referrer',
-  'Content-Security-Policy': "default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'none'"
+  'X-Frame-Options': 'DENY',
+  'Content-Security-Policy': "default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
 };
 function response(value, status = 200, type = 'application/json', extraHeaders = {}) {
   return new Response(type === 'application/json' ? JSON.stringify(value) : value,
@@ -23,22 +25,26 @@ export default {
         return response('<!doctype html><html lang="en"><meta charset="utf-8"><title>Sign in</title><h1>Sign in to your Command Center</h1><p><a href="/signin-with-chatgpt?return_to=%2F" target="_top">Continue with ChatGPT</a></p></html>', 401, 'text/html; charset=utf-8');
       return response({ error: 'authentication_required' }, 401);
     }
-    if (request.method !== 'GET') return response({ error: 'read_only' }, 405);
     const url = new URL(request.url);
     // Owner-only Sites policy must be verified before operator setup. This
     // diagnostic returns only the authenticated visitor's own Site-scoped ID;
     // it never enrolls that visitor or exposes the snapshot without a binding.
-    if (url.pathname === '/api/viewer' && !url.search && !env.PROOF_OWNER_SITE_USER_ID)
+    if (url.pathname === '/api/viewer' && request.method === 'GET' && !url.search && !env.PROOF_OWNER_SITE_USER_ID)
       return response({ site_user_id: viewer, binding_configured: false });
+    if (!env.PROOF_OWNER_SITE_USER_ID && request.method !== 'GET') return response({ error: 'read_only' }, 405);
     if (!env.PROOF_OWNER_SITE_USER_ID)
       return response({ error: 'owner_binding_not_configured' }, 503);
     if (viewer !== env.PROOF_OWNER_SITE_USER_ID)
       return response({ error: 'owner_only' }, 403);
+    if (url.pathname.startsWith('/api/approvals')) return approvalApi(request, env, viewer, response);
+    if (request.method !== 'GET') return response({ error: 'read_only' }, 405);
+    if (url.pathname === '/approvals.js') return response(env.APPROVAL_BROWSER_SOURCE ?? '', env.APPROVAL_BROWSER_SOURCE ? 200 : 503, 'text/javascript');
     if (url.pathname === '/api/viewer' && !url.search)
       return response({ site_user_id: viewer, binding_configured: true });
     // The authenticated shell remains usable when context expires. APIs still fail closed.
     if (url.pathname === '/proof.js') return response(env.PROOF_BROWSER_SOURCE ?? '', env.PROOF_BROWSER_SOURCE ? 200 : 503, 'text/javascript');
-    // No body parsing, upload, action endpoint, request logging or external fetch.
+    // Context stays read-only; separate approval routes only record owner receipts.
+    // No external execution, upload, request logging or external fetch.
     try {
       // Hosting adapters may represent removed settings as null or empty strings.
       // Fall back only when BOTH runtime fields are absent; partial/corrupt releases fail closed.

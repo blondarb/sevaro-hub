@@ -5,6 +5,7 @@ ChatGPT/Codex read this FIRST and update it LAST. Plain language. No PHI (initia
 only). No secrets._
 
 ## Snapshot (keep current)
+- Approval inbox: Prepared on `codex/command-center-approval-inbox` in `hub-wt-approval-inbox-20260914`, dependent on PR #39. Exact reply/Asana-comment consent capture, defer, independent withdrawal history and shared conversational tools; no dispatcher. 22 focused tests and independent safety review pass; local WebMCP success/failure checks pass. Not merged or published. Broader automation is backlog only.
 - Status: Owner-private Site v12 is published and verified with 23 items, five Today and three requiring Steve. Latest reviewed runtime refresh expires September 14 09:47 Mountain; the seven-day renewal ends September 21 at 09:27:52 Mountain. Asana writes remain OFF and 43 historical proposals audit-only.
 - Integration: Retained Claude owners completed bounded 15:05 UTC communications and coordination rechecks; partial coverage preserved. Existing Comms morning briefing now runs 07:00 local/Mountain before Labs 07:30. Apple Mail Sevaro Inbox/Sent Items access was verified by Claude; fallback instructions saved in both retained communications routines. Personal accounts excluded; complete email coverage and scheduled fallback delivery are not yet verified.
 - Engineering: PR #39 remains draft/unmerged. Matching Site source is saved as v12 with exact provenance in the private publication receipt; the tested derived-authorization runtime and authenticated page/read tools work. Documentation records the hosted legacy-secret blanking recovery. Keep the feature checkout while existing producer commands reference it.
@@ -20,6 +21,14 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log
+
+### 2026-09-14 · ChatGPT · Shared approval inbox prepared
+- Did: Built the agreed Ready for your approval section into the existing Site source. Owner-authenticated exact catalog/proposal consent uses an append-only D1 receipt ledger, deterministic IDs and atomic revision checks; no bodies or credentials in the ledger. Added selected approve/defer, withdrawal after catalog expiry/rotation, paginated history and matching WebMCP tools. No outbound dispatcher or new schedule.
+- Files/links touched: command-center/approvals.mjs; command-center-proof approval API/store/browser, Worker/page/build, generated initial D1 migration, synthetic preview/tests; docs/command-center/APPROVAL_INBOX.md and authorization operating contract.
+- Decisions: Steve approved implementing this section and keeping broader automation on the backlog. Real catalogs limited to separately reviewed outbound replies and supported Asana comments; other Asana fields reject. Explicit review required for exact payload/source revision/expiry; approval is not delivery. Production catalog stays empty until separately approved. Existing seven-day read-only metadata grant does not cover real draft text, new source publication or a fresh credential exception. Private audience, source ownership and live writer gates preserved.
+- Open questions / needs Claude: Delivery/readback from retained communications owner remains unconnected; Asana field writes unsupported and live Asana writes OFF. Hosted D1, framed-preview restrictions and new live Voice behavior are not yet accepted. Current feature is local only; do not change producer paths or the existing v12 refresh automation. Source publishing exception previously used is spent.
+- Next: Review the dependent feature PR. Publish to the same private Site only with the exact code-publication/credential exception; verify hosted owner/session, migration and fictional tool/receipt paths before any real catalog. Keep existing refresh scope/expiry and retarget its version pin only with the approved source update. No merge or external source actions automatically.
+
 
 ### 2026-09-14 · ChatGPT · Seven-day read-only authorization activated
 - Did: Recorded Steve's explicit renewal as a new private grant, preserved the morning grant, rebound the already-reviewed unchanged snapshot and deployed saved v12 with environment revision 19. Updated the existing continuation in place for five weekday refreshes and an exact seven-day cutoff; no new schedule or source upload.

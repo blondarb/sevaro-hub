@@ -1,0 +1,1 @@
+{"name":"sevaro-command-center-proof","private":true,"type":"module","scripts":{"db:generate":"drizzle-kit generate"},"devDependencies":{"drizzle-kit":"0.31.10","drizzle-orm":"0.45.2"}}
