@@ -20,6 +20,13 @@ only). No secrets._
 
 ## Session log (append-only, newest first)
 
+### 2026-09-13 · ChatGPT · Full automation audit and recoverable consolidation
+- Did: Compared live Claude Code, Cowork and ChatGPT schedules with Codex configurations, the 27-definition Ops registry and local loaded helpers. In addition to the prior two duplicate brief pauses, paused expired Claude Dhruv reply monitor and disabled/unloaded the duplicate local private morning brief and expired May 29 reminder. Made legacy Asana snapshot retirement persistent. Definitions/history and the independent team-brief consumer remain intact.
+- Files/links touched: Hub docs/command-center/AUTOMATION_OWNERSHIP_20260913.md, PR #38; private automation-cleanup and scheduler-recovery receipts; exact existing scheduler controls. No data.js/index.html edits.
+- Decisions: Retain distinct OpenAI, Claude configuration and XR checks; preserve Claude communications/meeting/Slack responsibilities and Codex engineering checks. Show actual completion/exception evidence in existing system health once connected, not generic daily summaries. No new automation, merge, Site publication, messages or Asana writes; no measured token-savings claim.
+- Open questions / needs Claude: Fresh communications reconciliation and failed runs; cloud meeting export delivery; stable same-action identity. Local lane-health last exit 1 is unexplained. Other hosts and full execution receipts are unverified. Audit incident: an agent's plist extraction overwrote seven saved configs; all restored and independently reviewed after two corrections. Three reconstructions are not byte-exact and reboot/reload was not tested; no jobs executed or restarted in recovery.
+- Next: Connect retained reviewed outputs and actual run receipts through the existing shared-context handoff; keep duplicate/expired routines paused. The pending Site publication approval remains separate.
+
 ### 2026-09-13 · ChatGPT · Verified automation overlap and paused duplicate briefs
 - Did: Inspected live ChatGPT, Cowork and Claude Code schedules alongside local definitions. Paused ChatGPT Executive Inbox Brief and Cowork Morning brief (chief-of-staff sweep); both UI states confirm paused, with history preserved. Retained the original Comms morning/afternoon tasks, twice-daily Labs coordination and the distinct 4 p.m. Fyxer meeting/handoff digest.
 - Files/links touched: docs/command-center/AUTOMATION_OWNERSHIP_20260913.md; the two existing schedule controls; shared artifact handoff.
