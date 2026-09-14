@@ -5,9 +5,9 @@ ChatGPT/Codex read this FIRST and update it LAST. Plain language. No PHI (initia
 only). No secrets._
 
 ## Snapshot (keep current)
-- Status: Private Command Center now excludes the 15 Asana cards assigned to Dhruv, using the verified account ID. The approved filtered release contains 19 Asana cards plus engineering; Today remains three exceptions. Page and Voice match, with FPPE now number 7. Original source times and 5:37 p.m. Mountain September 13 expiry are unchanged. No Asana writes, merge or automatic renewal. Claude completed a bounded supplied-record reconciliation; current Riya/Dhruv evidence and communications feeds remain unresolved.
-- Integration preparation: Quiet pending refresh and reviewed Claude export validation are implemented/tested; partial Claude exports remain held. Existing artifact handoff requests adoption; no scheduler, automatic Site renewal or source write was installed. See the newest integration readiness section.
-- Driver this week: Review the isolated Command Center PR against main, adopt existing Claude exports, and resolve evidence gaps before new stage or renewal decisions. Older July entries refer to the separately preserved portfolio branch.
+- Status: The three scoped repair PRs are merged (Hub #37, Ops #23, Context #29). The existing private Site was renewed with 19 Dhruv-filtered Asana items through September 13, 7:38 p.m. Mountain; page and conversational retrieval agreed. Asana writes remain off. This follow-up branch is reviewed/tested but not merged or deployed.
+- Integration preparation: The replacement local monitor is installed and its manual launch passed; the old local Asana snapshot job is disabled/unloaded. Claude's existing Labs task produced actual coordination and partial-calendar exports. Re-reviewed v2 packets validate; the reply export is stale and excluded. The new 23-item proposal is private and pending approval, not live.
+- Driver this week: Review this follow-up, approve its exact private publication scope, and have the existing Cowork communications routine recheck reply obligations. Current published module results remain unresolved. Other-host Asana callers and the nightly timed monitor run are not verified.
 - Lives in: https://github.com/blondarb/sevaro-hub.git
 
 ## Open threads / next actions
@@ -25,7 +25,7 @@ only). No secrets._
 - Files/links touched: `command-center/`, `command-center-proof/browser.mjs`, Claude export adoption/readiness docs, shared-context acceptance notes, and focused synthetic tests.
 - Decisions: Partial coverage is never relabeled available or complete. Version-2 Claude envelopes bind the feed and run receipt; legacy unbound envelopes stay held until re-reviewed. Existing digest, expiry, pending-publication and Steve approval gates are unchanged; no source reads, Site publication, scheduler, merge or source write occurred.
 - Open questions / needs Claude: Provide reviewed exports and actual run receipts under the existing exact allowlist; reconcile any incomplete coverage before treating a feed as complete.
-- Next: Review the isolated Command Center commit, then adopt a reviewed export only within the existing approval and expiry scope.
+- Next: Review the isolated Command Center commit, then adopt a reviewed export only within the existing approval and expiry scope. Runtime read/resolve and packaged Worker checks passed at executable commit 3f4e5a5; synthetic number two and its partial source health matched. The Mac locked before the final visual check. New content/source publication remains pending.
 
 ### 2026-09-13 · ChatGPT · Owner filter published and Claude reconciliation reviewed
 - Did: Verified Dhruv's exact Asana assignment across 34 approved targets; excluded 15 in the host projection and existing private Site. Retained 20 items, original evidence times/expiry and identical page/Voice context. Added owner reassignment, unassigned and missing-owner checks; 13 affected tests pass. Claude Code completed a supplied-record reconciliation; primary review corrected unsupported implications and retained only actionable evidence gaps.

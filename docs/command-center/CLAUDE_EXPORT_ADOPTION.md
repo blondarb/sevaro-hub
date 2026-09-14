@@ -42,9 +42,10 @@ It has source ID/system, observed_at/expires_at, available/partial/unavailable s
 fixed failure code and curated items. No raw message bodies, subjects, transcripts,
 patient information, personnel/compensation details, source prompts, credentials,
 arbitrary attachments or unrestricted source URLs. Review every free-text field and
-link. Prefer the verified Asana initiative link when the source-specific permalink
-cannot satisfy the approved link boundary. Missing source attribution is a gap,
-not permission to invent a link.
+link. Use the authoritative link for the actual finding. An Asana initiative link is
+appropriate for initiative findings; it must not replace the actual calendar event
+or communication link merely to satisfy the allowlist. Withhold an item whose
+source cannot be attributed and record the coverage gap without inventing a link.
 
 `review` has exactly:
 

@@ -2,8 +2,9 @@
 
 This directory is the sole source of the proof. It reuses the Hub's source-linked,
 validated-record approach without importing its stale portfolio fixture, clinical
-routes, Cognito service, databases or a second portfolio UI. It contains three
-invented examples, no real executive content and no write operation.
+routes, Cognito service, databases or a second portfolio UI. Its built-in fixture contains three invented examples. The same runtime can load
+an explicitly approved, expiring executive snapshot; no real context is included in
+source or build output and there is no write operation.
 
 `context.mjs` owns one deeply frozen snapshot and numbered view. `worker.mjs`
 serves it only to a configured owner behind authenticated Sites dispatch;
@@ -22,9 +23,9 @@ node command-center-proof/build.mjs /absolute/isolated/site-staging
 ```
 
 The preview runs only on loopback with a **synthetic identity shim**; it is not
-authentication acceptance. The build allowlists four source files and emits
-only `dist/server/index.js` plus a module package declaration. No Hub source,
-environment files or data directories are copied. Preserve the Site's own
+authentication acceptance. The build copies an exact allowlist of shared runtime, release, source-link, page
+and browser modules plus a module package declaration. Collectors, private context,
+credentials and unrelated Hub data directories are never copied. Preserve the Site's own
 `.openai/hosting.json` in the staging directory. No database or public assets
 serve as an authentication bypass.
 
@@ -44,6 +45,7 @@ All context routes are GET-only/no-store. This fixture's phrase parameter is
 synthetic only. Do not reuse a query-string interface for actual spoken input
 without a separate request/logging privacy design; infrastructure may log URLs.
 No raw utterance, email body, transcript, clinical material, arbitrary export or
-connector credential is accepted. There is no general-purpose real-data adapter.
+connector credential is accepted. Host-only collectors prepare reviewed metadata;
+they are not part of the hosted Worker.
 
 Acceptance status and remaining gates: [receipt](../docs/command-center/SHARED_CONTEXT_ACCEPTANCE_20260913.md).
