@@ -33,7 +33,7 @@ function runtimePayload(env) {
     return value;
   }).join('');
 }
-export const LINK_HOSTS = Object.freeze(['app.asana.com', 'github.com', 'outlook.office.com', 'outlook.office365.com', 'drive.google.com']);
+export const LINK_HOSTS = Object.freeze(['app.asana.com', 'github.com', 'outlook.office.com', 'outlook.office365.com', 'drive.google.com', 'sevarohealth.slack.com']);
 /** This validates a previously reviewed projection, never classifies raw content as PHI-free. */
 export async function validateSnapshot(snapshot, now = Date.now()) {
   exact(snapshot, ['schema_version', 'classification', 'generated_at', 'expires_at', 'health', 'items', 'today_item_ids', 'requiring_steve', 'snapshot_id', 'view_id']);

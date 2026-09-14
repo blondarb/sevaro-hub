@@ -35,6 +35,10 @@ Claude/Cowork/Code retain their existing Outlook, Fyxer, Slack and document rout
   `outlook.office365.com/owa/` with exactly `itemid`, `exvsurl=1`, and
   `path=/calendar/item`. The reviewed source must provide that exact link; never
   synthesize a calendar URL or add redirect, token, or return parameters.
+- Claude-reviewed Slack findings may link only to the observed message permalink
+  on `sevarohealth.slack.com/archives/{channel}/p{timestamp}` without query,
+  fragment, credentials or redirects. This is navigation only, not a Slack
+  connector, monitoring permission or source-content fetch.
 - Site runtime accepts one protected snapshot or protected transport chunks, plus its exact approved digest.
   Real-data mode is disabled unless separately enabled after the acceptance gates.
   All reads use the exact displayed pins; deployment of a new snapshot makes old

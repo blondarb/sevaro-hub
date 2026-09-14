@@ -14,6 +14,19 @@ async function packet({observed='2026-09-13T19:00:00Z',completed='2026-09-13T19:
  return {schema_version:2,feed,review:{reviewed_by:'Claude',reviewed_at:completed,policy:'executive-project-context-v1',feed_digest:await sha256(feed),packet_digest:await sha256({feed,run})},run};
 }
 const encode=value=>Buffer.from(JSON.stringify(value)).toString('base64');
+test('reviewed Slack reply survives staging while a changed or unreviewed packet is held',async()=>{
+ const path=await root();try{
+  const value=await packet({source:'claude:replies',routine:'comms-morning-briefing',runId:'slack-reply'});
+  value.feed.items.push({item_id:'slack:synthetic:reply',source_id:'claude:replies',source_revision:'synthetic-1',source_url:'https://sevarohealth.slack.com/archives/C0SYNTHETIC/p1789391165151239',spoken_name:'Synthetic project reply',kind:'response',status:'Reply needed',context:'Synthetic project scheduling request.',recommendation:null,requires_steve:true,due:null,next_event:null,action_state:'none'});
+  value.review.feed_digest=await sha256(value.feed);value.review.packet_digest=await sha256({feed:value.feed,run:value.run});
+  assert.equal((await stageRepliesExport({root:path,encoded:encode(value),now:NOW})).status,'staged');
+  const changed=structuredClone(value);changed.feed.items[0].context='Different content without new review';
+  await assert.rejects(stageRepliesExport({root:path,encoded:encode(changed),now:NOW}),/invalid_packet/);
+  const unreviewed=structuredClone(value);delete unreviewed.review;
+  await assert.rejects(stageRepliesExport({root:path,encoded:encode(unreviewed),now:NOW}),/invalid_packet/);
+  assert.equal(JSON.parse(await readFile(join(path,'incoming','claude-replies.json'))).review.packet_digest,value.review.packet_digest);
+ }finally{await rm(path,{recursive:true,force:true});}
+});
 async function root(){const path=await realpath(await mkdtemp(join(tmpdir(),'stage-meeting-')));await chmod(path,0o700);return path;}
 async function cli(input,env,script='stage-meeting-export-cli.mjs'){return await new Promise((resolveRun,reject)=>{const child=spawn(process.execPath,[resolve('command-center',script)],{env:{...process.env,...env}});let out='',err='';child.stdout.on('data',x=>out+=x);child.stderr.on('data',x=>err+=x);child.on('error',reject);child.on('close',code=>resolveRun({code,out,err}));child.stdin.end(input);});}
 test('stages canonical reviewed meeting bytes and quietly replays the exact digest',async()=>{

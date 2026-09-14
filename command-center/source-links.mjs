@@ -6,6 +6,8 @@ export function isAllowedSourceUrl(value, allowedHosts) {
   let parsed;
   try { parsed = new URL(value); } catch { return false; }
   if (parsed.protocol !== 'https:' || parsed.username || parsed.password || parsed.port || parsed.hash || !allowedHosts.includes(parsed.hostname)) return false;
+  // Navigation to a Claude-reviewed source only; no Slack API or ingestion access.
+  if (parsed.hostname === 'sevarohealth.slack.com') return !parsed.search && /^\/archives\/[CG][A-Z0-9]+\/p\d{16}$/.test(parsed.pathname);
   if (parsed.hostname !== 'outlook.office365.com') return !parsed.search;
   // Only the documented read-event navigation parameters are accepted. Do not
   // allow general Outlook queries, tokens, message bodies, or return URLs.

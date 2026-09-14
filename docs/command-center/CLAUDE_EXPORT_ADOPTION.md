@@ -5,6 +5,22 @@ or status authority. Steve approved this integration phase on September 13. The
 current Site release and its expiry remain separately approved; this step cannot
 publish or renew it. The implementation lives in sevaro-hub.
 
+### Morning acceptance finding — September 14
+
+The retained 04:00 communications run produced a valid packet observed at 10:05Z,
+expiring at 12:05Z, before the Labs 07:30 Mountain consumer. A fresh manual reply
+check reached the V2 validator; its actual Slack source exposed the missing
+permalink support repaired in this branch. Immediate producer delivery addresses
+transport delay but does not make 04:00 evidence current at 07:30. Align the
+existing morning cadence with Steve's review time before calling this unattended
+morning readiness. Do not add a second digest, extend source freshness, or describe
+an empty partial check as a clear inbox. Cadence is unchanged by this PR.
+
+The current calendar and separate meeting producers can emit the same event ID.
+The assembler still refuses collisions; withheld duplicates are a coverage gap,
+not an empty calendar. Establish one owner per event-preparation obligation before
+combining overlapping feeds. This patch does not select a conflicting source.
+
 ## What the existing routine does
 
 At the end of an actual run, Claude may export only already-reviewed executive
@@ -46,6 +62,12 @@ link. Use the authoritative link for the actual finding. An Asana initiative lin
 appropriate for initiative findings; it must not replace the actual calendar event
 or communication link merely to satisfy the allowlist. Withhold an item whose
 source cannot be attributed and record the coverage gap without inventing a link.
+
+Reviewed Slack items use the observed `https://sevarohealth.slack.com/archives/`
+message permalink, with no query or fragment. Other workspaces, API endpoints,
+redirects and credentials are refused. This permits source navigation only;
+Codex does not acquire direct Slack access. The same validator is bundled into
+the Site, so new link support must be deployed before publishing such a snapshot.
 
 Normalized `item_id`, `source_id`, `run_id` and `routine` identifiers must match
 `^[a-zA-Z0-9:_./-]{1,160}$`. Do not copy native Outlook IDs containing `=` or append

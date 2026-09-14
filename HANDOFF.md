@@ -5,10 +5,10 @@ ChatGPT/Codex read this FIRST and update it LAST. Plain language. No PHI (initia
 only). No secrets._
 
 ## Snapshot (keep current)
-- Status: Hub #38 and Context #30 remain merged; owner-private Site v10 remains the approved 19-item view through September 13, 10:38 p.m. Mountain. No new publication or renewal in the overnight continuation. Asana writes remain OFF.
-- Integration: A fresh retained Cowork reply review validated and imported through its bound local session output. Zero reviewed outstanding replies, partial coverage; not a clear-inbox claim. Reviewed meetings remain partial. Latest prepared candidate contains 22 items including open Hub PR #39, is pending approval and expires at 05:00:04.786Z.
-- Engineering: PR #39 adds strict fixed-path reviewed meeting/reply staging and imports. Seventeen focused tests passed; the added reply CLI target-isolation checks passed. Independent security/data-integrity review found no material findings. New source is not merged; producer scheduling acceptance remains open.
-- Next: Complete the dispatched existing Labs refresh; resolve morning producer-to-consumer timing; answer the pending read-only publication policy question. One quiet 08:15 local task continuation will inspect actual morning receipts. Do not treat this as a new ingestion scheduler or approval.
+- Status: The existing private Site v10 is expired; no morning publication or renewal approval has been recorded. Asana writes remain OFF, with 43 historical proposals audit-only and zero actionable queued writes in the fresh monitor-only check.
+- Integration: The retained morning Cowork routine ran; its 04:05 export expired before Labs consumption. A fresh reviewed reply has imported through the existing account-bound local-file route. The scheduled Labs run completed with six fresh reviewed coordination findings and a producer-reviewed FPPE same-obligation binding. Partial/expired/missing feeds stay explicit.
+- Engineering: PR #39 includes bounded meeting/reply delivery plus strict reviewed Slack permalink navigation. Eleven affected tests and five proof auth/reference tests pass; independent static review found no material finding. Matching Site sources are built locally, not published. Keep the feature checkout while existing producer commands reference it.
+- Next: Review the fresh private candidate, approve any Site publication/renewal, and deploy matching source before publishing Slack-linked context. Align the existing morning cadence; automatic Mac delivery was denied by Claude's classifier. Calendar/meeting ownership collisions and legacy module-review re-review remain unresolved. Do not merge or enable writes automatically.
 - Lives in: https://github.com/blondarb/sevaro-hub.git
 
 ## Open threads / next actions
@@ -20,6 +20,14 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log
+
+### 2026-09-14 · ChatGPT · Morning recovery and reviewed Slack permalink support
+- Did: Resumed after Mac unlock; declined an unnecessary nested workflow, closed the old manual Labs acceptance, and retained the actual scheduled morning run as sole coordination owner. The 04:05 communications packet was valid but expired before 07:30; a bounded source recheck produced one reviewed response item. Claude minimized that item and preserved its original observation/expiry. Existing local-file import passed. Fresh monitor-only check reports zero actionable entries, 43 audit-only, zero uncertain writes and no alert; this is not an Asana write receipt.
+- Files/links touched: Shared source-link validator/allowlist, focused staging/navigation tests, export documentation and PR #39. Isolated Site bundle prepared with the same validator. Private refresh plan now preserves the actual FPPE Validate-versus-Graduate conflict, with backup. The scheduled Claude owner reviewed a revision-bound same-obligation link so that correction can collapse duplicate FPPE cards without deciding its stage.
+- Decisions: Only observed message permalinks on the exact Sevaro Slack workspace are permitted; no Slack connector, direct read, auth scope or background access. Eleven affected tests plus five existing proof tests passed; independent static review found no material issue. No Site publication, new schedule, source write, Asana replay or automatic merge. data.js/index.html ownership preserved.
+- Open questions / needs Claude: Cowork's Mac execution attempt was rejected by its automatic review as Untrusted Code Integration, before execution; no retry or permission workaround. The existing local session importer remains usable. Immediate transport alone does not fix 04:00 evidence expiring before 07:30; cadence must be aligned. Calendar/meeting duplicate-event ownership remains a documented gap, and the module-review V1 export still requires owner re-review. The prior Site approval expired overnight; the broader read-only renewal question is unanswered.
+- Next: Use the morning private acceptance receipt and proposed-current-context.json for exact review, then publish only after approval and with matching Site source. Preserve partial/stale health; do not relabel source times. Retarget installed commands only after an approved merge.
+
 
 ### 2026-09-13 · ChatGPT · Overnight reply delivery and morning timing check
 - Did: Reused the retained Cowork communications owner for one source recheck. Its first receipt had an observation after completion and was rejected; Claude preserved the audit copy, corrected from the actual recorded source-read time and re-reviewed. Corrected V2 digest d6129ff9b57d7c80591bd3e3cf7f51632eac90bd872628fc1d972a4161fd9aab imported successfully. Zero outstanding obligations in reviewed sources, partial coverage; one already-handled request was excluded. Existing morning and afternoon prompts now assert actual timestamp ordering and hashes; UI save and local readback verified. Cadence/model/access unchanged.
