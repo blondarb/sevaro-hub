@@ -55,12 +55,16 @@ function validHealth(receipt, now) {
     if (![null, ...SAFE_FAILURES].includes(receipt.last_failure_code) || ![null, ...SAFE_FAILURES].includes(receipt.failure_code)) throw new ContextError('invalid_context');
     if (receipt.candidate_digest !== null && !/^[a-f0-9]{64}$/.test(receipt.candidate_digest)) throw new ContextError('invalid_context');
     if (![null, 'executive-pending-review'].includes(receipt.candidate_classification) || !['fresh','degraded','expired','missing','retained_previous'].includes(receipt.freshness_state) || !['none','used_prior','replaced_invalid_current','missing'].includes(receipt.recovery_state)) throw new ContextError('invalid_context');
-    exact(receipt.source_counts, ['available','unavailable','stale']);
+    const legacyCounts = receipt.source_counts && typeof receipt.source_counts === 'object' && !Array.isArray(receipt.source_counts) && Object.keys(receipt.source_counts).length === 3 && ['available','unavailable','stale'].every(key => Object.hasOwn(receipt.source_counts,key));
+    if (legacyCounts) {
+      if (!Array.isArray(receipt.sources) || receipt.sources.some(source => source?.state === 'partial')) throw new ContextError('invalid_context');
+      receipt = {...receipt,source_counts:{available:receipt.source_counts.available,partial:0,unavailable:receipt.source_counts.unavailable,stale:receipt.source_counts.stale}};
+    } else exact(receipt.source_counts, ['available','partial','unavailable','stale']);
     if (!Object.values(receipt.source_counts).every(value => Number.isSafeInteger(value) && value >= 0) || !Array.isArray(receipt.sources)) throw new ContextError('invalid_context');
     const ids = new Set();
     for (const source of receipt.sources) {
       exact(source, ['source_id','state','failure_code']); identifier(source.source_id);
-      if (ids.has(source.source_id) || !['available','unavailable','stale'].includes(source.state) || ![null, ...SOURCE_FAILURES].includes(source.failure_code)) throw new ContextError('invalid_context');
+      if (ids.has(source.source_id) || !['available','partial','unavailable','stale'].includes(source.state) || ![null, ...SOURCE_FAILURES].includes(source.failure_code)) throw new ContextError('invalid_context');
       ids.add(source.source_id);
     }
     if (receipt.sources.length > 50 || Object.keys(receipt.source_counts).some(state => receipt.source_counts[state] !== receipt.sources.filter(s => s.state === state).length)) throw new ContextError('invalid_context');
@@ -124,9 +128,10 @@ export function compareCandidates(previous, next) {
     const old = oldHealth.get(id);
     if (!old || old.state !== row.state || old.failure_code !== row.failure_code) {
       health_changed++;
-      if (row.state !== 'available' && old?.state === 'available') new_failure = true;
-      if (row.state === 'available' && old && old.state !== 'available') recovery = true;
-      if (!old && row.state !== 'available') new_failure = true;
+      const quality = state => state === 'available' ? 2 : state === 'partial' ? 1 : 0;
+      if (old && quality(row.state) < quality(old.state)) new_failure = true;
+      if (old && quality(row.state) > quality(old.state)) recovery = true;
+      if (!old && quality(row.state) < 2) new_failure = true;
     }
   }
   for (const id of oldHealth.keys()) {
@@ -137,7 +142,7 @@ export function compareCandidates(previous, next) {
 
 function sourceReceipt(snapshot) {
   const sources = (snapshot?.health ?? []).map(({ source_id, state, failure_code }) => ({ source_id, state, failure_code }));
-  const counts = { available: 0, unavailable: 0, stale: 0 };
+  const counts = { available: 0, partial: 0, unavailable: 0, stale: 0 };
   for (const source of sources) counts[source.state]++;
   return { sources, counts };
 }
@@ -155,7 +160,7 @@ async function acquireLock(root) {
 }
 
 /** Prepare a pending candidate and metadata-only receipt in a canonical private directory. */
-export async function refreshOnce({ root, plan, collect = collectSources, now = Date.now(), includePortfolio = false, ttlMs = 900000, write = atomicJson }) {
+export async function refreshOnce({ root, plan, collect = collectSources, importExports = null, now = Date.now(), includePortfolio = false, ttlMs = 900000, write = atomicJson }) {
   const directory = await privateRoot(root);
   const lock = await acquireLock(directory);
   const attemptedAt = new Date(now).toISOString();
@@ -166,13 +171,30 @@ export async function refreshOnce({ root, plan, collect = collectSources, now = 
     const previousHealth = validHealth(await readReceipt(join(directory, HEALTH)), now);
     let snapshot, release, comparison, failure_code = null, collected = null, validatedCollection = null;
     try {
+      // The existing refresh lock serializes imports and candidate preparation.
+      // No new timer, source access, upstream write or publication is introduced.
+      const delivery = importExports ? await importExports({root:directory,now}) : null;
+      if(delivery) {
+        exact(delivery,['outcomes']);
+        if(!Array.isArray(delivery.outcomes)||delivery.outcomes.length!==2)throw new ContextError('run_failed');
+        const seen = new Set();
+        for(const row of delivery.outcomes){
+          if(!['claude:replies','claude:meetings'].includes(row.source_id)||seen.has(row.source_id)||!['imported','unchanged','missing','held'].includes(row.state))throw new ContextError('run_failed');
+          seen.add(row.source_id);
+        }
+        await write(directory,'cowork-import-health.json',{schema_version:1,checked_at:attemptedAt,sources:delivery.outcomes.map(row=>({source_id:row.source_id,state:row.state,failure_code:row.state==='held'?(row.code==='source_conflict'?'source_conflict':'run_failed'):row.state==='missing'?'source_unavailable':null}))});
+      }
       collected = await collect(plan);
       if (!collected || !Array.isArray(collected.expected_sources) || !Array.isArray(collected.feeds)) throw new ContextError('source_unavailable');
+      for(const row of delivery?.outcomes ?? [])if(row.state==='held') {
+        collected.feeds=collected.feeds.filter(feed=>feed.source_id!==row.source_id);
+        if(collected.expected_sources.includes(row.source_id))collected.feeds.push({schema_version:1,source_id:row.source_id,system:'claude',observed_at:attemptedAt,expires_at:new Date(now+3600_000).toISOString(),status:'unavailable',failure_code:row.code==='source_conflict'?'source_conflict':'run_failed',items:[]});
+      }
       const next = await assemble(collected.feeds, { expectedSources: collected.expected_sources, allowedHosts: LINK_HOSTS, now, ttlMs, classification: 'executive-pending-review', includePortfolio });
       validatedCollection = next;
-      if(!next.health.some(h=>h.state==='available'))throw new ContextError('source_unavailable');
-      const prepared = await prepareRelease(next, now);
       comparison = compareCandidates(previous, next);
+      if(!next.health.some(h=>['available','partial'].includes(h.state)))throw new ContextError('source_unavailable');
+      const prepared = await prepareRelease(next, now);
 
       // Keep exactly one prior candidate. A completed current always has a valid prior or none.
       // Never move the live candidate away before a replacement is durable.
@@ -182,7 +204,7 @@ export async function refreshOnce({ root, plan, collect = collectSources, now = 
       snapshot = next; release = prepared;
     } catch (error) {
       failure_code = failureCode(error);
-      comparison = { added: 0, removed: 0, changed: 0, revision_only: 0, health_changed: 0, new_failure: previousHealth?.failure_code === null || !previousHealth, recovery: false };
+      comparison ??= { added: 0, removed: 0, changed: 0, revision_only: 0, health_changed: 0, new_failure: previousHealth?.failure_code === null || !previousHealth, recovery: false };
     }
     const candidate = snapshot ?? previous;
     const recovery_state = current.snapshot ? 'none' : prior.snapshot ? snapshot && current.invalid ? 'replaced_invalid_current' : 'used_prior' : 'missing';
@@ -190,7 +212,7 @@ export async function refreshOnce({ root, plan, collect = collectSources, now = 
     const receipt = sourceReceipt(validatedCollection ?? candidate);
     if(failure_code && !validatedCollection) {
       receipt.sources=receipt.sources.map(s=>({...s,state:'unavailable',failure_code}));
-      receipt.counts={available:0,unavailable:receipt.sources.length,stale:0};
+      receipt.counts={available:0,partial:0,unavailable:receipt.sources.length,stale:0};
     }
     const health = {
       schema_version: 1,

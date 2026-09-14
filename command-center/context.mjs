@@ -1,3 +1,4 @@
+import {isAllowedSourceUrl} from './source-links.mjs';
 // Shared, transport-independent executive projection. Never an authority for source state.
 export const SYSTEMS = Object.freeze(['asana', 'github', 'claude', 'asana_sync']);
 export const KINDS = Object.freeze(['decision', 'response', 'deadline', 'blocker', 'waiting', 'project', 'agent', 'meeting']);
@@ -38,18 +39,30 @@ export async function sha256(value) {
   return [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(x => x.toString(16).padStart(2, '0')).join('');
 }
 function freeze(value) { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
-function url(value, allowedHosts) {
-  let parsed; try { parsed = new URL(value); } catch { throw new ContextError('invalid_link'); }
-  requireThat(parsed.protocol === 'https:' && !parsed.username && !parsed.password && !parsed.search && !parsed.hash && allowedHosts.includes(parsed.hostname), 'invalid_link');
-}
+function url(value, allowedHosts) { requireThat(isAllowedSourceUrl(value, allowedHosts), 'invalid_link'); }
 export function validateItem(item, allowedHosts) {
-  exact(item, ['item_id', 'source_id', 'source_revision', 'source_url', 'spoken_name', 'kind', 'status', 'context', 'recommendation', 'requires_steve', 'due', 'next_event', 'action_state']);
+  const optional = ['same_obligation_as','evidence'].filter(k => Object.hasOwn(item,k));
+  exact(item, ['item_id', 'source_id', 'source_revision', 'source_url', 'spoken_name', 'kind', 'status', 'context', 'recommendation', 'requires_steve', 'due', 'next_event', 'action_state', ...optional]);
   identifier(item.item_id); identifier(item.source_id); label(item.source_revision, 100); url(item.source_url, allowedHosts);
   label(item.spoken_name, 80); label(item.status, 100); label(item.context, 600);
   if (item.recommendation !== null) label(item.recommendation, 400);
   if (item.next_event !== null) label(item.next_event, 240);
   if (item.due !== null) deadline(item.due);
   requireThat(KINDS.includes(item.kind) && typeof item.requires_steve === 'boolean' && ['none', 'proposed', 'awaiting_approval'].includes(item.action_state));
+  if (item.same_obligation_as !== undefined) {
+    exact(item.same_obligation_as,['item_id','source_revision']);
+    requireThat(item.source_id.startsWith('claude:') && item.same_obligation_as.item_id.startsWith('asana:'),'source_conflict');
+    identifier(item.same_obligation_as.item_id); label(item.same_obligation_as.source_revision,100);
+  }
+  if (item.evidence !== undefined) {
+    requireThat(item.source_id.startsWith('asana:') && Array.isArray(item.evidence) && item.evidence.length > 0 && item.evidence.length <= 10,'source_conflict');
+    const seen = new Set();
+    for (const e of item.evidence) {
+      exact(e,['item_id','source_id','source_revision','source_url']);
+      identifier(e.item_id); identifier(e.source_id); label(e.source_revision,100); url(e.source_url,allowedHosts);
+      requireThat(e.source_id.startsWith('claude:') && !seen.has(e.item_id),'source_conflict'); seen.add(e.item_id);
+    }
+  }
   // These fields are curated upstream, not sanitised from raw mail or transcripts.
   // Strict shape and limits are defence in depth, NOT a PHI classifier.
 }
@@ -58,13 +71,14 @@ export function validateFeed(feed, allowedHosts, now = Date.now()) {
   requireThat(feed.schema_version === 1 && SYSTEMS.includes(feed.system)); identifier(feed.source_id);
   const observed = instant(feed.observed_at), expires = instant(feed.expires_at);
   requireThat(observed <= now + 60_000 && expires > observed && expires - observed <= 24 * 3600_000, 'invalid_freshness');
-  requireThat(['available', 'unavailable'].includes(feed.status));
+  requireThat(['available', 'partial', 'unavailable'].includes(feed.status));
   requireThat(feed.failure_code === null || ['source_unavailable', 'permission_required', 'rate_limited', 'source_conflict', 'run_failed'].includes(feed.failure_code));
   requireThat(Array.isArray(feed.items) && feed.items.length <= MAX_ITEMS);
-  requireThat(feed.status === 'available' ? feed.failure_code === null : feed.items.length === 0 && feed.failure_code !== null);
+  requireThat(feed.status === 'unavailable' ? feed.items.length === 0 && feed.failure_code !== null : feed.failure_code === null);
   const seen = new Set();
   for (const item of feed.items) {
     validateItem(item, allowedHosts);
+    requireThat(!Object.hasOwn(item,'evidence') && (!Object.hasOwn(item,'same_obligation_as') || feed.system === 'claude'),'source_conflict');
     requireThat(item.source_id === feed.source_id && !seen.has(item.item_id), 'duplicate_or_wrong_source'); seen.add(item.item_id);
   }
   return feed;
@@ -88,13 +102,28 @@ export async function assemble(feeds, { expectedSources, allowedHosts, now = Dat
   let expiry = now + ttlMs;
   for (const sourceId of [...expectedSources].sort()) {
     const feed = bySource.get(sourceId);
-    const state = !feed ? 'unavailable' : feed.status === 'unavailable' ? 'unavailable' : instant(feed.expires_at) <= now ? 'stale' : 'available';
-    health.push({ source_id: sourceId, state, observed_at: feed?.observed_at ?? null, failure_code: feed?.failure_code ?? (state === 'available' ? null : state === 'stale' ? 'source_stale' : 'source_unavailable') });
-    if (state !== 'available') continue;
+    const state = !feed ? 'unavailable' : feed.status === 'unavailable' ? 'unavailable' : instant(feed.expires_at) <= now ? 'stale' : feed.status;
+    health.push({ source_id: sourceId, state, observed_at: feed?.observed_at ?? null, failure_code: feed?.failure_code ?? (['available','partial'].includes(state) ? null : state === 'stale' ? 'source_stale' : 'source_unavailable') });
+    if (!['available', 'partial'].includes(state)) continue;
     expiry = Math.min(expiry, instant(feed.expires_at));
     for (const item of feed.items) {
       requireThat(!byItem.has(item.item_id), 'conflicting_item'); byItem.set(item.item_id, structuredClone(item));
     }
+  }
+  // Only a producer-reviewed, revision-bound same-obligation assertion can collapse
+  // two cards. A shared project or similar wording is never sufficient.
+  for (const item of [...byItem.values()]) {
+    if (!item.same_obligation_as) continue;
+    const target = byItem.get(item.same_obligation_as.item_id);
+    requireThat(target && bySource.get(target.source_id)?.system === 'asana' &&
+      target.source_revision === item.same_obligation_as.source_revision &&
+      (isTodayItem(target,now) || includePortfolio && target.kind === 'project'), 'source_conflict');
+    for (const key of ['kind','status','due','requires_steve','action_state'])
+      requireThat(canonical(target[key]) === canonical(item[key]),'source_conflict');
+    const evidence = {item_id:item.item_id,source_id:item.source_id,source_revision:item.source_revision,source_url:item.source_url};
+    target.evidence = [...(target.evidence ?? []),evidence].sort((a,b)=>a.item_id.localeCompare(b.item_id));
+    requireThat(target.evidence.length <= 10,'source_conflict');
+    byItem.delete(item.item_id);
   }
   const all = [...byItem.values()].sort((a,b) => a.item_id < b.item_id ? -1 : a.item_id > b.item_id ? 1 : 0);
   // Explicit portfolio review may include approved project summaries. Today remains exception-only.
@@ -118,5 +147,5 @@ export function resolveReference(snapshot, pins, phrase, now = Date.now()) {
   const words = ['one','two','three','four','five','six','seven','eight','nine','ten'];
   const number = /^\d+$/.test(match[1]) ? Number(match[1]) : words.indexOf(match[1].toLowerCase()) + 1;
   const item = snapshot.items.find(i => i.number === number); requireThat(item, 'unknown_item');
-  return { snapshot_id: snapshot.snapshot_id, view_id: snapshot.view_id, item };
+  return { snapshot_id: snapshot.snapshot_id, view_id: snapshot.view_id, item, source_health: snapshot.health.find(row => row.source_id === item.source_id) };
 }

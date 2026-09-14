@@ -5,9 +5,9 @@ ChatGPT/Codex read this FIRST and update it LAST. Plain language. No PHI (initia
 only). No secrets._
 
 ## Snapshot (keep current)
-- Status: Private Command Center now excludes the 15 Asana cards assigned to Dhruv, using the verified account ID. The approved filtered release contains 19 Asana cards plus engineering; Today remains three exceptions. Page and Voice match, with FPPE now number 7. Original source times and 5:37 p.m. Mountain September 13 expiry are unchanged. No Asana writes, merge or automatic renewal. Claude completed a bounded supplied-record reconciliation; current Riya/Dhruv evidence and communications feeds remain unresolved.
-- Integration preparation: Quiet pending refresh and reviewed Claude export validation are implemented/tested; partial Claude exports remain held. Existing artifact handoff requests adoption; no scheduler, automatic Site renewal or source write was installed. See the newest integration readiness section.
-- Driver this week: Review the isolated Command Center PR against main, adopt existing Claude exports, and resolve evidence gaps before new stage or renewal decisions. Older July entries refer to the separately preserved portfolio branch.
+- Status: The three scoped repair PRs are merged (Hub #37, Ops #23, Context #29). The existing private Site was renewed with 19 Dhruv-filtered Asana items through September 13, 7:38 p.m. Mountain; page and conversational retrieval agreed. Asana writes remain off. This follow-up branch is reviewed/tested but not merged or deployed.
+- Integration preparation: The replacement local monitor is installed and its manual launch passed; the old local Asana snapshot job is disabled/unloaded. Claude's existing Labs task produced actual coordination and partial-calendar exports. Re-reviewed v2 packets validate; the reply export is stale and excluded. The new 23-item proposal is private and pending approval, not live.
+- Driver this week: Review this follow-up, approve its exact private publication scope, and have the existing Cowork communications routine recheck reply obligations. Current published module results remain unresolved. Other-host Asana callers and the nightly timed monitor run are not verified.
 - Lives in: https://github.com/blondarb/sevaro-hub.git
 
 ## Open threads / next actions
@@ -18,7 +18,44 @@ only). No secrets._
 
 ## Decisions log (append-only, newest first)
 
-## Session log (append-only, newest first)
+## Session log
+
+### 2026-09-13 · Codex · Reviewed Cowork delivery and obligation reconciliation
+- Did: added account/workspace-bound reviewed-output import to the existing locked refresh hook, monotonic receipts/recovery and explicit revision-bound Asana obligation reconciliation with supporting links. Updated and ran the existing cloud meeting digest; its reviewed empty/partial packet was transferred locally once.
+- Files/links touched: command-center importer/context/refresh/release, proof evidence links, focused tests, docs/command-center/OBLIGATION_RECONCILIATION.md; Hub PR #38 and context engineering-monitor PR #30.
+- Decisions: no fuzzy deduplication; Asana fields preserved; no new schedule, automatic Site approval or source writes. Cloud-only meeting delivery is not automatic and its calendar coverage is unavailable.
+- Open questions / needs Claude: the next existing Labs step-7b refresh should consume the bound local Cowork outputs. Meeting digest needs a confirmed local execution path or supported cloud artifact delivery; do not overwrite leadership-prep calendar.
+- Next: merge reviewed exact heads, stage the existing owner-private Site source and exact fresh candidate for Steve's review, then publish only within the recorded approval.
+ (append-only, newest first)
+
+### 2026-09-13 · ChatGPT · Repair engineering monitor and communications delivery
+- Did: Installed the reviewed evidence-only lane-health helper/script with original-file hash checks, private backup and helper-first replacement. Manual run preserves September 12 historical failures (Bedrock/OpenCode no_commit, Codex PASS) and returns exit 1; it does not launch auth, paid probes or notifications. Fixed operational exit propagation, read-only dry-run and distinct orchestrator/canary timestamps; focused synthetic tests and independent review passed.
+- Files/links touched: Context lane-health source/tests and private installation/health receipts; Hub Claude export validator/summary and 23 affected passing checks; existing Cowork morning/afternoon schedule instructions; current reviewed replies export and private transfer receipt.
+- Decisions: Keep old live model probes held, Asana writes OFF and source authorities unchanged. Current Cowork reply export is partial with zero reviewed obligations, observed September 14 00:54:10 UTC, expires 02:54:10 UTC; this does not establish a clear inbox. Failed fresh exports are never usable; explicit partial packets retain partial coverage. No merge, Site publish, new schedule or human communication.
+- Open questions / needs Claude: Automatic session-output delivery is not installed; today's protected transfer was one-time by Codex. Existing afternoon meeting delivery and cross-source semantic deduplication remain unaccepted. Next timed communications/engineering runs are not yet observed. The underlying failed model probes have not been rerun or declared recovered.
+- Next: Review Hub #38 and the isolated Context monitor PR. Use retained communications/meeting owners and the shared export contract; preserve partial/failure evidence and exact-content Site approval.
+
+
+### 2026-09-13 · ChatGPT · Full automation audit and recoverable consolidation
+- Did: Compared live Claude Code, Cowork and ChatGPT schedules with Codex configurations, the 27-definition Ops registry and local loaded helpers. In addition to the prior two duplicate brief pauses, paused expired Claude Dhruv reply monitor and disabled/unloaded the duplicate local private morning brief and expired May 29 reminder. Made legacy Asana snapshot retirement persistent. Definitions/history and the independent team-brief consumer remain intact.
+- Files/links touched: Hub docs/command-center/AUTOMATION_OWNERSHIP_20260913.md, PR #38; private automation-cleanup and scheduler-recovery receipts; exact existing scheduler controls. No data.js/index.html edits.
+- Decisions: Retain distinct OpenAI, Claude configuration and XR checks; preserve Claude communications/meeting/Slack responsibilities and Codex engineering checks. Show actual completion/exception evidence in existing system health once connected, not generic daily summaries. No new automation, merge, Site publication, messages or Asana writes; no measured token-savings claim.
+- Open questions / needs Claude: Fresh communications reconciliation and failed runs; cloud meeting export delivery; stable same-action identity. Local lane-health last exit 1 is unexplained. Other hosts and full execution receipts are unverified. Audit incident: an agent's plist extraction overwrote seven saved configs; all restored and independently reviewed after two corrections. Three reconstructions are not byte-exact and reboot/reload was not tested; no jobs executed or restarted in recovery.
+- Next: Connect retained reviewed outputs and actual run receipts through the existing shared-context handoff; keep duplicate/expired routines paused. The pending Site publication approval remains separate.
+
+### 2026-09-13 · ChatGPT · Verified automation overlap and paused duplicate briefs
+- Did: Inspected live ChatGPT, Cowork and Claude Code schedules alongside local definitions. Paused ChatGPT Executive Inbox Brief and Cowork Morning brief (chief-of-staff sweep); both UI states confirm paused, with history preserved. Retained the original Comms morning/afternoon tasks, twice-daily Labs coordination and the distinct 4 p.m. Fyxer meeting/handoff digest.
+- Files/links touched: docs/command-center/AUTOMATION_OWNERSHIP_20260913.md; the two existing schedule controls; shared artifact handoff.
+- Decisions: Reuse reviewed meeting commitments/decisions as Hub inputs. No new schedule, direct Codex Slack access, inbox sweep, human message, source-state write or Site publication. Keep personal/clinical content outside the Site and preserve Claude data.js / Cowork index.html ownership.
+- Open questions / needs Claude: Fresh communications reconciliation; cloud afternoon-digest export delivery; same-action identity across routines. Local morning description says weekday 6 a.m. but actual scheduler says daily about 4 a.m.; leave cadence unchanged until intentional schedule is established.
+- Next: Connect retained reviewed outputs through the existing handoff and verify repeat-run action deduplication; separate pending Site publication approval remains unanswered.
+
+### 2026-09-13 · ChatGPT · Command Center partial reviewed coverage
+- Did: Added the closed `partial` source and health state for reviewed Claude exports. Fresh partial items can enter the same pending/shared snapshot with an explicit Site health warning; expiry hides them, and failed/unavailable sources still add no items. `claude:replies` has an effective two-hour cap from original observation so late exports cannot revive old reply obligations. Added the one documented Outlook event webLink route without relaxing general query-string rejection.
+- Files/links touched: `command-center/`, `command-center-proof/browser.mjs`, Claude export adoption/readiness docs, shared-context acceptance notes, and focused synthetic tests.
+- Decisions: Partial coverage is never relabeled available or complete. Version-2 Claude envelopes bind the feed and run receipt; legacy unbound envelopes stay held until re-reviewed. Existing digest, expiry, pending-publication and Steve approval gates are unchanged; no source reads, Site publication, scheduler, merge or source write occurred.
+- Open questions / needs Claude: Provide reviewed exports and actual run receipts under the existing exact allowlist; reconcile any incomplete coverage before treating a feed as complete.
+- Next: Review the isolated Command Center commit, then adopt a reviewed export only within the existing approval and expiry scope. Runtime read/resolve and packaged Worker checks passed at executable commit 3f4e5a5; synthetic number two and its partial source health matched. The Mac locked before the final visual check. New content/source publication remains pending.
 
 ### 2026-09-13 · ChatGPT · Owner filter published and Claude reconciliation reviewed
 - Did: Verified Dhruv's exact Asana assignment across 34 approved targets; excluded 15 in the host projection and existing private Site. Retained 20 items, original evidence times/expiry and identical page/Voice context. Added owner reassignment, unassigned and missing-owner checks; 13 affected tests pass. Claude Code completed a supplied-record reconciliation; primary review corrected unsupported implications and retained only actionable evidence gaps.

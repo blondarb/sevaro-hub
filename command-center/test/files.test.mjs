@@ -10,15 +10,22 @@ import {privateJson,githubHost,collectSources} from '../collector.mjs';
 import {source,row} from './fixtures.mjs';
 import {sha256} from '../context.mjs';
 const exec=promisify(execFile);
-test('collector imports complete reviewed Claude scope and fails closed for partial scope',async()=>{
+test('collector imports complete and explicitly partial reviewed Claude scopes',async()=>{
  const root=await realpath(await mkdtemp(join(tmpdir(),'context-claude-'))),path=join(root,'export.json');
  try {
   const feed=source({source_id:'claude:example',system:'claude',observed_at:new Date().toISOString(),expires_at:new Date(Date.now()+3600_000).toISOString(),items:[row({source_id:'claude:example',item_id:'claude:example:item'})]});
-  const packet={schema_version:1,feed,review:{reviewed_by:'Claude',reviewed_at:new Date().toISOString(),policy:'executive-project-context-v1',feed_digest:await sha256(feed)},run:{run_id:'synthetic-export',routine:'synthetic-review',started_at:feed.observed_at,completed_at:feed.observed_at,outcome:'succeeded',coverage:'complete-allowlist'}};
+  const run={run_id:'synthetic-export',routine:'synthetic-review',started_at:feed.observed_at,completed_at:feed.observed_at,outcome:'succeeded',coverage:'complete-allowlist'};
+  const packet={schema_version:2,feed,review:{reviewed_by:'Claude',reviewed_at:new Date().toISOString(),policy:'executive-project-context-v1',feed_digest:await sha256(feed),packet_digest:await sha256({feed,run})},run};
   const plan={schema_version:1,sources:[{source_id:feed.source_id,system:'claude',private_export_path:path,allowed_hosts:['app.asana.com']}]};
   await writeFile(path,JSON.stringify(packet),{mode:0o600});
   assert.equal((await collectSources(plan)).feeds[0].items.length,1);
-  packet.run.outcome='partial';packet.run.coverage='reviewed-sources-only';
+  packet.run.outcome='partial';packet.run.coverage='reviewed-sources-only';packet.review.packet_digest=await sha256({feed,run:packet.run});
+  await writeFile(path,JSON.stringify(packet),{mode:0o600});
+  const partial=(await collectSources(plan)).feeds[0];assert.equal(partial.status,'partial');assert.equal(partial.items.length,1);
+  packet.run.outcome='failed';packet.run.coverage='unavailable';packet.review.packet_digest=await sha256({feed,run:packet.run});
+  await writeFile(path,JSON.stringify(packet),{mode:0o600});
+  const rejected=(await collectSources(plan)).feeds[0];assert.equal(rejected.status,'unavailable');assert.deepEqual(rejected.items,[]);
+  packet.run.outcome='succeeded';packet.run.coverage='complete-allowlist';packet.review.packet_digest=await sha256({feed,run:packet.run});packet.schema_version=1;delete packet.review.packet_digest;
   await writeFile(path,JSON.stringify(packet),{mode:0o600});
   const held=(await collectSources(plan)).feeds[0];assert.equal(held.status,'unavailable');assert.deepEqual(held.items,[]);
  } finally {await rm(root,{recursive:true,force:true});}

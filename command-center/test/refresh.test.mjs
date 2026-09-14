@@ -56,6 +56,47 @@ test('records collector-unavailable states while retaining the prior candidate',
   assert.deepEqual(health.sources, [{ source_id: 'asana:portfolio', state: 'unavailable', failure_code: 'permission_required' }]);
 });
 
+test('partial coverage is a valid pending candidate and refresh receipt count', async () => {
+  const path = await root();
+  const partial = source({ source_id: 'claude:calendar', system: 'claude', status: 'partial', items: [row({ source_id: 'claude:calendar', item_id: 'claude:calendar:prep', kind: 'meeting', due: '2026-09-13T21:00:00Z' })] });
+  const partialPlan = { schema_version: 1, sources: [{ source_id: 'claude:calendar', system: 'claude', private_export_path: '/private/export.json', allowed_hosts: ['app.asana.com'] }] };
+  const collectPartial = feeds => async () => ({ expected_sources: ['claude:calendar'], feeds });
+  const first = await refreshOnce({ root: path, plan: partialPlan, collect: collectPartial([partial]), now: NOW });
+  assert.equal(first.ok, true); assert.equal((await json(join(path, 'proposed-current-context.json'))).health[0].state, 'partial');
+  const receipt = await json(join(path, 'refresh-health.json'));
+  assert.deepEqual(receipt.source_counts, { available: 0, partial: 1, unavailable: 0, stale: 0 });
+  const complete = source({ source_id: 'claude:calendar', system: 'claude', items: partial.items });
+  const recovered = await refreshOnce({ root: path, plan: partialPlan, collect: collectPartial([complete]), now: NOW + 1_000 });
+  assert.equal(recovered.notify, true); assert.equal(recovered.delta.health_changed, 1);
+});
+
+test('expired partial coverage reports a health delta and failure signal with no items', async () => {
+  const path = await root(), partialPlan = { schema_version: 1, sources: [{ source_id: 'claude:calendar', system: 'claude', private_export_path: '/private/export.json', allowed_hosts: ['app.asana.com'] }] };
+  const collectPartial = feeds => async () => ({ expected_sources: ['claude:calendar'], feeds });
+  const partial = source({ source_id:'claude:calendar',system:'claude',status:'partial',items:[row({source_id:'claude:calendar',item_id:'claude:calendar:prep',kind:'meeting',due:'2026-09-13T21:00:00Z'})] });
+  await refreshOnce({root:path,plan:partialPlan,collect:collectPartial([partial]),now:NOW});
+  const expired = {...partial,expires_at:new Date(NOW).toISOString()};
+  const result = await refreshOnce({root:path,plan:partialPlan,collect:collectPartial([expired]),now:NOW+1_000});
+  assert.equal(result.ok,false);assert.equal(result.notify,true);assert.equal(result.delta.health_changed,1);
+  assert.deepEqual((await json(join(path,'refresh-health.json'))).sources,[{source_id:'claude:calendar',state:'stale',failure_code:'source_stale'}]);
+});
+
+test('migrates only a well-formed legacy receipt to retain prior failure history', async () => {
+  const path = await root();
+  await refreshOnce({ root: path, plan: plan(), collect: collect(), now: NOW });
+  await refreshOnce({ root: path, plan: plan(), collect: async () => { throw new Error('offline'); }, now: NOW + 1_000 });
+  const legacy = await json(join(path, 'refresh-health.json')); delete legacy.source_counts.partial;
+  await writeFile(join(path, 'refresh-health.json'), JSON.stringify(legacy), { mode: 0o600 });
+  await refreshOnce({ root: path, plan: plan(), collect: collect(), now: NOW + 2_000 });
+  const migrated = await json(join(path, 'refresh-health.json'));
+  assert.equal(migrated.last_failure_at, new Date(NOW + 1_000).toISOString());assert.equal(migrated.last_failure_code, 'run_failed');
+  assert.deepEqual(Object.keys(migrated.source_counts).sort(), ['available','partial','stale','unavailable']);
+  legacy.source_counts={available:1,unavailable:0,stale:0,extra:0};
+  await writeFile(join(path, 'refresh-health.json'), JSON.stringify(legacy), { mode: 0o600 });
+  await refreshOnce({ root: path, plan: plan(), collect: collect(), now: NOW + 3_000 });
+  assert.equal((await json(join(path, 'refresh-health.json'))).last_failure_at, null);
+});
+
 test('rejects an existing lock and unsafe roots or leaves', async () => {
   const path = await root();
   await writeFile(join(path, '.command-center-refresh.lock'), '', { mode: 0o600 });
@@ -127,4 +168,20 @@ test('removed source health is counted as a failure-worthy health change', () =>
     { items: [], health: [] }
   );
   assert.equal(compared.health_changed, 1); assert.equal(compared.new_failure, true);
+});
+
+test('partial health transitions signal degradation and recovery without item changes', () => {
+  const snapshot = state => ({items:[],health:[{source_id:'claude:calendar',state,failure_code:state==='available'||state==='partial'?null:'source_unavailable'}]});
+  for (const state of ['unavailable','stale']) assert.equal(compareCandidates(snapshot('partial'),snapshot(state)).new_failure,true);
+  for (const state of ['unavailable','stale']) assert.equal(compareCandidates(snapshot(state),snapshot('partial')).recovery,true);
+});
+
+test('reviewed import runs under refresh lock before collection and a conflict blocks the affected feed', async()=>{
+ const path=await root();let imported=false;
+ const result=await refreshOnce({root:path,plan:plan(),now:NOW,
+ importExports:async()=>{assert.ok((await lstat(join(path,'.command-center-refresh.lock'))).isFile());imported=true;return {outcomes:[{source_id:'claude:replies',state:'held',code:'source_conflict'},{source_id:'claude:meetings',state:'missing',code:'missing'}]};},
+ collect:async()=>{assert.equal(imported,true);return {expected_sources:['asana:portfolio','claude:replies'],feeds:[source(),source({source_id:'claude:replies',system:'claude',items:[row({item_id:'claude:replies:1',source_id:'claude:replies'})]})]};}});
+ assert.equal(result.ok,true);const snapshot=await json(join(path,'proposed-current-context.json'));
+ assert.equal(snapshot.items.length,1);assert.equal(snapshot.health.find(h=>h.source_id==='claude:replies').failure_code,'source_conflict');
+ assert.equal((await json(join(path,'cowork-import-health.json'))).sources[0].state,'held');
 });

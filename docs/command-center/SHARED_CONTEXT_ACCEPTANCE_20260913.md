@@ -157,7 +157,9 @@ the context while the exact owner binding is unset. Five synthetic tests pass.
   accept no writes or imported payloads. Browser renders with textContent.
 - Owner identity required server-side on every route; absent binding denies all
   context. No browser credential, delegated source API, database or local tunnel.
-- Explicit four-file build allowlist keeps the rest of sevaro-hub out of Sites.
+- Explicit five-file build allowlist keeps the rest of sevaro-hub out of Sites;
+  the added shared URL validator permits only the documented Outlook event webLink
+  query route and does not generalize query-string support.
 
 ## Evidence and limits
 

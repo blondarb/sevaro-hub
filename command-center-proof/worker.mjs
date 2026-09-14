@@ -72,7 +72,7 @@ export default {
         if (args.phrase !== undefined && current === snapshot) return response(resolveItem(args));
         const number = args.item_number && /^(?:[1-9]\d?|100)$/.test(args.item_number) ? Number(args.item_number) : null;
         const found = context.items.find(i => args.item_id !== undefined ? i.item_id === args.item_id : i.number === number);
-        return found ? response({snapshot_id:context.snapshot_id,view_id:context.view_id,item:found}) : response({error:'unknown_item'}, 400);
+        return found ? response({snapshot_id:context.snapshot_id,view_id:context.view_id,item:found,source_health:current === snapshot ? undefined : context.health.find(row => row.source_id === found.source_id)}) : response({error:'unknown_item'}, 400);
       }
       return response({ error: 'not_found' }, 404);
     } catch (error) {

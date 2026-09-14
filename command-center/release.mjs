@@ -33,7 +33,7 @@ function runtimePayload(env) {
     return value;
   }).join('');
 }
-export const LINK_HOSTS = Object.freeze(['app.asana.com', 'github.com', 'outlook.office.com', 'drive.google.com']);
+export const LINK_HOSTS = Object.freeze(['app.asana.com', 'github.com', 'outlook.office.com', 'outlook.office365.com', 'drive.google.com']);
 /** This validates a previously reviewed projection, never classifies raw content as PHI-free. */
 export async function validateSnapshot(snapshot, now = Date.now()) {
   exact(snapshot, ['schema_version', 'classification', 'generated_at', 'expires_at', 'health', 'items', 'today_item_ids', 'requiring_steve', 'snapshot_id', 'view_id']);
@@ -45,15 +45,17 @@ export async function validateSnapshot(snapshot, now = Date.now()) {
   for (const h of snapshot.health) {
     exact(h, ['source_id','state','observed_at','failure_code']); identifier(h.source_id);
     requireThat(!sourceIds.has(h.source_id), 'duplicate_source'); sourceIds.add(h.source_id);
-    requireThat(['available','unavailable','stale'].includes(h.state));
+    requireThat(['available','partial','unavailable','stale'].includes(h.state));
     if (h.observed_at !== null) requireThat(instant(h.observed_at) <= now + 60_000);
     requireThat(h.failure_code === null || ['source_unavailable','source_stale','permission_required','rate_limited','source_conflict','run_failed'].includes(h.failure_code));
-    requireThat(h.state !== 'available' || h.observed_at !== null && h.failure_code === null);
+    requireThat(!['available','partial'].includes(h.state) || h.observed_at !== null && h.failure_code === null);
   }
   const seen = new Set();
   for (const [index, row] of snapshot.items.entries()) {
     const {number, ...item} = row; requireThat(number === index + 1, 'invalid_numbering'); validateItem(item, LINK_HOSTS);
-    requireThat(sourceIds.has(item.source_id) && snapshot.health.find(h=>h.source_id===item.source_id).state === 'available' && !seen.has(item.item_id), 'invalid_provenance'); seen.add(item.item_id);
+    requireThat(!Object.hasOwn(item,'same_obligation_as'),'source_conflict');
+    for (const evidence of item.evidence ?? []) requireThat(snapshot.health.some(h=>h.source_id===evidence.source_id && ['available','partial'].includes(h.state)),'invalid_provenance');
+    requireThat(sourceIds.has(item.source_id) && ['available','partial'].includes(snapshot.health.find(h=>h.source_id===item.source_id).state) && !seen.has(item.item_id), 'invalid_provenance'); seen.add(item.item_id);
   }
   requireThat(snapshot.items.every(item => isTodayItem(item, created) || item.kind === 'project') && canonical(snapshot.today_item_ids) === canonical(snapshot.items.filter(item => isTodayItem(item, created)).map(item => item.item_id)), 'invalid_today_view');
   requireThat(snapshot.requiring_steve === snapshot.items.filter(i=>i.requires_steve).length);

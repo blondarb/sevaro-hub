@@ -1,5 +1,43 @@
 # Command Center integration readiness — September 13, 2026
 
+## Current closeout — merged repair and pending Claude integration
+
+This section supersedes the dated preparation/release states below.
+
+- Hub #37 merged at `b3260ed`; Ops #23 and
+  Context #29 also merged. Their scoped local installation is complete. Context's
+  unrelated working changes and Ops' unrelated local commit were preserved.
+- The existing local Asana job now runs the repaired monitor only; its manual launch
+  completed with exit 0. The previous local snapshot writer is disabled and unloaded.
+  Health reports 43 audit-only records, one resolved record, zero actionable updates,
+  no uncertain writes and no stuck alert. No successful Asana write is claimed.
+  Other hosts/callers and the actual nightly clock-triggered run remain unverified.
+- Private Site version 9 was renewed with 19 owner-filtered Asana items, expiring
+  September 13 at 7:38 p.m. Mountain. Page and authenticated read tools agreed.
+  Its content is still the earlier approved release; the following feeds are not live.
+- Claude's actual Labs continuation produced reviewed coordination and partial-calendar
+  exports, then re-reviewed all three envelopes as v2. Actual Outlook event links
+  replaced unrelated Asana fallbacks; an event without a source was withheld.
+  Current replies are stale and excluded; a fresh sent-message reconciliation is needed
+  through the existing Cowork communications workflow. No new ingestion or scheduler.
+- The pending 23-item projection includes coordination and partial calendar findings,
+  retains the verified Dhruv owner filter, and keeps Asana authoritative. FPPE's dated
+  history supports retaining Validate, subject to Steve's reconciliation decision.
+  DONE measurement results remain unknown; no readiness or clinical claims were inferred.
+- Executable commit `3f4e5a5` passed 64 focused
+  checks and independent security review. Its local runtime resolves synthetic number
+  two to the same item and includes partial source health; the exact generated Worker
+  imports and rejects unauthenticated requests. This is local evidence, not new hosted
+  access acceptance. The Mac locked before the final visual check.
+- Follow-up code is on a feature branch. No automatic merge, new Site source upload,
+  real-content approval, send, stage change, or continuous renewal is implied.
+
+The monitor's scheduled cadence is nightly, while the snapshot adapter currently
+accepts two-hour-old health evidence. Between runs, monitor evidence may correctly
+show stale; round-the-clock fresh monitoring is not claimed.
+
+## Historical preparation and release receipts
+
 ## Owner-filter release and continuing reconciliation
 
 Steve requested excluding tasks assigned to Dhruv. The read-only owner check matched
@@ -41,11 +79,13 @@ explicit exceptions. This command is callable by existing routines; no new sched
 notification service or automatic Site publication was installed.
 
 A real subscription-authenticated Claude Code run reviewed the first bounded module
-export. Its packet validates, with original source observation and expiry preserved,
-but coverage is explicitly partial. The current Site schema cannot express partial
-coverage, so that packet stays private for reconciliation and is NOT imported as an
-available feed. A successful complete export must cover its exact configured source
-allowlist; a checksum is not a signature, PHI detector or publication approval.
+export with original source observation and expiry preserved. Its legacy version-1
+envelope is now held: it does not bind the run outcome/coverage and cannot enter a
+snapshot until Claude re-reviews it as a version-2 envelope. A fresh version-2 partial
+export may appear with a partial-coverage warning; it never becomes available/complete
+by that path, and expired partial evidence is hidden. A successful complete export must
+cover its exact configured source allowlist; a checksum is not a signature, PHI detector
+or publication approval.
 The existing DONE decision remains the one review item until this evidence is reconciled.
 
 The installed Labs routine reads the existing artifact HANDOFF; that handoff now
