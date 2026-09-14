@@ -18,7 +18,15 @@ only). No secrets._
 
 ## Decisions log (append-only, newest first)
 
-## Session log (append-only, newest first)
+## Session log
+
+### 2026-09-13 · Codex · Reviewed Cowork delivery and obligation reconciliation
+- Did: added account/workspace-bound reviewed-output import to the existing locked refresh hook, monotonic receipts/recovery and explicit revision-bound Asana obligation reconciliation with supporting links. Updated and ran the existing cloud meeting digest; its reviewed empty/partial packet was transferred locally once.
+- Files/links touched: command-center importer/context/refresh/release, proof evidence links, focused tests, docs/command-center/OBLIGATION_RECONCILIATION.md; Hub PR #38 and context engineering-monitor PR #30.
+- Decisions: no fuzzy deduplication; Asana fields preserved; no new schedule, automatic Site approval or source writes. Cloud-only meeting delivery is not automatic and its calendar coverage is unavailable.
+- Open questions / needs Claude: the next existing Labs step-7b refresh should consume the bound local Cowork outputs. Meeting digest needs a confirmed local execution path or supported cloud artifact delivery; do not overwrite leadership-prep calendar.
+- Next: merge reviewed exact heads, stage the existing owner-private Site source and exact fresh candidate for Steve's review, then publish only within the recorded approval.
+ (append-only, newest first)
 
 ### 2026-09-13 · ChatGPT · Repair engineering monitor and communications delivery
 - Did: Installed the reviewed evidence-only lane-health helper/script with original-file hash checks, private backup and helper-first replacement. Manual run preserves September 12 historical failures (Bedrock/OpenCode no_commit, Codex PASS) and returns exit 1; it does not launch auth, paid probes or notifications. Fixed operational exit propagation, read-only dry-run and distinct orchestrator/canary timestamps; focused synthetic tests and independent review passed.

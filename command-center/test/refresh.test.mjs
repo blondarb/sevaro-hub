@@ -175,3 +175,13 @@ test('partial health transitions signal degradation and recovery without item ch
   for (const state of ['unavailable','stale']) assert.equal(compareCandidates(snapshot('partial'),snapshot(state)).new_failure,true);
   for (const state of ['unavailable','stale']) assert.equal(compareCandidates(snapshot(state),snapshot('partial')).recovery,true);
 });
+
+test('reviewed import runs under refresh lock before collection and a conflict blocks the affected feed', async()=>{
+ const path=await root();let imported=false;
+ const result=await refreshOnce({root:path,plan:plan(),now:NOW,
+ importExports:async()=>{assert.ok((await lstat(join(path,'.command-center-refresh.lock'))).isFile());imported=true;return {outcomes:[{source_id:'claude:replies',state:'held',code:'source_conflict'},{source_id:'claude:meetings',state:'missing',code:'missing'}]};},
+ collect:async()=>{assert.equal(imported,true);return {expected_sources:['asana:portfolio','claude:replies'],feeds:[source(),source({source_id:'claude:replies',system:'claude',items:[row({item_id:'claude:replies:1',source_id:'claude:replies'})]})]};}});
+ assert.equal(result.ok,true);const snapshot=await json(join(path,'proposed-current-context.json'));
+ assert.equal(snapshot.items.length,1);assert.equal(snapshot.health.find(h=>h.source_id==='claude:replies').failure_code,'source_conflict');
+ assert.equal((await json(join(path,'cowork-import-health.json'))).sources[0].state,'held');
+});

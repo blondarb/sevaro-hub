@@ -169,3 +169,7 @@ cross-session watcher or an automatic import. Do not describe the cloud-to-local
 bridge as autonomous. The afternoon meeting digest remains a separate existing
 owner with useful outputs; its delivery and same-action reconciliation still need
 acceptance. No new schedule or Site publication was added by this repair.
+
+## Automatic host import and explicit obligation links
+
+See [reviewed obligation reconciliation and Cowork delivery](OBLIGATION_RECONCILIATION.md) for the account-bound importer, the existing Labs refresh hook, and the cloud meeting delivery limitation. The actual weekday meeting digest now emits `claude-meetings.json` as a separate source. Its September 13 cloud artifact was transferred once; future cloud delivery and local calendar access are not yet proven.

@@ -53,6 +53,8 @@ export async function validateSnapshot(snapshot, now = Date.now()) {
   const seen = new Set();
   for (const [index, row] of snapshot.items.entries()) {
     const {number, ...item} = row; requireThat(number === index + 1, 'invalid_numbering'); validateItem(item, LINK_HOSTS);
+    requireThat(!Object.hasOwn(item,'same_obligation_as'),'source_conflict');
+    for (const evidence of item.evidence ?? []) requireThat(snapshot.health.some(h=>h.source_id===evidence.source_id && ['available','partial'].includes(h.state)),'invalid_provenance');
     requireThat(sourceIds.has(item.source_id) && ['available','partial'].includes(snapshot.health.find(h=>h.source_id===item.source_id).state) && !seen.has(item.item_id), 'invalid_provenance'); seen.add(item.item_id);
   }
   requireThat(snapshot.items.every(item => isTodayItem(item, created) || item.kind === 'project') && canonical(snapshot.today_item_ids) === canonical(snapshot.items.filter(item => isTodayItem(item, created)).map(item => item.item_id)), 'invalid_today_view');

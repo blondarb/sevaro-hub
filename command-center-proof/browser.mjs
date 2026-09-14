@@ -1,7 +1,7 @@
 const pins = Object.freeze({ snapshot_id: document.querySelector('meta[name="snapshot-id"]').content, view_id: document.querySelector('meta[name="view-id"]').content });
 const $ = id => document.getElementById(id);
 const titles = {today:'Today',decision:'Needs your decision',response:'Needs your response',deadline:'Urgent / deadline-driven',blocker:'Blocked',waiting:'Delegated / waiting',project:'Project health',agent:'Agents / system health',meeting:'Meetings needing preparation'};
-const sourceNames = {'asana:portfolio':'Asana portfolio','github:hub':'GitHub engineering','asana_sync:delivery':'Asana delivery monitor','claude:calendar':'Claude meeting preparation','claude:coordination':'Claude coordination','claude:replies':'Claude reply drafts'};
+const sourceNames = {'asana:portfolio':'Asana portfolio','github:hub':'GitHub engineering','asana_sync:delivery':'Asana delivery monitor','claude:calendar':'Claude meeting preparation','claude:meetings':'Cowork meeting follow-ups','claude:coordination':'Claude coordination','claude:replies':'Claude reply drafts'};
 let context, selectedNumber = null, category = 'today', expired = false;
 const el = (tag,text,cls) => {const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 async function retrieve(path,args){const r=await fetch(path+'?'+new URLSearchParams(args),{cache:'no-store',credentials:'same-origin'});if(!r.ok)throw Error('context_unavailable');return r.json();}
@@ -16,6 +16,7 @@ function selectItem(number){if(expired||!context)return;selectedNumber=number;co
  if(i.action_state&&i.action_state!=='none')nodes.push(el('p','Pending approval · no external action has been taken.','meta'));
  if(i.due)nodes.push(el('p','Due: '+i.due,'meta'));
  if(i.source_url)nodes.push(sourceLink(i));
+ for(const evidence of i.evidence??[]){const link=sourceLink(evidence);link.textContent='Supporting record · '+(sourceNames[evidence.source_id]??evidence.source_id);nodes.push(el('br'),link);}
  if(i.source_revision)nodes.push(el('p','Source revision: '+i.source_revision,'meta'));
  $('focus-content').replaceChildren(...nodes);$('voice-prompt').textContent='“Tell me about number '+i.number+'.”';
  document.querySelectorAll('.item').forEach(n=>n.dataset.selected=String(Number(n.dataset.number)===number));

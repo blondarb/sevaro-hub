@@ -160,7 +160,7 @@ async function acquireLock(root) {
 }
 
 /** Prepare a pending candidate and metadata-only receipt in a canonical private directory. */
-export async function refreshOnce({ root, plan, collect = collectSources, now = Date.now(), includePortfolio = false, ttlMs = 900000, write = atomicJson }) {
+export async function refreshOnce({ root, plan, collect = collectSources, importExports = null, now = Date.now(), includePortfolio = false, ttlMs = 900000, write = atomicJson }) {
   const directory = await privateRoot(root);
   const lock = await acquireLock(directory);
   const attemptedAt = new Date(now).toISOString();
@@ -171,8 +171,25 @@ export async function refreshOnce({ root, plan, collect = collectSources, now = 
     const previousHealth = validHealth(await readReceipt(join(directory, HEALTH)), now);
     let snapshot, release, comparison, failure_code = null, collected = null, validatedCollection = null;
     try {
+      // The existing refresh lock serializes imports and candidate preparation.
+      // No new timer, source access, upstream write or publication is introduced.
+      const delivery = importExports ? await importExports({root:directory,now}) : null;
+      if(delivery) {
+        exact(delivery,['outcomes']);
+        if(!Array.isArray(delivery.outcomes)||delivery.outcomes.length!==2)throw new ContextError('run_failed');
+        const seen = new Set();
+        for(const row of delivery.outcomes){
+          if(!['claude:replies','claude:meetings'].includes(row.source_id)||seen.has(row.source_id)||!['imported','unchanged','missing','held'].includes(row.state))throw new ContextError('run_failed');
+          seen.add(row.source_id);
+        }
+        await write(directory,'cowork-import-health.json',{schema_version:1,checked_at:attemptedAt,sources:delivery.outcomes.map(row=>({source_id:row.source_id,state:row.state,failure_code:row.state==='held'?(row.code==='source_conflict'?'source_conflict':'run_failed'):row.state==='missing'?'source_unavailable':null}))});
+      }
       collected = await collect(plan);
       if (!collected || !Array.isArray(collected.expected_sources) || !Array.isArray(collected.feeds)) throw new ContextError('source_unavailable');
+      for(const row of delivery?.outcomes ?? [])if(row.state==='held') {
+        collected.feeds=collected.feeds.filter(feed=>feed.source_id!==row.source_id);
+        if(collected.expected_sources.includes(row.source_id))collected.feeds.push({schema_version:1,source_id:row.source_id,system:'claude',observed_at:attemptedAt,expires_at:new Date(now+3600_000).toISOString(),status:'unavailable',failure_code:row.code==='source_conflict'?'source_conflict':'run_failed',items:[]});
+      }
       const next = await assemble(collected.feeds, { expectedSources: collected.expected_sources, allowedHosts: LINK_HOSTS, now, ttlMs, classification: 'executive-pending-review', includePortfolio });
       validatedCollection = next;
       comparison = compareCandidates(previous, next);
