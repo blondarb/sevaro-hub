@@ -40,17 +40,17 @@ async function namedDirectories(parent, pattern) {
   }
   return names.sort();
 }
-async function candidate(path, spec, allowedHosts, now, retained=false) {
+async function candidate(path, spec, allowedHosts, now, retained=false, incoming=false) {
   // Source outputs are often 0644 inside Claude's private 0700 outputs directory.
   // Never change Claude's permissions; destination copies are always 0600.
   await lstat(path); // Missing named exports do not inspect unrelated output folders.
-  await secureDirectory(dirname(path),retained);
-  if(!retained)await secureDirectory(dirname(dirname(path)),true);
+  await secureDirectory(dirname(path),incoming || retained);
+  if(!retained && !incoming)await secureDirectory(dirname(dirname(path)),true);
   const handle=await open(path,constants.O_RDONLY|constants.O_NOFOLLOW);
   let packet,bytes;
   try {
     const info=await handle.stat();
-    if(!info.isFile() || info.uid!==process.getuid() || (info.mode&0o022)!==0 || info.size>128*1024)throw new ContextError('invalid_packet');
+    if(!info.isFile() || info.uid!==process.getuid() || (incoming ? (info.mode&0o777)!==0o600 : (info.mode&0o022)!==0) || info.size>128*1024)throw new ContextError('invalid_packet');
     bytes=await handle.readFile();if(bytes.length>128*1024)throw new ContextError('packet_too_large');
     try { packet=JSON.parse(bytes.toString('utf8')); } catch {throw new ContextError('invalid_packet');}
   } finally {await handle.close();}
@@ -125,6 +125,12 @@ export async function importCoworkOutputs({root,sessionsRoot,accountId,workspace
       const destination=join(destinationRoot,spec.file), current=await accepted(destination,spec,allowedHosts,now), floor=await monotonicFloor(destinationRoot,spec,current,allowedHosts,now), candidates=[];
       let failure=null;
       for(const output of found) try { const value=await candidate(join(output,spec.file),spec,allowedHosts,now); if(value) candidates.push(value); } catch(error) { if(error.code!=='ENOENT') failure=error.code||'invalid_packet'; }
+      // A reviewed cloud artifact is staged only at this exact private path. It is
+      // deliberately not treated as a Cowork session or a general discovery root.
+      if(spec.source_id==='claude:meetings') try {
+        const value=await candidate(join(destinationRoot,'incoming','claude-meetings.json'),spec,allowedHosts,now,false,true);
+        if(value) candidates.push(value);
+      } catch(error) { if(error.code!=='ENOENT') failure=error.code||'invalid_packet'; }
       if(failure) { outcomes.push(outcome(spec.source_id,'held',failure)); continue; }
       if(conflicting(candidates)) { outcomes.push(outcome(spec.source_id,'held','source_conflict')); continue; }
       candidates.sort(compare); const selected=candidates[0];

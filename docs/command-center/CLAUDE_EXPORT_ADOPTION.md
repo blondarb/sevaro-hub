@@ -47,6 +47,25 @@ appropriate for initiative findings; it must not replace the actual calendar eve
 or communication link merely to satisfy the allowlist. Withhold an item whose
 source cannot be attributed and record the coverage gap without inventing a link.
 
+Normalized `item_id`, `source_id`, `run_id` and `routine` identifiers must match
+`^[a-zA-Z0-9:_./-]{1,160}$`. Do not copy native Outlook IDs containing `=` or append
+`#prep`. For meeting items, use `claude:meeting:` plus the full SHA256 hex digest
+of the exact native event ID; use the same deterministic mapping on every run.
+Preserve the original authoritative event URL separately. Fixing an identifier
+requires a new content review and recomputed hashes, not changed source observation
+times or automatic publication approval.
+
+For the retained weekday meeting routine, prefer its already connected, verified
+Microsoft 365 work-calendar read over Mac Calendar AppleScript. Read the next
+48 hours once with bounded scheduling metadata, then review only actionable
+executive/project preparation. Do not fetch bodies/transcripts, retry failing
+calendar indexes, substitute personal calendars for work coverage, or imply
+shared/delegated calendars were checked when only the default calendar was read.
+Use verified scheduling facts only: calendar invitation descriptions do not establish
+current project stage or milestone progress. Omit attendee names/counts and old
+invitation-change history. Use ISO dates/times, or compute a weekday from the date
+instead of generating one independently. Asana continues to supply project state.
+
 `review` has exactly:
 
 - `reviewed_by`: `Claude`

@@ -62,3 +62,26 @@ test('an export completed after the pinned refresh clock waits until the next ru
  assert.equal((await importCoworkOutputs({...args,now:NOW+60_000})).outcomes[0].state,'unchanged');
  }finally{await rm(x.base,{recursive:true,force:true});}
 });
+
+test('an absent staged meeting is harmless and an exact private staged artifact imports',async()=>{
+ const x=await setup();try{
+  const args={root:x.root,sessionsRoot:x.sessions,accountId:account,workspaceId:workspace,now:NOW,allowedHosts:host};
+  let r=await importCoworkOutputs(args);assert.equal(r.outcomes[1].state,'missing');
+  const incoming=join(x.root,'incoming');await mkdir(incoming,{mode:0o700});
+  await put(join(incoming,'claude-meetings.json'),await packet({source:'claude:meetings',routine:'routine:weekday-afternoon-digest',runId:'staged-meeting'}));
+  r=await importCoworkOutputs(args);assert.equal(r.outcomes[1].state,'imported');
+  assert.equal(JSON.parse(await readFile(join(x.root,'claude-meetings.json'))).run.run_id,'staged-meeting');
+ }finally{await rm(x.base,{recursive:true,force:true});}
+});
+
+test('staged meetings preserve monotonic conflict handling and reject unsafe paths',async()=>{
+ const x=await setup();try{
+  const args={root:x.root,sessionsRoot:x.sessions,accountId:account,workspaceId:workspace,now:NOW,allowedHosts:host},incoming=join(x.root,'incoming');await mkdir(incoming,{mode:0o700});
+  const path=join(incoming,'claude-meetings.json');await put(path,await packet({source:'claude:meetings',routine:'routine:weekday-afternoon-digest',runId:'meeting-1'}));
+  await importCoworkOutputs(args);const accepted=await readFile(join(x.root,'claude-meetings.json'),'utf8');
+  await put(path,await packet({source:'claude:meetings',routine:'routine:weekday-afternoon-digest',runId:'meeting-1',observed:'2026-09-13T19:31:00Z',completed:'2026-09-13T19:40:00Z'}));
+  assert.equal((await importCoworkOutputs(args)).outcomes[1].code,'source_conflict');assert.equal(await readFile(join(x.root,'claude-meetings.json'),'utf8'),accepted);
+  await chmod(path,0o644);assert.equal((await importCoworkOutputs(args)).outcomes[1].state,'held');
+  await chmod(path,0o600);await rm(path);await symlink(join(x.root,'claude-meetings.json'),path);assert.equal((await importCoworkOutputs(args)).outcomes[1].state,'held');
+ }finally{await rm(x.base,{recursive:true,force:true});}
+});

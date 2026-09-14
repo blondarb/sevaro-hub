@@ -5,9 +5,10 @@ ChatGPT/Codex read this FIRST and update it LAST. Plain language. No PHI (initia
 only). No secrets._
 
 ## Snapshot (keep current)
-- Status: The three scoped repair PRs are merged (Hub #37, Ops #23, Context #29). The existing private Site was renewed with 19 Dhruv-filtered Asana items through September 13, 7:38 p.m. Mountain; page and conversational retrieval agreed. Asana writes remain off. This follow-up branch is reviewed/tested but not merged or deployed.
-- Integration preparation: The replacement local monitor is installed and its manual launch passed; the old local Asana snapshot job is disabled/unloaded. Claude's existing Labs task produced actual coordination and partial-calendar exports. Re-reviewed v2 packets validate; the reply export is stale and excluded. The new 23-item proposal is private and pending approval, not live.
-- Driver this week: Review this follow-up, approve its exact private publication scope, and have the existing Cowork communications routine recheck reply obligations. Current published module results remain unresolved. Other-host Asana callers and the nightly timed monitor run are not verified.
+- Status: Hub #38 and Context #30 are merged; owner-private Site v10 contains the approved 19-item view through September 13, 10:38 p.m. Mountain. Asana writes remain off.
+- Integration: Existing Claude Microsoft 365 read and reviewed cloud-file transfer to the Mac now passed manual acceptance. The locked Hub refresh produced a corrected 21-item pending snapshot with two meeting-preparation items. It is not published; calendar coverage is partial and email/Slack reconciliation remains incomplete.
+- Engineering: This feature branch adds only fixed-path reviewed meeting staging/import, tests and runbook corrections. Fifteen focused tests and functional review passed. Local end-to-end and replay receipts are retained privately. New branch is not merged; next timed routine run is unverified.
+- Driver this week: Review the exact pending publication and engineering PR, then verify the retained scheduled run. No new schedule or competing source of truth.
 - Lives in: https://github.com/blondarb/sevaro-hub.git
 
 ## Open threads / next actions
@@ -19,6 +20,14 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log
+
+### 2026-09-13 · ChatGPT · Direct Outlook meetings and reviewed artifact delivery verified
+- Did: Repaired the cloud-artifact delivery gap without adding a scheduler. Requires this computer exposes Mac tools but cloud outputs remain in /mnt/user-data/outputs. Claude's existing Microsoft 365 default-work-calendar read returned seven events and produced two reviewed meeting-preparation items. The existing Mac capability successfully invoked the fixed staging CLI; the locked Hub refresh imported the packet and prepared a 21-item private pending snapshot. The prior 19 approved items are unchanged.
+- Files/links touched: command-center/stage-meeting-export{,-cli}.mjs, cowork-import.mjs, focused tests and export/delivery docs; existing afternoon routine trig_019Rf1NgCyiH6UT6ohVWJ2rf; private meeting-delivery-acceptance-20260913.json and PUBLICATION_REVIEW_20260913_MEETINGS.md. New source is on codex/meeting-artifact-delivery-20260913 in /Users/stevearbogast/dev/repos/hub-wt-meeting-delivery-20260913, not yet merged.
+- Decisions: Fixed stdin-only base64 transport stages only the exact 0700/0600 incoming meeting path; V2 source/routine/review/size/freshness validation, exclusive staging lock, atomic replacement, expired-prior floor and existing monotonic import rules remain enforced. Fifteen focused tests passed, added direct wrong-mode assertion passed, independent functional review found no defect. Actual replay was unchanged with preserved mtime. No new permission/account/folder grant, raw inbox/transcript ingestion, source writes, Asana replay or Site renewal.
+- Open questions / needs Claude: Current corrected packet a3935711ac6da5c819505eb24bcd9b7b4339464215cc22aae56ef7875fe2bad8 preserves the prior accepted packet. Content review caught a wrong weekday and unsupported stage wording from an invitation; corrected through a genuine new read, not relabeled old evidence. The existing weekday 16:00 routine is saved/read back with direct M365, stable hashed event IDs, scheduling-only text, and the fixed staging command. Requires Mac awake remains on. The next clock-triggered run and unattended tool prompts are not verified; shared calendars and email/Slack follow-up coverage remain partial/unavailable as reported.
+- Next: Existing Labs step 7b should use this verified delivery checkout's refresh-cli.mjs and the existing private plan (no new caller or timer). Keep the checkout while the saved routine references its staging CLI; retarget both commands to the reviewed merged checkout before cleanup. Review the new PR before merge. The corrected 21-item snapshot expires 2026-09-14T05:00:04.786Z and requires Steve's exact private publication approval. Live Site v10 remains its prior approved 19-item view through 04:38:04Z. Asana writes OFF, historical43 audit-only, data.js/index.html ownership preserved.
+
 
 ### 2026-09-13 · Codex · Reviewed Cowork delivery and obligation reconciliation
 - Did: added account/workspace-bound reviewed-output import to the existing locked refresh hook, monotonic receipts/recovery and explicit revision-bound Asana obligation reconciliation with supporting links. Updated and ran the existing cloud meeting digest; its reviewed empty/partial packet was transferred locally once.
