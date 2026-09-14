@@ -17,7 +17,7 @@ export async function reviewedClaudeExport(packet,{allowedHosts,now=Date.now()})
   requireThat(run.outcome!=='failed' || feed.status==='unavailable','invalid_run_receipt');
   requireThat(({succeeded:'complete-allowlist',partial:'reviewed-sources-only',failed:'unavailable'})[run.outcome]===run.coverage,'invalid_run_receipt');
   requireThat(run.outcome !== 'succeeded' || feed.status === 'available','invalid_run_receipt');
-  requireThat(run.outcome !== 'partial' || feed.status === 'available','invalid_run_receipt');
+  requireThat(run.outcome !== 'partial' || ['available','partial'].includes(feed.status),'invalid_run_receipt');
   requireThat(review.reviewed_by==='Claude' && review.policy===CLAUDE_EXPORT_POLICY && review.feed_digest===await sha256(feed) && review.packet_digest===await sha256({feed,run}),'export_review_required');
   requireThat(instant(review.reviewed_at)>=instant(feed.observed_at) && instant(review.reviewed_at)<=now+60_000,'invalid_review_time');
   // Preserve actual source observation/expiry, never replace it with export or file mtime.
@@ -35,4 +35,9 @@ export function importableClaudeFeed({feed,receipt}) {
   // Coverage is a closed run-receipt enum. Preserve it as a distinct source
   // state so reviewed items never imply that the full allowlist was covered.
   return {...normalized, status:'partial'};
+}
+export function claudeExportSummary(reviewed, now=Date.now()) {
+  const feed=importableClaudeFeed(reviewed),receipt=reviewed.receipt;
+  const fresh=instant(feed.expires_at)>now;
+  return {valid:true,importable:true,fresh,usable_for_snapshot:fresh && ['available','partial'].includes(feed.status),source_state:feed.status,source_id:feed.source_id,item_count:feed.items.length,source_observed_at:feed.observed_at,source_expires_at:reviewed.feed.expires_at,effective_expires_at:feed.expires_at,outcome:receipt.outcome,coverage:receipt.coverage,requires_steve_approval:true};
 }

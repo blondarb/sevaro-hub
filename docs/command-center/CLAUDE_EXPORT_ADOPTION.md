@@ -80,6 +80,8 @@ review completion. A later export/review run may review older evidence; its obse
 time may precede that run's start and must retain its original expiry. This is a
 review/assembly receipt, not a claim that the export run re-observed the sources.
 
+Partial producer packets may declare `feed.status: partial` directly; legacy partial receipts with `feed.status: available` are still normalized to partial. A succeeded receipt cannot certify a partial producer feed.
+
 Partial packets import as the closed `partial` source state. Their reviewed items may
 appear while fresh, but the snapshot health and private Site state remain explicitly
 partial; they never become `available` or complete coverage. Expired partial feeds
@@ -136,3 +138,34 @@ Site without a new exact-content approval and expiry-bound receipt. The current
 35-item release is not standing approval for new free text, new feeds, or renewal.
 A future standing metadata refresh policy must explicitly define source/field scope,
 duration and retained access/retention limitations; it does not exist yet.
+
+
+## September 13 communications recovery
+
+The existing Cowork morning session produced a current reviewed reply envelope in
+its own session outputs directory, without another folder grant. Codex validated
+its hashes, source times and coverage, preserved the prior shared export, and
+imported the corrected packet into the existing private handoff. The one item that
+said no reply was owed was removed by Claude and the packet re-reviewed before
+import. The result is zero reviewed reply obligations with **partial** coverage;
+it does not establish a clear inbox. Source observation is September 14 00:54:10 UTC,
+expiry 02:54:10 UTC. This is time-limited evidence, not continuous freshness.
+
+A fresh failed/unavailable packet is importable health evidence but is never
+`usable_for_snapshot`. Both this case and explicit partial producer packets now
+have synthetic regression checks; 23 affected export/refresh checks pass.
+
+The actual existing morning and afternoon schedule prompts now include a quiet
+read-only export override and inline v2 contract for folderless sessions. Original
+gathering instructions remain as reference; the override takes precedence over
+legacy self-email, Apple Notes, Drive digests and external draft creation. Source
+scope is executive/project-only; failed/empty sent checks remain incomplete.
+Schedules, connections and the paused duplicate tasks are unchanged. UI readback
+and the corresponding local Scheduled files confirm persistence. The next timed
+execution has not been observed.
+
+Session output delivery is still a one-time Codex transfer, not an installed
+cross-session watcher or an automatic import. Do not describe the cloud-to-local
+bridge as autonomous. The afternoon meeting digest remains a separate existing
+owner with useful outputs; its delivery and same-action reconciliation still need
+acceptance. No new schedule or Site publication was added by this repair.

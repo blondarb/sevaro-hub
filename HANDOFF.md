@@ -20,6 +20,14 @@ only). No secrets._
 
 ## Session log (append-only, newest first)
 
+### 2026-09-13 · ChatGPT · Repair engineering monitor and communications delivery
+- Did: Installed the reviewed evidence-only lane-health helper/script with original-file hash checks, private backup and helper-first replacement. Manual run preserves September 12 historical failures (Bedrock/OpenCode no_commit, Codex PASS) and returns exit 1; it does not launch auth, paid probes or notifications. Fixed operational exit propagation, read-only dry-run and distinct orchestrator/canary timestamps; focused synthetic tests and independent review passed.
+- Files/links touched: Context lane-health source/tests and private installation/health receipts; Hub Claude export validator/summary and 23 affected passing checks; existing Cowork morning/afternoon schedule instructions; current reviewed replies export and private transfer receipt.
+- Decisions: Keep old live model probes held, Asana writes OFF and source authorities unchanged. Current Cowork reply export is partial with zero reviewed obligations, observed September 14 00:54:10 UTC, expires 02:54:10 UTC; this does not establish a clear inbox. Failed fresh exports are never usable; explicit partial packets retain partial coverage. No merge, Site publish, new schedule or human communication.
+- Open questions / needs Claude: Automatic session-output delivery is not installed; today's protected transfer was one-time by Codex. Existing afternoon meeting delivery and cross-source semantic deduplication remain unaccepted. Next timed communications/engineering runs are not yet observed. The underlying failed model probes have not been rerun or declared recovered.
+- Next: Review Hub #38 and the isolated Context monitor PR. Use retained communications/meeting owners and the shared export contract; preserve partial/failure evidence and exact-content Site approval.
+
+
 ### 2026-09-13 · ChatGPT · Full automation audit and recoverable consolidation
 - Did: Compared live Claude Code, Cowork and ChatGPT schedules with Codex configurations, the 27-definition Ops registry and local loaded helpers. In addition to the prior two duplicate brief pauses, paused expired Claude Dhruv reply monitor and disabled/unloaded the duplicate local private morning brief and expired May 29 reminder. Made legacy Asana snapshot retirement persistent. Definitions/history and the independent team-brief consumer remain intact.
 - Files/links touched: Hub docs/command-center/AUTOMATION_OWNERSHIP_20260913.md, PR #38; private automation-cleanup and scheduler-recovery receipts; exact existing scheduler controls. No data.js/index.html edits.

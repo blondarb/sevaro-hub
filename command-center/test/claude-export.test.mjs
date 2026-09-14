@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {sha256,assemble} from '../context.mjs';
-import {reviewedClaudeExport,importableClaudeFeed,CLAUDE_EXPORT_POLICY} from '../claude-export.mjs';
+import {reviewedClaudeExport,importableClaudeFeed,claudeExportSummary,CLAUDE_EXPORT_POLICY} from '../claude-export.mjs';
 import {NOW,source,row} from './fixtures.mjs';
 async function packet(){
   const feed=source({source_id:'claude:coordination',system:'claude',items:[row({item_id:'claude:coordination:example',source_id:'claude:coordination'})]});
@@ -9,6 +9,27 @@ async function packet(){
   return {schema_version:2,feed,review:{reviewed_by:'Claude',reviewed_at:new Date(NOW).toISOString(),policy:CLAUDE_EXPORT_POLICY,feed_digest:await sha256(feed),packet_digest:await sha256({feed,run})},run};
 }
 const opts={allowedHosts:['app.asana.com'],now:NOW};
+async function resign(p) {
+ p.review.feed_digest=await sha256(p.feed);p.review.packet_digest=await sha256({feed:p.feed,run:p.run});return p;
+}
+test('explicit partial producer packet remains partial through validation and assembly',async()=>{
+ const p=await packet();p.feed.status='partial';await resign(p);
+ const reviewed=await reviewedClaudeExport(p,opts),summary=claudeExportSummary(reviewed,NOW);
+ assert.equal(summary.usable_for_snapshot,true);assert.equal(summary.source_state,'partial');
+ const snapshot=await assemble([importableClaudeFeed(reviewed)],{expectedSources:[p.feed.source_id],allowedHosts:opts.allowedHosts,now:NOW});
+ assert.equal(snapshot.health[0].state,'partial');assert.equal(snapshot.items.length,1);
+ p.run.outcome='succeeded';p.run.coverage='complete-allowlist';await resign(p);
+ await assert.rejects(reviewedClaudeExport(p,opts),/invalid_run_receipt/);
+});
+test('fresh failed-run receipt is importable health evidence, never usable source coverage',async()=>{
+ const p=await packet();p.feed.status='unavailable';p.feed.failure_code='permission_required';p.feed.items=[];
+ p.run.outcome='failed';p.run.coverage='unavailable';await resign(p);
+ const reviewed=await reviewedClaudeExport(p,opts),summary=claudeExportSummary(reviewed,NOW);
+ assert.equal(summary.importable,true);assert.equal(summary.fresh,true);assert.equal(summary.usable_for_snapshot,false);
+ const snapshot=await assemble([importableClaudeFeed(reviewed)],{expectedSources:[p.feed.source_id],allowedHosts:opts.allowedHosts,now:NOW});
+ assert.equal(snapshot.items.length,0);assert.equal(snapshot.health[0].failure_code,'permission_required');
+ assert.equal(claudeExportSummary(reviewed,NOW+7200_000).usable_for_snapshot,false);
+});
 test('Claude receipt preserves original evidence times and partial coverage',async()=>{
  const p=await packet(),r=await reviewedClaudeExport(p,opts);
  assert.deepEqual(r.feed,p.feed);assert.equal(r.receipt.coverage,'reviewed-sources-only');
