@@ -20,6 +20,13 @@ only). No secrets._
 
 ## Session log (append-only, newest first)
 
+### 2026-09-13 · ChatGPT · Verified automation overlap and paused duplicate briefs
+- Did: Inspected live ChatGPT, Cowork and Claude Code schedules alongside local definitions. Paused ChatGPT Executive Inbox Brief and Cowork Morning brief (chief-of-staff sweep); both UI states confirm paused, with history preserved. Retained the original Comms morning/afternoon tasks, twice-daily Labs coordination and the distinct 4 p.m. Fyxer meeting/handoff digest.
+- Files/links touched: docs/command-center/AUTOMATION_OWNERSHIP_20260913.md; the two existing schedule controls; shared artifact handoff.
+- Decisions: Reuse reviewed meeting commitments/decisions as Hub inputs. No new schedule, direct Codex Slack access, inbox sweep, human message, source-state write or Site publication. Keep personal/clinical content outside the Site and preserve Claude data.js / Cowork index.html ownership.
+- Open questions / needs Claude: Fresh communications reconciliation; cloud afternoon-digest export delivery; same-action identity across routines. Local morning description says weekday 6 a.m. but actual scheduler says daily about 4 a.m.; leave cadence unchanged until intentional schedule is established.
+- Next: Connect retained reviewed outputs through the existing handoff and verify repeat-run action deduplication; separate pending Site publication approval remains unanswered.
+
 ### 2026-09-13 · ChatGPT · Command Center partial reviewed coverage
 - Did: Added the closed `partial` source and health state for reviewed Claude exports. Fresh partial items can enter the same pending/shared snapshot with an explicit Site health warning; expiry hides them, and failed/unavailable sources still add no items. `claude:replies` has an effective two-hour cap from original observation so late exports cannot revive old reply obligations. Added the one documented Outlook event webLink route without relaxing general query-string rejection.
 - Files/links touched: `command-center/`, `command-center-proof/browser.mjs`, Claude export adoption/readiness docs, shared-context acceptance notes, and focused synthetic tests.
