@@ -3,7 +3,7 @@
 ## Already authorized and working
 
 The existing owner-private Site can receive multiple reviewed runtime snapshots
-under Steve's September 14 seven-day renewal through September 21 at 09:27:52 Mountain. V12 is saved and deployed;
+under Steve's September 14 seven-day renewal through September 21 at 09:27:52 Mountain. V13 is saved and deployed following a separately approved code update;
 runtime data updates reuse it without another source upload credential. The private
 original grant, exact destination/version anchor, content review and derived receipt
 are checked independently. No source code change is needed for routine refreshes.
@@ -50,7 +50,7 @@ Sending messages, creating external drafts, changing Asana, deciding owners/stag
 dates, merging PRs, adding accounts or sources, widening access and publishing new
 code require their applicable separate authorization. Batch a concrete code release
 into one reviewable approval; do not request permission for each implementation step.
-The source-upload credential exception was consumed for v12. This contract neither
+The latest source-upload credential exception was consumed for v13. This contract neither
 creates another exception nor claims a platform-managed upload capability exists.
 
 ## Stop and revocation
@@ -62,3 +62,19 @@ the active runtime projection with the fixed synthetic proof using the existing
 deployment path. Never enlarge a grant based on silence or a general encouragement.
 Retain only necessary private audit receipts. Runtime removal is not proof that the
 hosting platform has deleted all historical versions or copies.
+
+
+## Shared approval section (published, capture only)
+
+The September 14 approval-code publication is recorded in private
+publication-receipt-20260914-approval-inbox.json. The v13 version anchor is in
+derived-refresh-grant-20260914-approval-inbox.json; the original authorization
+contents and expiration are unchanged. The existing continuation was updated
+in place to reuse v13. No additional refresh routine was created.
+
+The [approval inbox](APPROVAL_INBOX.md) records exact owner choices separately
+from routine metadata refresh permission. The initial release supports reviewed
+reply and Asana-comment proposals, defer and withdrawal, with no external
+dispatcher. It neither renews this grant nor grants message sending, task-field
+changes, access or publication permissions. Future bounded automation remains
+backlog work; no extra daily scheduler was added.

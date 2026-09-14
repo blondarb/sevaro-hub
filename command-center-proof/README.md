@@ -4,7 +4,9 @@ This directory is the sole source of the proof. It reuses the Hub's source-linke
 validated-record approach without importing its stale portfolio fixture, clinical
 routes, Cognito service, databases or a second portfolio UI. Its built-in fixture contains three invented examples. The same runtime can load
 an explicitly approved, expiring executive snapshot; no real context is included in
-source or build output and there is no write operation.
+source or build output. Context remains read-only; the separate approval inbox
+records owner choices without executing external actions. See
+[approval contract](../docs/command-center/APPROVAL_INBOX.md).
 
 `context.mjs` owns one deeply frozen snapshot and numbered view. `worker.mjs`
 serves it only to a configured owner behind authenticated Sites dispatch;
@@ -25,9 +27,9 @@ node command-center-proof/build.mjs /absolute/isolated/site-staging
 The preview runs only on loopback with a **synthetic identity shim**; it is not
 authentication acceptance. The build copies an exact allowlist of shared runtime, release, source-link, page
 and browser modules plus a module package declaration. Collectors, private context,
-credentials and unrelated Hub data directories are never copied. Preserve the Site's own
-`.openai/hosting.json` in the staging directory. No database or public assets
-serve as an authentication bypass.
+credentials and unrelated Hub data directories are never copied. The generated `.openai/hosting.json` keeps the existing Site project and declares
+the narrow D1 approval-receipt binding. Generated migrations are packaged with
+the source. The database and browser assets remain behind the same owner check.
 
 Hosting requires private owner-only Sites access **and** an exact
 `PROOF_OWNER_SITE_USER_ID` binding, sourced from a verified owner session through
