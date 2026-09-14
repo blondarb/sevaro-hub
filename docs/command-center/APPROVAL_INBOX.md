@@ -1,6 +1,7 @@
 # Command Center approval inbox
 
-Implementation: `codex/command-center-approval-inbox`, dependent on PR #39.
+Implementation: PR #40 (`codex/command-center-approval-inbox`), dependent on PR #39.
+Published to the existing owner-private Site as v13 on September 14; PRs remain unmerged.
 This is an owner-only consent capture feature. It has no external dispatcher.
 The existing private Site and Asana/GitHub/Claude ownership model are preserved.
 
@@ -100,7 +101,14 @@ hosted authentication. Local receipt data disappears when this preview stops.
 Build with the existing isolated build command. The allowlist packages the
 Worker/browser modules, logical D1 binding DB and generated Drizzle migrations.
 It excludes fixtures, host collectors, private snapshots and credentials.
-No production D1 or source deployment has been performed for this feature yet.
+Hosted acceptance completed September 14 with the generated D1 schema. All four
+new WebMCP tools registered and passed fictional success/failure paths. Approval
+and defer survived reload; withdrawal worked before and after removing the
+proposal catalog. The ledger contains five fictional audit events and zero
+outstanding approvals. The production catalog is now explicitly blank/disabled.
+Owner access succeeded; unsigned requests with forged owner headers were denied.
+A second signed-in account and a new native Voice session were not tested.
+The private publication receipt records exact source/version/deployment evidence.
 
 September 14 acceptance: 22 focused tests passed, including generated SQLite
 migrations and the isolated packaged Worker. Independent safety review found no
@@ -111,13 +119,14 @@ record approve/defer and withdraw. Saved choices matched the visible cards;
 unknown catalog/receipt and malformed read inputs rejected. This is local
 WebMCP contract evidence, not hosted D1 or a new live Voice acceptance result.
 
-After review and the separate publication authorization: deploy only to the
+For later code publications, after separate publication authorization: deploy only to the
 existing owner-private Site; keep the catalog empty; verify owner/non-owner
 request rejection, same-origin writes through Sites, migrations, readback and
 WebMCP using only fictional proposals. Confirm the shared context refresh grant
 is correctly pinned to the saved source version before resuming that path.
 A local test does not establish hosted D1/session behavior or native Voice
-acceptance. Preserve the existing v12 release and its receipt for rollback.
+acceptance. Preserve the prior v12 release and its receipt for an explicitly controlled rollback;
+routine maintenance must reuse v13 to retain the approval section.
 Disable new catalog capture for rollback; keep receipt history and withdrawal
 available. Do not drop the ledger. Reverting completely to v12 temporarily removes
 withdrawal UI, so do so only with capture/dispatch disabled and preserved receipts.
