@@ -35,6 +35,10 @@ Claude/Cowork/Code retain their existing Outlook, Fyxer, Slack and document rout
   `outlook.office365.com/owa/` with exactly `itemid`, `exvsurl=1`, and
   `path=/calendar/item`. The reviewed source must provide that exact link; never
   synthesize a calendar URL or add redirect, token, or return parameters.
+- Claude-reviewed Slack findings may link only to the observed message permalink
+  on `sevarohealth.slack.com/archives/{channel}/p{timestamp}` without query,
+  fragment, credentials or redirects. This is navigation only, not a Slack
+  connector, monitoring permission or source-content fetch.
 - Site runtime accepts one protected snapshot or protected transport chunks, plus its exact approved digest.
   Real-data mode is disabled unless separately enabled after the acceptance gates.
   All reads use the exact displayed pins; deployment of a new snapshot makes old
@@ -53,6 +57,46 @@ Existing-routine export adoption and quiet refresh preparation: see
 [CLAUDE_EXPORT_ADOPTION.md](../docs/command-center/CLAUDE_EXPORT_ADOPTION.md).
 `refresh-cli.mjs` prepares pending snapshots and fixed health metadata only; it
 never approves, publishes, renews a Site release, or dispatches a notification.
+
+For an existing, explicitly time-bounded refresh authorization, the host operator
+may use `bindReviewedRefresh` from `refresh-authorization.mjs` **after reviewing
+the exact pending candidate**. It binds the candidate digest to that review and
+the recorded Steve authorization, checks the exact Site/saved-version destination
+and permitted source IDs, and caps expiry at the earlier evidence or authorization
+deadline. It returns a runtime release plus a distinct policy-derived receipt
+preserving Steve's original authorization time separately from content review
+and binding times. It neither requests
+nor authorizes a source upload, changes access, publishes, or runs on a timer.
+
+The review object contains `candidate_digest`, `reviewed_by: "Codex"`, the actual
+`reviewed_at`, and `policy: "executive-project-context-v1"`. The authorization is
+the existing private read-only refresh record, including its explicit constraints;
+do not synthesize it from an export, schedule prompt or missing user consent.
+The required `anchor` pins the original authorization digest, exact Site project
+and exact saved version, taken independently from the operator's verified approval
+and publication records. Never recreate the anchor from an untrusted changed grant
+or accept a newly supplied version merely because it belongs to the same Site.
+All authorized feeds must retain health rows, even when unavailable.
+
+Hashes and review labels are integrity records, not signatures, content safety
+classification or proof of permission. The trusted operator still verifies the
+private audience and original approval, reviews every changed field/link, records
+the returned artifacts privately, then uses the exact matching saved Site version.
+Rerun binding immediately before dispatch; a prepared receipt does not authorize
+publication after the cutoff. No runtime payload belongs in this repository.
+
+The matching server validates `CONTEXT_REFRESH_RECEIPT` against the protected
+`CONTEXT_REFRESH_GRANT` containing the original authorization and independently
+pinned anchor, then reconstructs the reviewed pending digest. This mode refuses
+an accompanying legacy `CONTEXT_APPROVAL_RECEIPT`. Direct exact-content approvals
+retain their existing path. Remove the unused receipt when intentionally changing
+modes; do not silently fall back on invalid derived approval. The host-only binder
+is excluded from the Site bundle. Only the pure validator is packaged.
+
+**Deployment gate:** published v11 does not support this derived receipt. Keep its
+existing exact-content release unchanged until the matching source update is
+saved and privately deployed. A grant permitting reviewed data refreshes does not
+renew a spent source-upload credential exception. Local tests are not deployment.
 
 
 `node command-center/cli.mjs collect PRIVATE_PLAN PRIVATE_OUTPUT` reads an exact

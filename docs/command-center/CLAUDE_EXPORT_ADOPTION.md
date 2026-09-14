@@ -5,6 +5,44 @@ or status authority. Steve approved this integration phase on September 13. The
 current Site release and its expiry remain separately approved; this step cannot
 publish or renew it. The implementation lives in sevaro-hub.
 
+### Morning acceptance finding — September 14
+
+The retained 04:00 communications run produced a valid packet observed at 10:05Z,
+expiring at 12:05Z, before the Labs 07:30 Mountain consumer. A fresh manual reply
+check reached the V2 validator; its actual Slack source exposed the missing
+permalink support repaired in this branch. Immediate producer delivery addresses
+transport delay but does not make 04:00 evidence current at 07:30. Align the
+existing morning cadence with Steve's review time before calling this unattended
+morning readiness. Do not add a second digest, extend source freshness, or describe
+an empty partial check as a clear inbox. Cadence is unchanged by this PR.
+
+The current calendar and separate meeting producers can emit the same event ID.
+The assembler still refuses collisions; withheld duplicates are a coverage gap,
+not an empty calendar. Establish one owner per event-preparation obligation before
+combining overlapping feeds. This patch does not select a conflicting source.
+
+### September 14 continuation: producer work still required
+
+- The module review now has an actual bounded local Claude re-review and a
+  mechanically bound V2 receipt. Its item distinguishes local source implementation
+  from still-unverified published Riya/Dhruv results and measurement reliability.
+  It is partial coverage, not a live communications or clinical validation feed.
+- Native Claude schedule control reached a locked Mac. No cadence or calendar
+  ownership change was applied. Resume the existing owners after unlock; do not
+  create a replacement task, bypass an approval denial, or relabel stale files.
+- Morning cadence repair should put the retained communications run close enough
+  before the existing 07:30 Labs consumer for its two-hour reply evidence window
+  to remain valid. Confirm the UI timezone and actual next-run time when editing
+  the existing task; the contradictory old description is not configuration.
+- Calendar and meeting producers must reconcile the same event-preparation
+  obligation explicitly. Retain the known event IDs and both reviewed source
+  records while unresolved. Separate follow-up commitments only when they are
+  actually distinct obligations; renaming duplicate IDs is not reconciliation.
+- A successful interactive run does not establish unattended operation. Close
+  delivery only with the next clock-triggered producer receipt, matching importer
+  digest and fresh candidate. Report default-calendar-only or partial reply
+  coverage accurately. Keep the already-paused duplicate briefs paused.
+
 ## What the existing routine does
 
 At the end of an actual run, Claude may export only already-reviewed executive
@@ -46,6 +84,31 @@ link. Use the authoritative link for the actual finding. An Asana initiative lin
 appropriate for initiative findings; it must not replace the actual calendar event
 or communication link merely to satisfy the allowlist. Withhold an item whose
 source cannot be attributed and record the coverage gap without inventing a link.
+
+Reviewed Slack items use the observed `https://sevarohealth.slack.com/archives/`
+message permalink, with no query or fragment. Other workspaces, API endpoints,
+redirects and credentials are refused. This permits source navigation only;
+Codex does not acquire direct Slack access. The same validator is bundled into
+the Site, so new link support must be deployed before publishing such a snapshot.
+
+Normalized `item_id`, `source_id`, `run_id` and `routine` identifiers must match
+`^[a-zA-Z0-9:_./-]{1,160}$`. Do not copy native Outlook IDs containing `=` or append
+`#prep`. For meeting items, use `claude:meeting:` plus the full SHA256 hex digest
+of the exact native event ID; use the same deterministic mapping on every run.
+Preserve the original authoritative event URL separately. Fixing an identifier
+requires a new content review and recomputed hashes, not changed source observation
+times or automatic publication approval.
+
+For the retained weekday meeting routine, prefer its already connected, verified
+Microsoft 365 work-calendar read over Mac Calendar AppleScript. Read the next
+48 hours once with bounded scheduling metadata, then review only actionable
+executive/project preparation. Do not fetch bodies/transcripts, retry failing
+calendar indexes, substitute personal calendars for work coverage, or imply
+shared/delegated calendars were checked when only the default calendar was read.
+Use verified scheduling facts only: calendar invitation descriptions do not establish
+current project stage or milestone progress. Omit attendee names/counts and old
+invitation-change history. Use ISO dates/times, or compute a weekday from the date
+instead of generating one independently. Asana continues to supply project state.
 
 `review` has exactly:
 
@@ -133,11 +196,15 @@ An exclusive lock prevents concurrent rotations; `refresh_locked` requires check
 whether the owner process finished before removing a stale lock. Do not delete a
 lock blindly or treat a configured job as a completed run.
 
-Prepared output is always `executive-pending-review`. It cannot replace the live
-Site without a new exact-content approval and expiry-bound receipt. The current
-35-item release is not standing approval for new free text, new feeds, or renewal.
-A future standing metadata refresh policy must explicitly define source/field scope,
-duration and retained access/retention limitations; it does not exist yet.
+Prepared output is always `executive-pending-review`. Publication requires either
+Steve's exact-content approval or an active, explicitly approved refresh scope,
+an actual content review and a distinct digest/expiry-bound derivation receipt.
+Steve renewed the scope for seven days on September 14; it ends September 21 at
+09:27:52 Mountain. Preserve the old morning grant as history.
+Site v12 validates the original authorization and its independently pinned
+destination/version anchor. Do not represent a Codex review as a new Steve approval.
+See [the authorization operating contract](AUTHORIZATION_OPERATING_CONTRACT.md)
+for the current boundary and the proposed simpler renewal process.
 
 
 ## September 13 communications recovery
@@ -164,12 +231,47 @@ Schedules, connections and the paused duplicate tasks are unchanged. UI readback
 and the corresponding local Scheduled files confirm persistence. The next timed
 execution has not been observed.
 
-Session output delivery is still a one-time Codex transfer, not an installed
-cross-session watcher or an automatic import. Do not describe the cloud-to-local
-bridge as autonomous. The afternoon meeting digest remains a separate existing
-owner with useful outputs; its delivery and same-action reconciliation still need
-acceptance. No new schedule or Site publication was added by this repair.
+At that earlier receipt, session output delivery was a one-time transfer. The
+subsequent account/workspace-bound importer now discovers retained local session
+outputs during the existing locked refresh. The meeting producer has also passed
+one actual cloud-to-Mac fixed-path staging run. These manual receipts do not prove
+the next timed run, unattended tool permissions, or continuous Site refresh. No new
+schedule or Site publication was added by the delivery repair.
 
 ## Automatic host import and explicit obligation links
 
-See [reviewed obligation reconciliation and Cowork delivery](OBLIGATION_RECONCILIATION.md) for the account-bound importer, the existing Labs refresh hook, and the cloud meeting delivery limitation. The actual weekday meeting digest now emits `claude-meetings.json` as a separate source. Its September 13 cloud artifact was transferred once; future cloud delivery and local calendar access are not yet proven.
+See [reviewed obligation reconciliation and Cowork delivery](OBLIGATION_RECONCILIATION.md) for the account-bound importer, the existing Labs refresh hook, and the cloud meeting delivery limitation. The actual weekday meeting digest now emits `claude-meetings.json` as a separate source. Its September 13 reviewed cloud artifact passed the fixed-path Mac staging and locked importer acceptance. The existing Microsoft 365 work-calendar read succeeded; the next scheduled producer run and unattended delivery remain unverified.
+
+
+## Overnight producer receipt correction
+
+A genuine communications recheck initially emitted an observation time later than
+its own completion/review time. The importer must reject that packet. Claude
+corrected its receipt using the recorded source-read time, preserved the rejected
+artifact under a distinct audit filename, and recomputed the review digests; the
+corrected export validated and imported through the existing bound session path.
+The retained morning and afternoon instruction sets now require parsed timestamp
+ordering and canonical-digest assertions before emitting the named output. A
+producer assertion is defense in depth; the host remains the enforcement boundary.
+
+The 04:00 morning task previously expired before Labs at 07:30. On September 14,
+the existing Comms morning briefing was saved at 07:00 local/Mountain; the UI
+confirmed the next run tomorrow at approximately 07:00. Frequency, instructions,
+model and access were preserved. A future scheduled run/delivery is not yet verified;
+never extend source timestamps/expiry to hide missed delivery.
+
+The bounded 15:05 UTC rechecks returned fresh partial replies and coordination.
+Cowork reported Outlook disconnected, and incomplete sent-message coverage remains
+partial. Steve requested Apple Mail evaluation: the retained communications owner
+verified the work Inbox/Sent Items through existing app scripting and found recent
+Inbox timestamps in a bounded ten-message sample. This does not establish complete
+Sent coverage or synchronization. Work-account-only fallback instructions are now
+saved in both retained communications routines; no personal-account ingestion,
+new scheduler or actual Mail obligation export has been accepted.
+
+For derived runtime updates, explicitly set `CONTEXT_APPROVAL_RECEIPT` to an empty
+string while retaining the required `CONTEXT_REFRESH_GRANT` and receipt. On the
+hosted v12 acceptance, removing the legacy key alone yielded 409; explicit blanking
+restored authenticated reads. Retained provider configuration is suspected, not
+confirmed. Blank unused payload transport keys when changing modes; never mix
+legacy approval with derived approval or relax the runtime checks.
