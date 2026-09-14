@@ -5,10 +5,10 @@ ChatGPT/Codex read this FIRST and update it LAST. Plain language. No PHI (initia
 only). No secrets._
 
 ## Snapshot (keep current)
-- Status: The existing private Site v10 is expired; no morning publication or renewal approval has been recorded. Asana writes remain OFF, with 43 historical proposals audit-only and zero actionable queued writes in the fresh monitor-only check.
+- Status: Steve approved the morning update and reviewed read-only refreshes through September 14 noon Mountain. Owner-private Site v11 is published and verified: 22 items, four Today, three requiring Steve. Current snapshot expires 09:32 Mountain; source expiry is not extended by the noon authorization. Asana writes remain OFF, 43 historical proposals audit-only.
 - Integration: The retained morning Cowork routine ran; its 04:05 export expired before Labs consumption. A fresh reviewed reply has imported through the existing account-bound local-file route. The scheduled Labs run completed with six fresh reviewed coordination findings and a producer-reviewed FPPE same-obligation binding. Partial/expired/missing feeds stay explicit.
-- Engineering: PR #39 includes bounded meeting/reply delivery plus strict reviewed Slack permalink navigation. Eleven affected tests and five proof auth/reference tests pass; independent static review found no material finding. Matching Site sources are built locally, not published. Keep the feature checkout while existing producer commands reference it.
-- Next: Review the fresh private candidate, approve any Site publication/renewal, and deploy matching source before publishing Slack-linked context. Align the existing morning cadence; automatic Mac delivery was denied by Claude's classifier. Calendar/meeting ownership collisions and legacy module-review re-review remain unresolved. Do not merge or enable writes automatically.
+- Engineering: PR #39 includes bounded meeting/reply delivery plus strict reviewed Slack permalink navigation. Eleven affected tests and five proof auth/reference tests pass; independent static review found no material finding. Matching Site sources are now privately published as v11. Keep the feature checkout while existing producer commands reference it.
+- Next: Existing morning continuation handles reviewed runtime-only refreshes at 09:15 and 11:15 Mountain, then pauses by noon. Reuse v11; source-upload exception is spent. Calendar/meeting ownership and freshness, module review, and normal producer/consumer cadence remain unresolved. No automatic merge or source writes.
 - Lives in: https://github.com/blondarb/sevaro-hub.git
 
 ## Open threads / next actions
@@ -20,6 +20,14 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log
+
+### 2026-09-14 · ChatGPT · Approved private morning publication
+- Did: Published the approved morning snapshot as owner-private Site v11, environment revision 15. Verified one owner, no groups and no external visitors. Source provenance and the time-bounded authorization are recorded in the private publication receipt.
+- Files/links touched: Existing Site, private approved-morning-release.json, approval-receipt-20260914-morning.json, publication-receipt-20260914-morning.json and read-only-refresh-authorization-20260914.json. Reused the existing morning task for two quiet reviewed refreshes (09:15/11:15), with a hard noon cutoff; no new routine or digest.
+- Decisions: Live page and authenticated shared-context read matched snapshot-05f147f1ac5a17fdf7b6baed9f4cf83c672d1a4b37ad43f3311d871bc7d1c4ad; numbered item 2 and selected FPPE focus resolved against those same pins. Twenty-two items, four Today; expiry 15:32:38Z (09:32 Mountain). Noon authorization permits fresh reviewed releases, not timestamp relabeling. Keep exact per-release digest/expiry receipts and a separate authorization-derivation receipt for any later refresh. Exception is spent; reuse saved v11 for runtime-only updates.
+- Open questions / needs Claude: Replies partial; calendar/meetings stale; module review unavailable. Existing local-file reply import works, but Claude's automatic review denied its Mac execution command as Untrusted Code Integration; no bypass or access change. Second-account denial and platform retention remain unverified, as accepted by Steve.
+- Next: Refresh only within the recorded scope and before noon. Preserve source authorities, owner-only access, Dhruv exclusion, stage conflicts, writes OFF and no automatic merge. Future maintenance beyond noon is not authorized by this grant.
+
 
 ### 2026-09-14 · ChatGPT · Morning recovery and reviewed Slack permalink support
 - Did: Resumed after Mac unlock; declined an unnecessary nested workflow, closed the old manual Labs acceptance, and retained the actual scheduled morning run as sole coordination owner. The 04:05 communications packet was valid but expired before 07:30; a bounded source recheck produced one reviewed response item. Claude minimized that item and preserved its original observation/expiry. Existing local-file import passed. Fresh monitor-only check reports zero actionable entries, 43 audit-only, zero uncertain writes and no alert; this is not an Asana write receipt.
