@@ -5,6 +5,22 @@ import {LINK_HOSTS} from './release.mjs';
 
 const hosts = ['app.asana.com', 'github.com', 'outlook.office.com', 'outlook.office365.com'];
 const event = 'https://outlook.office365.com/owa/?itemid=syntheticAAMk%2B%2F%3D&exvsurl=1&path=%2Fcalendar%2Fitem';
+const message = 'https://outlook.office365.com/owa/?ItemID=syntheticAAMk%2B%2F%3D&exvsurl=1&viewmodel=ReadMessageItem';
+test('documented Outlook message webLink is navigation only and preserves exact route checks', () => {
+  assert.equal(isAllowedSourceUrl(message, hosts), true);
+  assert.equal(isAllowedSourceUrl(message, hosts.filter(h => h !== 'outlook.office365.com')), false);
+  for (const value of [
+    message.replace('ReadMessageItem', 'Compose'), message.replace('ItemID=', 'itemid='),
+    message.replace('exvsurl=1', 'exvsurl=2'), message.replace('/owa/', '/mail/'),
+    message.replace('office365.com', 'office.com'), message.replace('https:', 'http:'),
+    message.replace('https://', 'https://user:password@'), message + '#fragment',
+    message + '&ItemID=other', message + '&viewmodel=ReadMessageItem',
+    message + '&path=%2Fcalendar%2Fitem', message + '&access_token=synthetic',
+    message + '&returnUrl=https://example.com', message + '&body=synthetic',
+    message.replace('syntheticAAMk%2B%2F%3D', ''), message.replace('syntheticAAMk%2B%2F%3D', '%00'),
+    message.replace('syntheticAAMk%2B%2F%3D', 'A'.repeat(2049)),
+  ]) assert.equal(isAllowedSourceUrl(value, hosts), false, value);
+});
 test('reviewed Slack links only allow the fixed workspace message permalink', () => {
   const link = 'https://sevarohealth.slack.com/archives/C0SYNTHETIC/p1789391165151239';
   assert.equal(isAllowedSourceUrl(link, LINK_HOSTS), true);

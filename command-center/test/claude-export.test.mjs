@@ -12,6 +12,21 @@ const opts={allowedHosts:['app.asana.com'],now:NOW};
 async function resign(p) {
  p.review.feed_digest=await sha256(p.feed);p.review.packet_digest=await sha256({feed:p.feed,run:p.run});return p;
 }
+test('reviewed Outlook reply links survive import while long labels and unreviewed edits remain held',async()=>{
+ const p=await packet();
+ p.feed.source_id='claude:replies';p.feed.items[0].source_id='claude:replies';
+ p.feed.items[0].item_id='claude:replies:synthetic';
+ p.feed.items[0].source_url='https://outlook.office365.com/owa/?ItemID=synthetic%3D&exvsurl=1&viewmodel=ReadMessageItem';
+ const options={...opts,allowedHosts:['outlook.office365.com']};
+ await resign(p);
+ const reviewed=await reviewedClaudeExport(p,options);
+ assert.equal(importableClaudeFeed(reviewed).items[0].source_url,p.feed.items[0].source_url);
+ assert.equal(importableClaudeFeed(reviewed).status,'partial');
+ p.feed.items[0].status='x'.repeat(101);await resign(p);
+ await assert.rejects(reviewedClaudeExport(p,options),/invalid_text/);
+ p.feed.items[0].status='Shortened but not yet reviewed';
+ await assert.rejects(reviewedClaudeExport(p,options),/export_review_required/);
+});
 test('explicit partial producer packet remains partial through validation and assembly',async()=>{
  const p=await packet();p.feed.status='partial';await resign(p);
  const reviewed=await reviewedClaudeExport(p,opts),summary=claudeExportSummary(reviewed,NOW);
