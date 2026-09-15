@@ -5,6 +5,31 @@ or status authority. Steve approved this integration phase on September 13. The
 current Site release and its expiry remain separately approved; this step cannot
 publish or renew it. The implementation lives in sevaro-hub.
 
+### September 14 evening: current producer and cloud acceptance
+
+The retained afternoon routine successfully re-read its connected work Outlook
+and Slack sources. The fresh reply packet exposed three separate contract issues:
+invalid native IDs (producer repaired and preserved the rejected packet for audit),
+documented Outlook message links (receiver support added), and two status labels
+longer than 100 characters (requires faithful shortening and actual Claude
+re-review). Never truncate or rewrite a reviewed packet inside the receiver.
+
+The existing afternoon routine was moved with Cowork's native **Move to cloud**.
+The platform paused the local copy; its replacement retains weekdays at 14:00
+Mountain with **Require this computer** off. One manual cloud acceptance run was
+started. This is configuration evidence, not proof of successful unattended
+collection or delivery. The morning routine remains local at 07:00; the existing
+weekday meeting routine still requires the computer. Do not migrate additional
+routines until the first cloud output and transport are verified.
+
+The existing ClaudeSync directory is already backed by the owner's private Google
+Drive. The command-center incoming folder and its existing JSON meeting file have
+one owner and no additional shares. Native Drive retrieval can obtain that file
+without desktop interaction. This proves a read route, not Claude cloud's ability
+to replace raw JSON or a scheduled Hub consumer. Exact folder/file IDs and run
+receipts remain in the private handoff. Do not create another folder or schedule,
+broaden access, or treat self-declared packet hashes as authenticated origin.
+
 ### Morning acceptance finding — September 14
 
 The retained 04:00 communications run produced a valid packet observed at 10:05Z,
@@ -91,6 +116,14 @@ redirects and credentials are refused. This permits source navigation only;
 Codex does not acquire direct Slack access. The same validator is bundled into
 the Site, so new link support must be deployed before publishing such a snapshot.
 
+Microsoft Graph's documented message `webLink` is also accepted at the exact
+`https://outlook.office365.com/owa/` route with exactly `ItemID`, `exvsurl=1`,
+and `viewmodel=ReadMessageItem`. `ItemID` is case-sensitive. The calendar route
+continues to use lowercase `itemid` and `path=/calendar/item`. No compose route,
+extra parameters, return URLs, fragments, embedded credentials or tokens are
+allowed. Keep the provider's observed URL unchanged. See Microsoft's
+[get-message example](https://learn.microsoft.com/en-us/graph/api/message-get?view=graph-rest-1.0).
+
 Normalized `item_id`, `source_id`, `run_id` and `routine` identifiers must match
 `^[a-zA-Z0-9:_./-]{1,160}$`. Do not copy native Outlook IDs containing `=` or append
 `#prep`. For meeting items, use `claude:meeting:` plus the full SHA256 hex digest
@@ -98,6 +131,20 @@ of the exact native event ID; use the same deterministic mapping on every run.
 Preserve the original authoritative event URL separately. Fixing an identifier
 requires a new content review and recomputed hashes, not changed source observation
 times or automatic publication approval.
+
+For replies, derive a deterministic identity from the original source identity
+plus the distinct action identity, not the title: `claude:replies:` followed by
+the full SHA256 hex digest of their canonical JSON array. Preserve a previously
+accepted valid mapping and explicitly reconcile historical mappings; changing
+an ID is not a way to remove a duplicate obligation.
+
+Before final review and hashing, assert all field limits from the shared schema:
+`spoken_name` 80, `status` 100, `context` 600, `recommendation` 400, and
+`next_event` 240 characters. `source_revision` is a label up to 100 characters,
+not one of the restricted identifiers. A formatting correction must preserve
+facts and uncertainty, receive an actual new content review, and recompute both
+hashes. Keep original observation, expiry and run timing. Record only the actual
+new review time; reviewing an old packet does not refresh its sources.
 
 For the retained weekday meeting routine, prefer its already connected, verified
 Microsoft 365 work-calendar read over Mac Calendar AppleScript. Read the next
