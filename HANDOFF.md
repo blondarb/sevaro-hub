@@ -5,13 +5,15 @@ ChatGPT/Codex read this FIRST and update it LAST. Plain language. No PHI (initia
 only). No secrets._
 
 ## Snapshot (keep current)
-- Provenance hold: maintenance is PAUSED. Earlier nine/eleven-reference plans are quarantined intact after two archived communication claims were found linked to an SDNE initiative rather than their original communications. None of the old nine references is admitted by this rebuild; omission is not closure.
-- This branch repairs reply admission: original Outlook message or work Slack permalink required; valid URLs/hashes alone are not semantic evidence. Historical plans are schema2, bind full item digests, and require a trusted source-verification callback for every record including prior references. Standalone CLI cannot self-approve nonempty inputs; legacy plans cannot migrate automatically.
-- Rebuild: authenticated Drive re-fetch matched the previously witnessed native producer V2 digest. A trusted host matched the exact two Outlook items, packet, item digest, link, revision and observation, then built a new private two-reference plan with no prior plan. Exact replay succeeded; archived six-item packet was rejected. Original source timestamps/expiry remain unchanged. This is producer-backed historical attribution, not a new mailbox read or independently verified current status.
-- Current canonical installation is main f720ae6 (PR44). This repair is on a feature branch for review; it is not installed, merged or deployed. Private Site remains saved v14, runtime30, previously verified snapshot expiry September15 13:11:40UTC. No source publication in this repair.
-- Evidence: 114 affected host/staging/import tests pass, plus independent read-only data-integrity review. Private source-attribution-rebuild-receipt-20260915.json records exact evidence and limits. Patient-containing original briefings were not read.
-- Authority: Asana stays authoritative; Dhruv exclusion and pending stage conflicts remain. Forty-three historical queue entries remain audit-only. Message sending, provider drafts, Asana writes, access changes and unattended execution remain disabled.
-- Next: review this repair PR and install deliberately. Keep the provenance hold until trustworthy ongoing producer/consumer delivery is verified. New source reads must come through retained Claude owners and explicit existing scope; no consent impersonation, new routine, duplicate dashboard or automatic closure.
+- Canonical main is `1b4b9e4`; source-attribution PR45 merged September15 at12:30:05UTC and was installed. Earlier pre-merge receipts and entries below are historical, not current installation state.
+- Private Site savedv14 has since received reviewed runtime-only updates. Latest verified at15:47UTC: environment36, deployment `appgdep_6aa9685207e08191bb53abb37dc5d0f7`, snapshot `snapshot-325bc5a69e260b02f8bc8e991e0d72b2c40977db0ddc3eb8314d016c983f4916`, expiry17:45:27UTC. Page and authenticated read matched. Native Voice was not retested. Live freshness must be rechecked.
+- The existing maintenance continuation is ACTIVE under the previously approved seven-day scope ending September21 at15:27:52UTC. This supersedes the old PAUSED installation snapshot, not any packet-specific provenance hold. All five Claude feeds were stale at15:47UTC; expired items are withheld, not completed or cancelled.
+- Provenance holds remain: nine historical references and both archived recheck plans stay audit-only; the new morning replies packet is held pending original-producer verification and reconciliation. Two previously verified Outlook items have expired; do not renew their source times or infer closure from omission.
+- This branch adds a bounded Claude CLI read helper that avoids desktop control. At16:17:24UTC, the guarded live canary verified the work account and returned one known calendar event using paired host hook evidence. This is partial source-access evidence, not full unattended delivery. The helper returns review_required and never imports, publishes, changes schedules, or enables source writes.
+- The existing owner must review source semantics and provenance before V2 admission. No model flag, URL, digest or CLI completion alone proves a communication obligation. Existing portable origin-verification gates remain unchanged.
+- Asana stays authoritative; Dhruv owner exclusion and unresolved stage conflicts remain. Forty-three queue blocks are audit-only. A separate sdne-module-snapshot writer was discovered outside the cutover inventory; its authorization/scope needs owner reconciliation, and no scheduler was silently disabled here.
+- Message sending, provider drafts, calendar/Asana edits, access expansion and automatic stage decisions remain disabled. Preserve Claude data.js / Cowork index.html ownership. Locked-screen execution does not prove sleeping/powered-off availability.
+- Current private operational receipts and detailed relay status: `~/ClaudeSync/handoffs/command-center/CLAUDE_RECONCILIATION_REVIEW_20260913.md`. Source-controlled documentation holds contracts, not a competing project-status database.
 - Lives in: https://github.com/blondarb/sevaro-hub.git
 
 ## Open threads / next actions
@@ -23,6 +25,14 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log
+
+### 2026-09-15 · Codex · Bounded CLI metadata reads while desktop is locked
+- Did: Verified Claude CLI has existing Microsoft365 access and completed one narrow locked-Mac calendar read. Added a bounded helper with host-enforced query/window/tool checks, verified account, paired tool evidence, timeout, private outputs, per-lane lock and mandatory review state. Model prose and previews are not retained. Corrected the stale pre-merge Snapshot above using verified private receipts.
+- Files/links touched: command-center/claude-read-runner.mjs, claude-read-guard.mjs, claude-read-cli.mjs, two focused test files and docs/command-center/LOCKED_MAC_DELIVERY.md. Source packets remain private and outside Git.
+- Decisions: Use the existing refresh owner; no new scheduler, desktop unlock, credential or provider write. Failing/denied reads remain held. The helper does not supply an automatic source verifier or bypass PR45 admission.
+- Open questions / needs Claude: Original email semantic reconciliation, Fyxer source scoping and redundant leadership-prep ownership remain. Empty exact-title calendar searches do not cancel meetings. Mac-off and two-cycle unattended acceptance remain unproven.
+- Evidence:17 focused synthetic checks pass. Independent review found the two control/evidence gaps addressed; the subsequent guarded live canary completed with matching account, one exact search and private source metadata at16:17:24UTC. The reviewed output was not imported or published.
+- Next: Prepare the feature PR and install deliberately, then integrate with the existing owner under the same scope. Two scheduled end-to-end cycles, email semantic review and Mac-off/cloud delivery remain unproven.
 
 ### 2026-09-15 · ChatGPT · Repair historical reply attribution
 - Did: Blocked initiative/calendar substitutions in reply exports, added full-item digests and trusted per-reference verification to schema2 historical plans, and made nonempty standalone CLI calls fail closed. Kept all original archive evidence intact.
