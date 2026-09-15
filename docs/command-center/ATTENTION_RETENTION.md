@@ -87,3 +87,25 @@ to display them. Continuous availability therefore also requires reliable existi
 refresh delivery; this change alone does not establish unattended operation.
 No new schedule, source-system write path, access grant or source-upload approval
 is introduced.
+
+## Historical-only Site fallback
+
+When the last reviewed runtime snapshot expires before the existing owner refresh
+grant, the Site may read that exact release again only as `executive-historical`.
+It independently checks the stored release digest and bound review receipt at the
+original review time, checks the owner grant at the actual read time, and keeps the
+owner-only Sites identity gate. It shows only the release's previously published
+Today items, preserving their displayed numbers, original source checks and links.
+Every row is labelled saved/needs-recheck; current actions and approval state are
+removed. The visual page and conversational read tools return the same historical
+projection. Original source health is labelled "last reported", never current.
+
+This is a read of the last reviewed release embedded in protected Site settings;
+it is not a new authority or a read of the Mac's private retention file. A later
+host dismissal, exact Asana completion, source-access hold or newly published
+revision reaches the Site only on the next successful reviewed refresh. If that
+refresh is missed, the old Site projection must remain explicitly historical.
+Invalid release/receipt data, changed owner binding, or expiry of the owner grant
+still fail closed. This fallback makes saved work visible after a **snapshot**
+expires; it does not guarantee access after the current grant expires, recover a
+missing producer, or establish delivery while the Mac is away.
