@@ -29,7 +29,7 @@ function item(entry, sourceId, revision, sourceUrl, status, due = null) {
   return { item_id: sourceId + ':' + entry.target, source_id: sourceId, source_revision: revision, source_url: sourceUrl, spoken_name: entry.spoken_name, kind: entry.kind, context: entry.context, recommendation: entry.recommendation, requires_steve: entry.requires_steve, due, status, next_event: entry.next_event, action_state: entry.action_state };
 }
 /** Exact task allowlist only: never list boards or fetch titles, descriptions, comments or attachments. */
-export async function collectAsana({ sourceId, projectId, entries, stageLabels, excludedAssigneeGids = [], credential, fetcher = fetch, now = new Date().toISOString() }) {
+export async function collectAsana({ sourceId, projectId, entries, stageLabels, excludedAssigneeGids = [], credential, fetcher = fetch, now = new Date().toISOString(), onItemExcluded=()=>{} }) {
   identifier(sourceId); gid(projectId); requireThat(entries.length > 0 && entries.length <= 50 && new Set(entries.map(e=>e.target)).size === entries.length);
   requireThat(Array.isArray(excludedAssigneeGids) && excludedAssigneeGids.length <= 50 && new Set(excludedAssigneeGids).size === excludedAssigneeGids.length,'invalid_owner_filter');
   excludedAssigneeGids.forEach(gid);
@@ -44,7 +44,7 @@ export async function collectAsana({ sourceId, projectId, entries, stageLabels, 
         // silently include an excluded owner's task after a partial response.
         requireThat(task.assignee === null || task.assignee && typeof task.assignee.gid === 'string','source_conflict');
         if (task.assignee !== null) gid(task.assignee.gid);
-        if (excludedAssigneeGids.includes(task.assignee?.gid)) continue;
+        if (excludedAssigneeGids.includes(task.assignee?.gid)) {onItemExcluded({item_id:sourceId+':'+entry.target,source_id:sourceId,source_revision:task.modified_at,observed_at:now,reason:'excluded'});continue;}
       }
       const memberships = task.memberships?.filter(m => m.project?.gid === projectId);
       requireThat(memberships?.length === 1, 'source_conflict');
@@ -52,7 +52,7 @@ export async function collectAsana({ sourceId, projectId, entries, stageLabels, 
       requireThat(typeof task.completed === 'boolean' && typeof stageLabels?.[section] === 'string', 'source_conflict');
       // Keep the source stage verbatim via the reviewed GID-to-label catalog. Never map to Hub's July taxonomy.
       const status = task.completed ? 'Completed' : stageLabels[section];
-      if (task.completed && entry.kind !== 'project') continue;
+      if (task.completed && entry.kind !== 'project') {onItemExcluded({item_id:sourceId+':'+entry.target,source_id:sourceId,source_revision:task.modified_at,observed_at:now,reason:'resolved'});continue;}
       items.push(item(entry, sourceId, task.modified_at, `https://app.asana.com/0/${projectId}/${task.gid}`, status, task.due_at ?? task.due_on ?? null));
     }
     return validateFeed(feed(sourceId, 'asana', now, items), ['app.asana.com'], Date.parse(now));

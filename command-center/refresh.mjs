@@ -4,6 +4,8 @@ import { dirname, join, resolve } from 'node:path';
 import { assemble, ContextError, canonical, exact, identifier, instant, sha256 } from './context.mjs';
 import { collectSources } from './collector.mjs';
 import { LINK_HOSTS, prepareRelease, validateSnapshot } from './release.mjs';
+import {RETENTION_FILE,emptyRetention,validateRetention,carryAttention,disposeAttention} from './attention-retention.mjs';
+import {isAllowedSourceUrl} from './source-links.mjs';
 
 const CURRENT = 'proposed-current-context.json';
 const PRIOR = 'proposed-prior-context.json';
@@ -159,6 +161,18 @@ async function acquireLock(root) {
   catch (error) { if (error.code === 'EEXIST') throw new ContextError('refresh_locked'); throw error; }
 }
 
+// Trusted host operation: no standalone import of arbitrary JSON as reviewed history.
+// Uses the same lock as refresh and fails closed on corrupt or insecure history.
+export async function updateRetainedAttention({root,update}) {
+  const directory=await privateRoot(root),lock=await acquireLock(directory);
+  try {
+    const current=await validateRetention(await readJson(join(directory,RETENTION_FILE))??await emptyRetention());
+    const next=await validateRetention(await update(structuredClone(current)));
+    if(Buffer.byteLength(JSON.stringify(next))>128_000)throw new ContextError('retention_capacity_exceeded');
+    await atomicJson(directory,RETENTION_FILE,next);return {digest:next.digest,entries:next.entries.length};
+  } finally {await lock.close();await unlink(join(directory,LOCK)).catch(()=>{});}
+}
+
 /** Prepare a pending candidate and metadata-only receipt in a canonical private directory. */
 export async function refreshOnce({ root, plan, collect = collectSources, importExports = null, now = Date.now(), includePortfolio = false, ttlMs = 900000, write = atomicJson }) {
   const directory = await privateRoot(root);
@@ -190,10 +204,39 @@ export async function refreshOnce({ root, plan, collect = collectSources, import
         collected.feeds=collected.feeds.filter(feed=>feed.source_id!==row.source_id);
         if(collected.expected_sources.includes(row.source_id))collected.feeds.push({schema_version:1,source_id:row.source_id,system:'claude',observed_at:attemptedAt,expires_at:new Date(now+3600_000).toISOString(),status:'unavailable',failure_code:row.code==='source_conflict'?'source_conflict':'run_failed',items:[]});
       }
-      const next = await assemble(collected.feeds, { expectedSources: collected.expected_sources, allowedHosts: LINK_HOSTS, now, ttlMs, classification: 'executive-pending-review', includePortfolio });
+      let next = await assemble(collected.feeds, { expectedSources: collected.expected_sources, allowedHosts: LINK_HOSTS, now, ttlMs, classification: 'executive-pending-review', includePortfolio });
+      let history=await readJson(join(directory,RETENTION_FILE));
+      if(history) {
+        await validateRetention(history);
+        // A denial/conflict must survive a later outage. Only a newly verified
+        // publication with newer source evidence can release withheld history.
+        for(const entry of history.entries.filter(e=>e.state==='active')) {
+          const health=next.health.find(h=>h.source_id===entry.item.source_id);
+          if(['permission_required','source_conflict'].includes(health?.failure_code)) {
+            history=await disposeAttention({store:history,itemId:entry.item.item_id,decision:'withheld',itemDigest:await sha256(entry.item),evidenceId:'source-hold:'+await sha256({source_id:health.source_id,reason:health.failure_code,observed_at:attemptedAt}),decidedAt:attemptedAt,verifyDisposition:async()=>true,now});
+          }
+        }
+        // Exact source reads may resolve or exclude an attention bookmark. These
+        // receipts are never inferred from a missing item or a free-text status.
+        for(const e of collected.attention_dispositions??[]) {
+          exact(e,['item_id','source_id','source_revision','observed_at','reason']);
+          if(!next.health.some(h=>h.source_id===e.source_id&&h.state==='available'))continue;
+          const entry=history.entries.find(r=>r.item.item_id===e.item_id&&r.state==='active');if(!entry)continue;
+          if(e.source_id!==entry.item.source_id||!e.source_id.startsWith('asana:')||!['excluded','resolved'].includes(e.reason)||instant(e.observed_at)>now||instant(e.observed_at)<instant(entry.source_observed_at))throw new ContextError('source_conflict');
+          history=await disposeAttention({store:history,itemId:e.item_id,decision:e.reason,itemDigest:await sha256(entry.item),evidenceId:'source-read:'+await sha256(e),decidedAt:new Date(now).toISOString(),verifyDisposition:async()=>true,now});
+        }
+        const allowedItem=item=>{
+          const spec=plan.sources.find(s=>s.source_id===item.source_id);if(!spec)return false;
+          if(spec.entries)return spec.entries.some(e=>item.item_id===spec.source_id+':'+e.target);
+          return isAllowedSourceUrl(item.source_url,spec.allowed_hosts??LINK_HOSTS);
+        };
+        next=await carryAttention(next,history,{allowedItem,now});
+        if(Buffer.byteLength(JSON.stringify(history))>128_000)throw new ContextError('retention_capacity_exceeded');
+        await write(directory,RETENTION_FILE,history);
+      }
       validatedCollection = next;
       comparison = compareCandidates(previous, next);
-      if(!next.health.some(h=>['available','partial'].includes(h.state)))throw new ContextError('source_unavailable');
+      if(!next.health.some(h=>['available','partial'].includes(h.state))&&!next.items.some(i=>i.retention))throw new ContextError('source_unavailable');
       const prepared = await prepareRelease(next, now);
 
       // Keep exactly one prior candidate. A completed current always has a valid prior or none.
