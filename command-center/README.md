@@ -225,3 +225,9 @@ No raw upstream errors, snapshot bodies or request logs are emitted.
 The earlier real trial approval expired. Its receipt must not be renewed, copied to
 a different payload, or used to publish this broader review automatically. Prepared
 private candidates, Claude reports and coverage records remain outside Git/Sites.
+
+Unresolved attention survives source expiry through the host-owned
+[attention retention contract](../docs/command-center/ATTENTION_RETENTION.md).
+Only verified published reviews seed it. Schema-2 retained rows keep their original
+evidence dates and are marked historical, with no executable action state. This
+does not extend Site access/approval expiry or prove unattended refresh delivery.

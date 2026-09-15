@@ -6,12 +6,15 @@ let context, selectedNumber = null, category = 'today', expired = false;
 const el = (tag,text,cls) => {const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 async function retrieve(path,args){const r=await fetch(path+'?'+new URLSearchParams(args),{cache:'no-store',credentials:'same-origin'});if(!r.ok)throw Error('context_unavailable');return r.json();}
 function itemKind(i){return i.kind ?? (i.item_id?.includes(':decision:')?'decision':i.item_id?.includes(':blocker:')?'blocker':'meeting');}
+function itemStatus(i){return i.retention?'Saved for review · needs rechecking. Last reported: '+i.status:i.status;}
 function filtered(){if(!context||expired)return [];return context.items.filter(i=>category==='today' ? !context.today_item_ids||context.today_item_ids.includes(i.item_id) : category==='project' ? itemKind(i)==='project'||i.source_id==='asana:portfolio' : itemKind(i)===category);}
 function sourceLink(item){const a=el('a','Open authoritative record');a.href=item.source_url;a.target='_blank';a.rel='noopener noreferrer';return a;}
 function selectItem(number){if(expired||!context)return;selectedNumber=number;const i=context.items.find(i=>i.number===number);if(!i)return;
  $('focus-label').textContent='Item '+i.number+' · '+(titles[itemKind(i)]??'Review');$('focus-title').textContent=i.spoken_name;
- const nodes=[el('span',i.status,'pill'),el('p',i.context)];
- nodes.push(el('p','Recommendation','caption'),el('p',i.recommendation??'No source-backed recommendation is recorded. Discuss the evidence before deciding.','recommendation'));
+ const nodes=[el('span',itemStatus(i),'pill')];
+ if(i.retention)nodes.push(el('p','Kept until addressed or dismissed. Last source check: '+new Date(i.retention.source_observed_at).toLocaleString()+'. The status and suggestion below are historical; recheck the original record before acting.','meta'));
+ nodes.push(el('p',i.context));
+ nodes.push(el('p',i.retention?'Previous suggestion · recheck before acting':'Recommendation','caption'),el('p',i.recommendation??'No source-backed recommendation is recorded. Discuss the evidence before deciding.','recommendation'));
  if(i.next_event)nodes.push(el('p','Expected next event','caption'),el('p',i.next_event));
  if(i.action_state&&i.action_state!=='none')nodes.push(el('p','Pending approval · no external action has been taken.','meta'));
  if(i.due)nodes.push(el('p','Due: '+i.due,'meta'));
@@ -27,7 +30,7 @@ function emptyMessage(){if(expired||!context)return 'A fresh approved snapshot i
  return 'No items in this category are included in the approved snapshot. Other work may exist in the source systems.';}
 function render(){const list=filtered();$('section-title').textContent=titles[category];$('list-count').textContent=context&&!expired?list.length+' items':'';
  $('items').replaceChildren(...list.map(i=>{const row=el('li',undefined,'item');row.value=i.number;row.dataset.number=i.number;row.dataset.itemId=i.item_id;row.dataset.selected=String(i.number===selectedNumber);
- const content=el('div'),button=el('button',i.spoken_name);button.addEventListener('click',()=>selectItem(i.number));content.append(button,el('p',i.status,'status'),el('p',i.context));row.append(el('span',String(i.number),'number'),content);return row;}));
+ const content=el('div'),button=el('button',i.spoken_name);button.addEventListener('click',()=>selectItem(i.number));content.append(button,el('p',itemStatus(i),'status'),el('p',i.context));row.append(el('span',String(i.number),'number'),content);return row;}));
  $('empty').hidden=list.length>0;$('empty').textContent=emptyMessage();
  document.querySelectorAll('nav button').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.category===category));b.querySelector('span').textContent=context&&!expired ? String(context.items.filter(i=>b.dataset.category==='today'?!context.today_item_ids||context.today_item_ids.includes(i.item_id):b.dataset.category==='project'?itemKind(i)==='project'||i.source_id==='asana:portfolio':itemKind(i)===b.dataset.category).length):'—';});
  if(list.length)selectItem(list.some(i=>i.number===selectedNumber)?selectedNumber:list[0].number);else{$('focus-title').textContent='No item selected';$('focus-content').replaceChildren(el('p',emptyMessage()));$('previous').disabled=true;$('next').disabled=true;selectedNumber=null;}

@@ -38,7 +38,7 @@ export const LINK_HOSTS = Object.freeze(['app.asana.com', 'github.com', 'outlook
 /** This validates a previously reviewed projection, never classifies raw content as PHI-free. */
 export async function validateSnapshot(snapshot, now = Date.now()) {
   exact(snapshot, ['schema_version', 'classification', 'generated_at', 'expires_at', 'health', 'items', 'today_item_ids', 'requiring_steve', 'snapshot_id', 'view_id']);
-  requireThat(snapshot.schema_version === 1 && ['synthetic-only','executive-pending-review','executive-reviewed'].includes(snapshot.classification));
+  requireThat([1,2].includes(snapshot.schema_version) && ['synthetic-only','executive-pending-review','executive-reviewed'].includes(snapshot.classification));
   const created = instant(snapshot.generated_at), expiry = instant(snapshot.expires_at);
   requireThat(created <= now + 60_000 && expiry > now && expiry > created && expiry - created <= 7200_000, 'snapshot_expired');
   requireThat(Array.isArray(snapshot.items) && snapshot.items.length <= 100 && Array.isArray(snapshot.health) && snapshot.health.length <= 50);
@@ -53,12 +53,20 @@ export async function validateSnapshot(snapshot, now = Date.now()) {
   }
   const seen = new Set();
   for (const [index, row] of snapshot.items.entries()) {
-    const {number, ...item} = row; requireThat(number === index + 1, 'invalid_numbering'); validateItem(item, LINK_HOSTS);
+    const {number, retention, ...item} = row; requireThat(number === index + 1, 'invalid_numbering'); validateItem(item, LINK_HOSTS);
+    if(Object.hasOwn(row,'retention')) {
+      requireThat(snapshot.schema_version===2&&snapshot.classification!=='synthetic-only','invalid_retention');
+      exact(retention,['state','source_observed_at','review_expires_at','snapshot_digest']);
+      requireThat(retention.state==='historical-needs-recheck'&&/^[a-f0-9]{64}$/.test(retention.snapshot_digest),'invalid_retention');
+      requireThat(instant(retention.source_observed_at)<=created&&instant(retention.review_expires_at)>instant(retention.source_observed_at),'invalid_retention_time');
+      requireThat(item.action_state==='none'&&!item.evidence,'historical_action_forbidden');
+      requireThat(!['permission_required','source_conflict'].includes(snapshot.health.find(h=>h.source_id===item.source_id)?.failure_code),'invalid_provenance');
+    }
     requireThat(!Object.hasOwn(item,'same_obligation_as'),'source_conflict');
     for (const evidence of item.evidence ?? []) requireThat(snapshot.health.some(h=>h.source_id===evidence.source_id && ['available','partial'].includes(h.state)),'invalid_provenance');
-    requireThat(sourceIds.has(item.source_id) && ['available','partial'].includes(snapshot.health.find(h=>h.source_id===item.source_id).state) && !seen.has(item.item_id), 'invalid_provenance'); seen.add(item.item_id);
+    requireThat(sourceIds.has(item.source_id) && (retention||['available','partial'].includes(snapshot.health.find(h=>h.source_id===item.source_id).state)) && !seen.has(item.item_id), 'invalid_provenance'); seen.add(item.item_id);
   }
-  requireThat(snapshot.items.every(item => isTodayItem(item, created) || item.kind === 'project') && canonical(snapshot.today_item_ids) === canonical(snapshot.items.filter(item => isTodayItem(item, created)).map(item => item.item_id)), 'invalid_today_view');
+  requireThat(snapshot.items.every(item => item.retention || isTodayItem(item, created) || item.kind === 'project') && canonical(snapshot.today_item_ids) === canonical(snapshot.items.filter(item => item.retention || isTodayItem(item, created)).map(item => item.item_id)), 'invalid_today_view');
   requireThat(snapshot.requiring_steve === snapshot.items.filter(i=>i.requires_steve).length);
   const {snapshot_id,view_id,...body} = snapshot, hash = await sha256(body);
   requireThat(snapshot_id === 'snapshot-' + hash && view_id === 'today-' + hash, 'digest_mismatch');

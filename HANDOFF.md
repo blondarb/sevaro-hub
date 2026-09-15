@@ -5,13 +5,13 @@ ChatGPT/Codex read this FIRST and update it LAST. Plain language. No PHI (initia
 only). No secrets._
 
 ## Snapshot (keep current)
-- Provenance hold: maintenance is PAUSED. Earlier nine/eleven-reference plans are quarantined intact after two archived communication claims were found linked to an SDNE initiative rather than their original communications. None of the old nine references is admitted by this rebuild; omission is not closure.
-- This branch repairs reply admission: original Outlook message or work Slack permalink required; valid URLs/hashes alone are not semantic evidence. Historical plans are schema2, bind full item digests, and require a trusted source-verification callback for every record including prior references. Standalone CLI cannot self-approve nonempty inputs; legacy plans cannot migrate automatically.
-- Rebuild: authenticated Drive re-fetch matched the previously witnessed native producer V2 digest. A trusted host matched the exact two Outlook items, packet, item digest, link, revision and observation, then built a new private two-reference plan with no prior plan. Exact replay succeeded; archived six-item packet was rejected. Original source timestamps/expiry remain unchanged. This is producer-backed historical attribution, not a new mailbox read or independently verified current status.
-- Current canonical installation is main f720ae6 (PR44). This repair is on a feature branch for review; it is not installed, merged or deployed. Private Site remains saved v14, runtime30, previously verified snapshot expiry September15 13:11:40UTC. No source publication in this repair.
-- Evidence: 114 affected host/staging/import tests pass, plus independent read-only data-integrity review. Private source-attribution-rebuild-receipt-20260915.json records exact evidence and limits. Patient-containing original briefings were not read.
-- Authority: Asana stays authoritative; Dhruv exclusion and pending stage conflicts remain. Forty-three historical queue entries remain audit-only. Message sending, provider drafts, Asana writes, access changes and unattended execution remain disabled.
-- Next: review this repair PR and install deliberately. Keep the provenance hold until trustworthy ongoing producer/consumer delivery is verified. New source reads must come through retained Claude owners and explicit existing scope; no consent impersonation, new routine, duplicate dashboard or automatic closure.
+- Retention fix is implemented on `codex/retain-command-center-items-20260915`, based on main `1b4b9e4` (PR45, merged and canonical checkout verified). This new change is not merged, installed or published.
+- User requirement: previously reviewed unresolved attention must survive source expiry/omission. Host-only retention now seeds from verified published reviews, carries historical rows with original dates/links and no action state, preserves source-conflict/access holds, and accepts explicit dispositions or exact Asana completion/exclusion reads. Changed live source revisions can be reviewed as reopened work.
+- Five currently published Today items, including three reply items, were saved in the existing private handoff root through the new post-publication hook. The actual Site deployment and authenticated snapshot digest were independently checked. An offline expiry simulation preserved all five with historical labels and no action state. No expired/pending/quarantined export seeded the store.
+- Live Site verification: existing saved v14, environment39, deployment `appgdep_6aa988fc11d081918d628ce089e1c10e` succeeded; its currently observed runtime contains 23 total items, five Today and three replies, expiring September15 19:55:50 UTC. Retention code is NOT in that deployment. Page/read agreement was checked; native Voice was not retested in this turn.
+- Validation: 144 Command Center/Worker checks pass. Independent focused review findings were repaired and rechecked with no material finding remaining. Evidence and seed receipts stay private outside Git. See docs/command-center/ATTENTION_RETENTION.md for admission, cutover and remaining access-window limits.
+- Authority: Asana remains authoritative, Dhruv exclusion remains, and 43 historical queue items remain audit-only. Unsupported historical communication references remain quarantined. This retention work sends no messages, changes no Asana state/access, and creates no schedule. PR46 locked-Claude helper is a separate open change.
+- Next: review this retention PR, install approved host code, deploy matching schema2 Site code, then verify historical page/read agreement on the deployed version. Existing publication operator must invoke retainPublishedReview after every verified reviewed publication. Per-snapshot/grant expiry still applies; retention alone does not prove unattended delivery.
 - Lives in: https://github.com/blondarb/sevaro-hub.git
 
 ## Open threads / next actions
@@ -23,6 +23,15 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log
+
+### 2026-09-15 · ChatGPT · Retain reviewed unresolved attention
+- Did: Added private durable attention retention, exact post-publication admission, historical snapshot metadata and display labels, source-conflict/access withholding, and source-evidenced completion/exclusion handling. Reopened source revisions can be reviewed again; omission and expiry never imply completion.
+- Files/links touched: command-center/attention-retention.mjs, retain-publication.mjs, refresh.mjs, collector.mjs, adapters.mjs, release.mjs, command-center-proof/browser.mjs, focused tests and ATTENTION_RETENTION.md. Private retained-attention.json and attention-retention-admission-20260915.json hold five already-published items and exact seed evidence, outside Git.
+- Evidence: 144 affected tests pass, including private persistence, exact admission/dismissal, stale/empty feed handling, reopened source work, source conflicts and owner-only page/resolve parity. Independent focused review findings fixed. Real published five-item admission succeeded; offline post-expiry simulation preserved all five, with no source writes.
+- Decisions: Retention stores a reviewed attention projection, not a competing project database. Historical content is read-only and explicitly needs rechecking. Existing approval, access and grant expiry remain enforced. No automatic merge, new schedule or source publication in this change.
+- Open questions / needs Claude: Continue the existing reviewed exports with original IDs/links/timestamps. Do not infer resolution from omission, or promote quarantined old references. Continuous Site availability still depends on a reviewed refresh and the existing authorization window.
+- Next: Review PR and deliberate host/Site cutover; use post-publication retention admission on every subsequent accepted release. Native Voice and hosted schema2 acceptance remain untested until that release.
+
 
 ### 2026-09-15 · ChatGPT · Repair historical reply attribution
 - Did: Blocked initiative/calendar substitutions in reply exports, added full-item digests and trusted per-reference verification to schema2 historical plans, and made nonempty standalone CLI calls fail closed. Kept all original archive evidence intact.
