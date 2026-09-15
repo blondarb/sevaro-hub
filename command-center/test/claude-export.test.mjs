@@ -75,11 +75,18 @@ test('stale evidence remains stale even with a new export review time',async()=>
  const r=await reviewedClaudeExport(p,{...opts,now:NOW+7200_000});assert.ok(Date.parse(r.feed.expires_at)<NOW+7200_000);
 });
 test('old reply evidence is capped at two hours without changing the reviewed packet',async()=>{
- const p=await packet();p.feed.source_id='claude:replies';p.feed.items[0].source_id='claude:replies';p.feed.items[0].item_id='claude:replies:example';p.feed.observed_at='2026-09-13T17:00:00Z';p.feed.expires_at='2026-09-14T17:00:00Z';
+ const p=await packet();p.feed.source_id='claude:replies';p.feed.items[0].source_id='claude:replies';p.feed.items[0].item_id='claude:replies:example';p.feed.items[0].source_url='https://outlook.office365.com/owa/?ItemID=synthetic&exvsurl=1&viewmodel=ReadMessageItem';p.feed.observed_at='2026-09-13T17:00:00Z';p.feed.expires_at='2026-09-14T17:00:00Z';
  p.run.started_at=p.feed.observed_at;p.run.completed_at=new Date(NOW).toISOString();p.review.reviewed_at=new Date(NOW).toISOString();p.review.feed_digest=await sha256(p.feed);p.review.packet_digest=await sha256({feed:p.feed,run:p.run});
- const reviewed=await reviewedClaudeExport(p,opts),effective=importableClaudeFeed(reviewed);
+ const reviewed=await reviewedClaudeExport(p,{...opts,allowedHosts:['outlook.office365.com']}),effective=importableClaudeFeed(reviewed);
  assert.equal(reviewed.feed.expires_at,'2026-09-14T17:00:00Z');assert.equal(effective.expires_at,'2026-09-13T19:00:00.000Z');assert.equal(effective.status,'partial');
- const snapshot=await assemble([effective],{expectedSources:['claude:replies'],allowedHosts:['app.asana.com'],now:NOW});
+ const snapshot=await assemble([effective],{expectedSources:['claude:replies'],allowedHosts:['outlook.office365.com'],now:NOW});
  assert.equal(snapshot.health[0].state,'stale');assert.equal(snapshot.items.length,0);
  const freshCalendar=importableClaudeFeed(await reviewedClaudeExport(await packet(),opts));assert.equal(freshCalendar.expires_at,'2026-09-13T20:59:00Z');
+});
+
+test('correctly hashed replies still reject initiative and calendar links as attribution',async()=>{
+ for(const link of ['https://app.asana.com/0/123/456','https://outlook.office365.com/owa/?itemid=synthetic&exvsurl=1&path=/calendar/item']) {
+  const p=await packet();p.feed.source_id='claude:replies';p.feed.items[0].source_id='claude:replies';p.feed.items[0].source_url=link;await resign(p);
+  await assert.rejects(reviewedClaudeExport(p,{...opts,allowedHosts:['app.asana.com','outlook.office365.com']}),/communication_source_required/);
+ }
 });

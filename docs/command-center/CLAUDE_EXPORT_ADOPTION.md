@@ -122,7 +122,10 @@ It has source ID/system, observed_at/expires_at, available/partial/unavailable s
 fixed failure code and curated items. No raw message bodies, subjects, transcripts,
 patient information, personnel/compensation details, source prompts, credentials,
 arbitrary attachments or unrestricted source URLs. Review every free-text field and
-link. Use the authoritative link for the actual finding. An Asana initiative link is
+link. `claude:replies` now structurally requires an original Outlook message link
+or permitted Slack message permalink; initiative and calendar substitutions fail.
+This route check does not verify the content: the trusted consumer must match the
+exact record against authenticated producer/source evidence before using it. Use the authoritative link for the actual finding. An Asana initiative link is
 appropriate for initiative findings; it must not replace the actual calendar event
 or communication link merely to satisfy the allowlist. Withhold an item whose
 source cannot be attributed and record the coverage gap without inventing a link.

@@ -5,14 +5,13 @@ ChatGPT/Codex read this FIRST and update it LAST. Plain language. No PHI (initia
 only). No secrets._
 
 ## Snapshot (keep current)
-- Status: Private Site saved v14 is the last verified deployment. Hub PR43 is merged and installed on canonical main at 604615e. Provider delivery, messages and Asana writes remain OFF. This branch prepares an offline historical reply recheck tool; it is not installed or deployed.
-- Published evidence: September 15 08:20:36 UTC, environment29, 22 reviewed items/four Today, expiry10:10:55 UTC. Fresh meeting references21/22 were verified on the page; native Voice was not retested. The private publication receipt is authoritative for that deployment, not a claim of freshness after expiry.
-- Meeting delivery: Steve's direct confirmation was observed in the retained weekday afternoon digest. Its genuine source re-read, strict packet validation, Mac staging, import and private publication succeeded. The initial weekday-label correction was held by the same-observation guard and recovered by a genuine fresh source read. Mac-off delivery remains unproved.
-- Communications: Calendar, coordination, module-review and replies were stale in that published snapshot. The retained cloud afternoon routine still refused Codex-relayed export consent; its existing native-consent hold remains. No repeated export, prompt rewrite or consent impersonation. Local predecessor stays paused; one cloud afternoon schedule remains.
-- Reply backlog: Four explicitly selected reviewed V2 exports yielded nine unique historical references in a private recheck plan. These are not nine confirmed unanswered emails. The offline helper retains omitted references, emits no status/body/subject, and cannot publish a feed. Actual Outlook/Sent reconciliation and bounded older-mail coverage still require the retained producer.
-- Unattended: Keep existing Mac consumer and scope/grant until two authenticated cloud collection/review/publication cycles succeed with Mac off. The portable origin-verifier hook has no production cloud transport. Do not infer identity from packet hashes or create a permissive verifier.
-- Authority: Asana remains authoritative; preserve Dhruv exclusion and pending FPPE/SDNE conflicts. Forty-three historical queue items are audit-only. Last monitor showed one approval-required actionable block; no write was performed. Other-host legacy caller retirement is unverified.
-- Next: Review the reply-recheck PR, resolve the existing communications producer's native-consent hold, then obtain fresh source-backed email/Sent reconciliation. Authenticate immutable cloud artifact retrieval and publication before retiring the Mac path. No new UI, source upload, schedule, credential or access change in this branch.
+- Provenance hold: maintenance is PAUSED. Earlier nine/eleven-reference plans are quarantined intact after two archived communication claims were found linked to an SDNE initiative rather than their original communications. None of the old nine references is admitted by this rebuild; omission is not closure.
+- This branch repairs reply admission: original Outlook message or work Slack permalink required; valid URLs/hashes alone are not semantic evidence. Historical plans are schema2, bind full item digests, and require a trusted source-verification callback for every record including prior references. Standalone CLI cannot self-approve nonempty inputs; legacy plans cannot migrate automatically.
+- Rebuild: authenticated Drive re-fetch matched the previously witnessed native producer V2 digest. A trusted host matched the exact two Outlook items, packet, item digest, link, revision and observation, then built a new private two-reference plan with no prior plan. Exact replay succeeded; archived six-item packet was rejected. Original source timestamps/expiry remain unchanged. This is producer-backed historical attribution, not a new mailbox read or independently verified current status.
+- Current canonical installation is main f720ae6 (PR44). This repair is on a feature branch for review; it is not installed, merged or deployed. Private Site remains saved v14, runtime30, previously verified snapshot expiry September15 13:11:40UTC. No source publication in this repair.
+- Evidence: 114 affected host/staging/import tests pass, plus independent read-only data-integrity review. Private source-attribution-rebuild-receipt-20260915.json records exact evidence and limits. Patient-containing original briefings were not read.
+- Authority: Asana stays authoritative; Dhruv exclusion and pending stage conflicts remain. Forty-three historical queue entries remain audit-only. Message sending, provider drafts, Asana writes, access changes and unattended execution remain disabled.
+- Next: review this repair PR and install deliberately. Keep the provenance hold until trustworthy ongoing producer/consumer delivery is verified. New source reads must come through retained Claude owners and explicit existing scope; no consent impersonation, new routine, duplicate dashboard or automatic closure.
 - Lives in: https://github.com/blondarb/sevaro-hub.git
 
 ## Open threads / next actions
@@ -24,6 +23,15 @@ only). No secrets._
 ## Decisions log (append-only, newest first)
 
 ## Session log
+
+### 2026-09-15 · ChatGPT · Repair historical reply attribution
+- Did: Blocked initiative/calendar substitutions in reply exports, added full-item digests and trusted per-reference verification to schema2 historical plans, and made nonempty standalone CLI calls fail closed. Kept all original archive evidence intact.
+- Files/links touched: command-center/source-links.mjs, claude-export.mjs, reply-recheck.mjs, affected tests, REPLY_BACKLOG_RECHECK.md and CLAUDE_EXPORT_ADOPTION.md. Private incident/rebuild receipts and quarantined plans remain outside Git.
+- Evidence: 114 host/staging/import checks pass. Independent review found no material code issue and required exact rebuild acceptance; that acceptance matched the authenticated producer/file packet to both original Outlook items, confirmed replay, and rejected the archived packet.
+- Decisions: A review hash and valid link do not establish a claim. The callback is a trusted host boundary, not an automatic source verifier; no JSON manifest or flag can enable it. No new observation, grant renewal, source write or publication occurred.
+- Open questions / needs Claude: Underlying truth/original authorship of the old unsupported claims remains unverified. Current two-source rebuild does not certify full mailbox coverage, the other nine historical references or unattended delivery.
+- Next: Review the feature PR; keep maintenance paused and source writes disabled pending deliberate installation and ongoing source-verification acceptance.
+
 
 ### 2026-09-15 · ChatGPT · Prepare retained historical email references
 - Did: Added a host-only offline recheck worklist around strict reviewed V2 reply validation. Omitted references persist through empty, partial and failed checks; exact repeats are idempotent and conflicting same observations/runs fail closed. It does not infer open/closed state, urgency, source coverage, producer identity or current freshness.

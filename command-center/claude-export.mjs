@@ -1,6 +1,7 @@
 // Host-only boundary for Claude's curated outputs. This is review provenance,
 // not a PHI detector, a signature, or Steve's authorization to publish content.
 import {exact,requireThat,identifier,instant,sha256,validateFeed} from './context.mjs';
+import {isCommunicationSourceUrl} from './source-links.mjs';
 export const CLAUDE_EXPORT_POLICY = 'executive-project-context-v1';
 export async function reviewedClaudeExport(packet,{allowedHosts,now=Date.now()}) {
   exact(packet,['schema_version','feed','review','run']);
@@ -20,6 +21,7 @@ export async function reviewedClaudeExport(packet,{allowedHosts,now=Date.now()})
   requireThat(run.outcome !== 'partial' || ['available','partial'].includes(feed.status),'invalid_run_receipt');
   requireThat(review.reviewed_by==='Claude' && review.policy===CLAUDE_EXPORT_POLICY && review.feed_digest===await sha256(feed) && review.packet_digest===await sha256({feed,run}),'export_review_required');
   requireThat(instant(review.reviewed_at)>=instant(feed.observed_at) && instant(review.reviewed_at)<=now+60_000,'invalid_review_time');
+  requireThat(feed.source_id !== 'claude:replies' || feed.items.every(item=>isCommunicationSourceUrl(item.source_url,allowedHosts)), 'communication_source_required');
   // Preserve actual source observation/expiry, never replace it with export or file mtime.
   return {feed,receipt:{source_id:feed.source_id,...structuredClone(run),reviewed_at:review.reviewed_at,feed_digest:review.feed_digest,packet_digest:review.packet_digest}};
 }
