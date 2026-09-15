@@ -24,3 +24,12 @@ export function isAllowedSourceUrl(value, allowedHosts) {
     parameters.exvsurl === '1' && parameters.viewmodel === 'ReadMessageItem';
   return event || message;
 }
+
+// A reply obligation must point to its communication, never a related initiative
+// or calendar event. This is a structural gate, not proof the claim is true.
+export function isCommunicationSourceUrl(value, allowedHosts) {
+  if (!isAllowedSourceUrl(value, allowedHosts)) return false;
+  const url = new URL(value);
+  return url.hostname === 'sevarohealth.slack.com' ||
+    (url.hostname === 'outlook.office365.com' && url.searchParams.get('viewmodel') === 'ReadMessageItem');
+}
