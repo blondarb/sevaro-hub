@@ -2,7 +2,7 @@ import { readContext, resolveItem, snapshot } from './context.mjs';
 import { page } from './page.mjs';
 import { approvalApi } from './approval-api.mjs';
 import { deliveryApi } from './delivery-api.mjs';
-import { loadRuntimeSnapshot } from '../command-center/release.mjs';
+import { loadRuntimeSnapshot, loadHistoricalRuntimeSnapshot } from '../command-center/release.mjs';
 import { readSnapshot } from '../command-center/context.mjs';
 
 const headers = {
@@ -54,11 +54,23 @@ export default {
       const mode = env.CONTEXT_SOURCE_MODE;
       let current;
       if (mode === 'synthetic') current = snapshot;
-      else if (mode === 'runtime') current = await loadRuntimeSnapshot(env);
+      else if (mode === 'runtime') {
+        try { current = await loadRuntimeSnapshot(env); }
+        catch (error) {
+          if (error?.code !== 'snapshot_expired') throw error;
+          current = await loadHistoricalRuntimeSnapshot(env);
+        }
+      }
       else if (mode === undefined && absent(env.CONTEXT_SNAPSHOT) && absent(env.CONTEXT_RELEASE_SHA256) && !Object.keys(env).some(k => k.startsWith('CONTEXT_SNAPSHOT_CHUNK_') && !absent(env[k]))) current = snapshot;
       else throw new Error('invalid_context_mode');
-      if (url.pathname === '/api/status' && !url.search) return response({state:'ready',expires_at:current.expires_at});
-      const pinnedRead = (snapshotId, viewId) => current === snapshot ? readContext(snapshotId, viewId) : readSnapshot(current, {snapshot_id:snapshotId,view_id:viewId});
+      if (url.pathname === '/api/status' && !url.search) return response({state:current.historical?'historical':'ready',expires_at:current.expires_at});
+      const pinnedRead = (snapshotId, viewId) => {
+        if (current.historical) {
+          if (current.snapshot_id!==snapshotId || current.view_id!==viewId) throw new Error('snapshot_changed');
+          return current;
+        }
+        return current === snapshot ? readContext(snapshotId, viewId) : readSnapshot(current, {snapshot_id:snapshotId,view_id:viewId});
+      };
       if (url.pathname === '/') {
         pinnedRead(current.snapshot_id, current.view_id);
         const markup = page.replace('__SNAPSHOT_ID__', current.snapshot_id).replace('__VIEW_ID__', current.view_id).replace('__CLASSIFICATION__', current.classification);

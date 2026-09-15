@@ -24,6 +24,13 @@ only). No secrets._
 
 ## Session log
 
+### 2026-09-15 · ChatGPT · Prepare historical-only Site fallback
+- Did: Added a read projection of the last exact reviewed Today snapshot for use after its two-hour expiry, only while the existing owner grant remains active. The projection keeps displayed item numbers and source check dates, removes pending action state/evidence, and labels every item and source status historical in both the page and read tools. Changed no source-system write path or access audience.
+- Files/links touched: `command-center/release.mjs`, `command-center-proof/worker.mjs`, `command-center-proof/browser.mjs`, `command-center/test/historical-fallback.test.mjs`, `docs/command-center/ATTENTION_RETENTION.md`.
+- Decisions: The Site reads the last reviewed protected release, not the Mac's private retained-item file. Later dismissals, Asana completions and access holds require a fresh reviewed release to reach the Site. Owner grant expiry remains a hard stop.
+- Open questions / needs Claude: Fresh reply, meeting and calendar exports remain source-stale; historical visibility cannot repair ingestion or unattended delivery.
+- Next: Review the feature PR, merge/install the same source and privately deploy a matching Site version, then verify owner-authenticated historical page/read/resolve after deliberately expiring a synthetic release. Do not call this live or available beyond the grant cutoff until that acceptance passes.
+
 ### 2026-09-15 · ChatGPT · Deploy private attention retention
 - Did: Published existing Site source v15 privately, bound the reviewed 25-item schema-2 runtime to its existing owner-only audience, and admitted its seven published Today items to the private retention store.
 - Files/links touched: Existing private Site checkout and Site version; private Command Center bound grant/receipt and retained-attention.json; existing Command Center heartbeat prompt. No source-system write.
