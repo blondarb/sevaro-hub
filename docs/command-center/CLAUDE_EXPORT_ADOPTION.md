@@ -5,6 +5,23 @@ or status authority. Steve approved this integration phase on September 13. The
 current Site release and its expiry remain separately approved; this step cannot
 publish or renew it. The implementation lives in sevaro-hub.
 
+### September 15 cloud acceptance result
+
+The manual migrated afternoon run completed ordinary communications collection but
+**refused the structured export**: it treated approval statements added to the saved
+prompt as untrusted. No cloud export was delivered. A capability-only follow-up
+explicitly prohibited retrying the transfer or reading more sources. Claude reports
+its Drive `create_file` can create raw JSON in a specified parent; `update_file`
+changes metadata only, so a fixed-file overwrite transport is not supported by
+those declarations. No Drive write was tested.
+
+Claude suggested Steve edit the task prompt himself, then acknowledged that it
+cannot distinguish that persisted text from the rejected instructions. Treat this
+as an unresolved direct-consent boundary, not a verified approval API or successful
+cloud integration. Do not rephrase the export instructions, claim Steve's consent
+again, or switch transfer tools to bypass the refusal. The owner must resolve it
+in the retained task before an immutable-file delivery design is accepted.
+
 ### September 14 evening: current producer and cloud acceptance
 
 The retained afternoon routine successfully re-read its connected work Outlook
