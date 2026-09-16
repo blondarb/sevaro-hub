@@ -1,5 +1,35 @@
 # Source-verified historical communications references
 
+## September 16 current recurring scope and acceptance hold
+
+The retained `Comms afternoon check` trigger
+`trig_014A4RTxbJ3ksWRxgs15wEMp` was still running an older 30-day Inbox/Sent/Slack
+sweep prompt. Its September 15 afternoon run declined that scope. The live prompt
+has now been narrowed and read back in the native schedule editor: only the three
+previously verified nonclinical reply threads, original-source identities,
+metadata-only retrieval, no broad mailbox/Slack discovery, and no source writes.
+The existing weekday 14:00 Mountain schedule and September 21 09:27:52 Mountain
+cutoff were preserved. This supersedes the broad-sweep language in older notes.
+
+The manual acceptance run delivered an immutable Drive packet, but host content
+review held it despite valid schema and hashes. It inferred that a colleague's
+reply removed Steve's obligation, asserted complete coverage from limited queries,
+and did not establish original-thread-only retrieval or the source chronology.
+The schedule is **paused** pending a corrected, source-supported acceptance; a
+saved prompt and a producer's “completed cleanly” statement are not acceptance.
+The original packet remains private audit evidence and was not imported or
+published. Existing historical items remain unchanged. The producer was asked to
+correct only from already obtained evidence, without additional mailbox reads.
+
+Before resuming the same trigger, verify the corrected content and actual read
+scope against the retained producer run. Another person's reply is thread
+activity, not automatic delegation or clearance. An empty search cannot refresh
+an old obligation as current. If original-source support or safe retrieval is
+unavailable, publish only truthful unavailable/partial coverage through the
+existing review path; do not add a fallback broad search. Keep every original
+source observation time, use an actual later review time, and preserve older
+records rather than silently resolving them. No new routine is needed.
+
 ## September 15 source-attribution repair
 
 Both earlier nine- and eleven-reference plans are quarantined. They inherited an
@@ -49,10 +79,11 @@ older claim. Retained-producer readback is not an independent Codex mailbox read
 clinical validation, or a fresh provider check. Keep the packet's observation and
 two-hour expiry. Expired records are historical handles only, never current work.
 
-Older work still requires the existing Claude owner to reconcile actual work
-Inbox/Sent/subsequent-thread evidence within the approved30day/100thread scope and
-existing authorized Slack scope. No direct Codex Slack access or patient-containing
-briefing read. Record inaccessible references and partial coverage; do not infer
+Older work still requires the existing Claude owner to reconcile independently
+supported original-thread evidence under the current narrow scope above. The
+earlier 30-day/100-thread recurring scope is superseded; this document does not
+authorize a mailbox or Slack discovery sweep. No direct Codex Slack access or
+patient-containing briefing read. Record inaccessible references and partial coverage; do not infer
 unanswered status from unread flags or omission. Publish only freshly reviewed
 executive metadata through the existing grant. Sending, provider drafts, Asana
 writes, recurrence and access changes remain disabled during the provenance hold.
