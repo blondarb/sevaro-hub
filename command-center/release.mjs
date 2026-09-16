@@ -1,5 +1,5 @@
 import { exact, requireThat, instant, validateItem, sha256, canonical, identifier, ContextError, isTodayItem } from './context.mjs';
-import {validateDerivedRefresh} from './refresh-grant.mjs';
+import {validateDerivedRefresh,validateRefreshGrant} from './refresh-grant.mjs';
 export const MAX_RELEASE_BYTES = 65536;
 const CHUNK_BYTES = 4096;
 const MAX_CHUNKS = 16;
@@ -38,7 +38,7 @@ export const LINK_HOSTS = Object.freeze(['app.asana.com', 'github.com', 'outlook
 /** This validates a previously reviewed projection, never classifies raw content as PHI-free. */
 export async function validateSnapshot(snapshot, now = Date.now()) {
   exact(snapshot, ['schema_version', 'classification', 'generated_at', 'expires_at', 'health', 'items', 'today_item_ids', 'requiring_steve', 'snapshot_id', 'view_id']);
-  requireThat(snapshot.schema_version === 1 && ['synthetic-only','executive-pending-review','executive-reviewed'].includes(snapshot.classification));
+  requireThat([1,2].includes(snapshot.schema_version) && ['synthetic-only','executive-pending-review','executive-reviewed'].includes(snapshot.classification));
   const created = instant(snapshot.generated_at), expiry = instant(snapshot.expires_at);
   requireThat(created <= now + 60_000 && expiry > now && expiry > created && expiry - created <= 7200_000, 'snapshot_expired');
   requireThat(Array.isArray(snapshot.items) && snapshot.items.length <= 100 && Array.isArray(snapshot.health) && snapshot.health.length <= 50);
@@ -53,12 +53,20 @@ export async function validateSnapshot(snapshot, now = Date.now()) {
   }
   const seen = new Set();
   for (const [index, row] of snapshot.items.entries()) {
-    const {number, ...item} = row; requireThat(number === index + 1, 'invalid_numbering'); validateItem(item, LINK_HOSTS);
+    const {number, retention, ...item} = row; requireThat(number === index + 1, 'invalid_numbering'); validateItem(item, LINK_HOSTS);
+    if(Object.hasOwn(row,'retention')) {
+      requireThat(snapshot.schema_version===2&&snapshot.classification!=='synthetic-only','invalid_retention');
+      exact(retention,['state','source_observed_at','review_expires_at','snapshot_digest']);
+      requireThat(retention.state==='historical-needs-recheck'&&/^[a-f0-9]{64}$/.test(retention.snapshot_digest),'invalid_retention');
+      requireThat(instant(retention.source_observed_at)<=created&&instant(retention.review_expires_at)>instant(retention.source_observed_at),'invalid_retention_time');
+      requireThat(item.action_state==='none'&&!item.evidence,'historical_action_forbidden');
+      requireThat(!['permission_required','source_conflict'].includes(snapshot.health.find(h=>h.source_id===item.source_id)?.failure_code),'invalid_provenance');
+    }
     requireThat(!Object.hasOwn(item,'same_obligation_as'),'source_conflict');
     for (const evidence of item.evidence ?? []) requireThat(snapshot.health.some(h=>h.source_id===evidence.source_id && ['available','partial'].includes(h.state)),'invalid_provenance');
-    requireThat(sourceIds.has(item.source_id) && ['available','partial'].includes(snapshot.health.find(h=>h.source_id===item.source_id).state) && !seen.has(item.item_id), 'invalid_provenance'); seen.add(item.item_id);
+    requireThat(sourceIds.has(item.source_id) && (retention||['available','partial'].includes(snapshot.health.find(h=>h.source_id===item.source_id).state)) && !seen.has(item.item_id), 'invalid_provenance'); seen.add(item.item_id);
   }
-  requireThat(snapshot.items.every(item => isTodayItem(item, created) || item.kind === 'project') && canonical(snapshot.today_item_ids) === canonical(snapshot.items.filter(item => isTodayItem(item, created)).map(item => item.item_id)), 'invalid_today_view');
+  requireThat(snapshot.items.every(item => item.retention || isTodayItem(item, created) || item.kind === 'project') && canonical(snapshot.today_item_ids) === canonical(snapshot.items.filter(item => item.retention || isTodayItem(item, created)).map(item => item.item_id)), 'invalid_today_view');
   requireThat(snapshot.requiring_steve === snapshot.items.filter(i=>i.requires_steve).length);
   const {snapshot_id,view_id,...body} = snapshot, hash = await sha256(body);
   requireThat(snapshot_id === 'snapshot-' + hash && view_id === 'today-' + hash, 'digest_mismatch');
@@ -95,4 +103,42 @@ export async function loadRuntimeSnapshot(env, now = Date.now()) {
     requireThat(instant(approval.approved_at) >= instant(snapshot.generated_at) && instant(approval.approved_at) <= now && instant(approval.expires_at) > now && instant(approval.expires_at) <= instant(snapshot.expires_at), 'approval_expired');
   }
   return snapshot;
+}
+
+// A separately labelled read projection of the last reviewed release. This never
+// extends a refresh grant or makes expired source observations current.
+export async function loadHistoricalRuntimeSnapshot(env, now = Date.now()) {
+  requireThat(typeof env.CONTEXT_RELEASE_SHA256 === 'string', 'context_unavailable');
+  const payload = runtimePayload(env);
+  requireThat(new TextEncoder().encode(payload).byteLength <= MAX_RELEASE_BYTES, 'release_too_large');
+  let snapshot, receipt, grant;
+  try {
+    snapshot=JSON.parse(payload);
+    receipt=JSON.parse(env.CONTEXT_REFRESH_RECEIPT);
+    grant=JSON.parse(env.CONTEXT_REFRESH_GRANT);
+  } catch { throw new ContextError('context_unavailable'); }
+  requireThat(snapshot.classification==='executive-reviewed' && env.CONTEXT_REAL_DATA_ENABLED==='approved' && !present(env.CONTEXT_APPROVAL_RECEIPT), 'historical_not_authorized');
+  requireThat(instant(snapshot.expires_at)<=now, 'snapshot_not_expired');
+  // Validate the original immutable release at the last instant of its review
+  // window. Validate the independently pinned owner grant at the actual read time.
+  const reviewedAt=instant(snapshot.expires_at)-1;
+  await validateSnapshot(snapshot,reviewedAt);
+  requireThat(await sha256(snapshot)===env.CONTEXT_RELEASE_SHA256, 'release_not_approved');
+  await validateDerivedRefresh(snapshot,receipt,grant,reviewedAt);
+  await validateRefreshGrant(grant.authorization,grant.anchor,now);
+  const selected=new Set(snapshot.today_item_ids);
+  const items=snapshot.items.filter(i=>selected.has(i.item_id)).map(row=>{
+    const {evidence,retention,...item}=row;
+    const observed=snapshot.health.find(h=>h.source_id===row.source_id)?.observed_at ?? snapshot.generated_at;
+    return {...item,action_state:'none',retention:retention ?? {
+      state:'historical-needs-recheck',source_observed_at:observed,
+      review_expires_at:snapshot.expires_at,snapshot_digest:env.CONTEXT_RELEASE_SHA256
+    }};
+  });
+  const body={schema_version:2,classification:'executive-historical',historical:true,
+    generated_at:snapshot.generated_at,expires_at:snapshot.expires_at,
+    health:snapshot.health,items,today_item_ids:items.map(i=>i.item_id),
+    requiring_steve:0,previously_requiring_steve:items.filter(i=>i.requires_steve).length};
+  const digest=await sha256(body);
+  return Object.freeze({...body,snapshot_id:'history-'+digest,view_id:'saved-'+digest});
 }
